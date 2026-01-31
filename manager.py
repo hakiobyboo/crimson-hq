@@ -81,27 +81,23 @@ st.markdown("""
         box-shadow: 0px 0px 15px #ff4655;
     }
 
-    /* Bouton RETOUR en mode immersion */
+    /* Style spécifique pour le bouton RETOUR */
     .stButton > button[kind="secondary"] {
         position: fixed;
         top: 20px;
         left: 20px;
-        z-index: 9999;
+        z-index: 10000;
         background-color: #ff4655 !important;
         color: white !important;
         border: none !important;
-        font-size: 14px;
     }
 
-    /* Centrage Valoplant Immersif */
     .iframe-wrapper {
         display: flex;
         justify-content: center;
         align-items: center;
         width: 100%;
-        height: 92vh;
-        margin: 0;
-        padding: 0;
+        height: 90vh;
     }
 
     .stat-card {
@@ -123,32 +119,48 @@ if 'selected_strat_map' not in st.session_state: st.session_state['selected_stra
 if "logged_in" not in st.session_state: st.session_state["logged_in"] = False
 if "current_page" not in st.session_state: st.session_state["current_page"] = "DASHBOARD"
 
-# --- LOGIQUE D'ACCÈS ---
+# --- 1. ÉCRAN DE CONNEXION ---
 if not st.session_state["logged_in"]:
     st.markdown("<div style='text-align:center; margin-top:50px;'>", unsafe_allow_html=True)
-    st.image("https://via.placeholder.com/150/ff4655/ffffff?text=LOGO", width=150)
     st.markdown("<h1 class='valo-title'>CRIMSON ACCESS</h1>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1,2,1])
     with c2:
-        e = st.text_input("UNIT ID")
-        p = st.text_input("ENCRYPTION KEY", type="password")
+        unit_id = st.text_input("UNIT ID")
+        key = st.text_input("ENCRYPTION KEY", type="password")
         if st.button("INITIALIZE SYSTEM"):
-            if e == "titi12012008@gmail.com" and p == "Tn12janv2008":
+            if unit_id == "titi12012008@gmail.com" and key == "Tn12janv2008":
                 st.session_state["logged_in"] = True
                 st.rerun()
+            else:
+                st.error("ACCESS DENIED")
     st.markdown("</div>", unsafe_allow_html=True)
-else:
-    # --- MODE IMMERSION VALOPLANT ---
-    # Si on est dans STRATÉGIE et qu'une map est choisie (et que le mode dossier n'est PAS activé)
-    if st.session_state["current_page"] == "STRATÉGIE" and st.session_state['selected_strat_map'] is not None:
-        
-        # Le bouton retour est géré à l'intérieur de la logique de page ci-dessous pour ne pas casser l'interface
-        pass
 
-    # --- NAVIGATION HORIZONTALE (Affichée seulement si pas de map sélectionnée en mode strat) ---
-    is_strat_selected = (st.session_state["current_page"] == "STRATÉGIE" and st.session_state['selected_strat_map'] is not None)
-    
-    if not is_strat_selected:
+# --- 2. INTERFACE PRINCIPALE (APRÈS CONNEXION) ---
+else:
+    # Détection si on doit masquer l'interface pour Valoplant
+    # On ne masque QUE si on est dans STRATÉGIE, qu'une MAP est choisie, et qu'on est PAS en mode Dossier
+    hide_interface = (
+        st.session_state["current_page"] == "STRATÉGIE" and 
+        st.session_state.get('selected_strat_map') is not None and
+        not st.session_state.get('archive_view', False)
+    )
+
+    if hide_interface:
+        # CSS de masquage radical pour l'immersion
+        st.markdown("""
+            <style>
+            header, [data-testid="stHeader"], .valo-title, hr, .stDivider { visibility: hidden !important; height: 0 !important; margin: 0 !important; padding: 0 !important; }
+            .main .block-container { padding-top: 1rem !important; max-width: 100% !important; }
+            body { overflow: hidden !important; }
+            </style>
+        """, unsafe_allow_html=True)
+        
+        # Le bouton de retour est placé tout seul en haut
+        if st.button("⬅ RETOUR", key="back_immersion"):
+            st.session_state['selected_strat_map'] = None
+            st.rerun()
+    else:
+        # Navigation Standard
         st.markdown("<h1 class='valo-title'>CRIMSON HQ</h1>", unsafe_allow_html=True)
         m_cols = st.columns([1, 1, 1, 1, 1, 1, 0.5])
         pages = ["DASHBOARD", "INTEL TRACKER", "MATCH ARCHIVE", "TACTICAL POOL", "PLANNING", "STRATÉGIE"]
@@ -167,7 +179,8 @@ else:
 
     menu = st.session_state["current_page"]
 
-    # --- 1. DASHBOARD ---
+    # --- CONTENU DES PAGES ---
+    
     if menu == "DASHBOARD":
         df = st.session_state['scrims_df']
         total = len(df); wins = len(df[df['Resultat'] == "WIN"])
@@ -177,7 +190,6 @@ else:
         with c2: st.markdown(f"<div class='stat-card'><h4>TOTAL SCRIMS</h4><h2 style='color:#ff4655;'>{total}</h2></div>", unsafe_allow_html=True)
         with c3: st.markdown(f"<div class='stat-card'><h4>STATUS</h4><h2 style='color:#00ff00;'>● ONLINE</h2></div>", unsafe_allow_html=True)
 
-    # --- 2. INTEL TRACKER ---
     elif menu == "INTEL TRACKER":
         players = [{"label": "Boo ツ", "n": "Boo%20%E3%83%84", "t": "1tpas"}, {"label": "Kuraime", "n": "kuraime", "t": "ezz"}]
         cols = st.columns(2)
@@ -187,7 +199,6 @@ else:
                 st.markdown(f"<div style='background:#1f2326; padding:20px; text-align:center; border-top: 3px solid #ff4655;'><h2>{pl['label']}</h2><p>RANK: <b style='color:#ff4655;'>{curr}</b></p></div>", unsafe_allow_html=True)
                 if icon: st.image(icon, width=80)
 
-    # --- 3. MATCH ARCHIVE ---
     elif menu == "MATCH ARCHIVE":
         with st.expander("ADD NEW SCRIM"):
             with st.form("scrim_form", clear_on_submit=True):
@@ -218,7 +229,6 @@ else:
                 st.session_state['scrims_df'].to_csv(SCRIMS_DB, index=False)
                 st.rerun()
 
-    # --- 4. TACTICAL POOL ---
     elif menu == "TACTICAL POOL":
         p_sel = st.selectbox("OPERATIVE", ["BOO ツ", "KURAIME"])
         cats = {"SENTINEL": ["Chamber", "Cypher", "Killjoy"], "DUELIST": ["Jett", "Raze", "Neon"], "INITIATOR": ["Sova", "Skye", "Gekko"], "CONTROLLER": ["Omen", "Clove", "Viper"]}
@@ -232,11 +242,9 @@ else:
                     st.session_state['agent_data'][k] = res
         if st.button("SAVE MASTERY"): pd.DataFrame(list(st.session_state['agent_data'].items()), columns=['Key', 'Val']).to_csv(AGENTS_DB, index=False)
 
-    # --- 5. PLANNING ---
     elif menu == "PLANNING":
         st.data_editor(pd.DataFrame({"DAY": ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"], "BOO": [""]*7, "KURAIME": [""]*7}), use_container_width=True)
 
-    # --- 6. STRATÉGIE (LOGIQUE IMMERSIVE COMPLÈTE) ---
     elif menu == "STRATÉGIE":
         if st.session_state['selected_strat_map'] is None:
             maps = ["Abyss", "Ascent", "Bind", "Breeze", "Fracture", "Haven", "Icebox", "Lotus", "Pearl", "Split", "Sunset"]
@@ -246,26 +254,27 @@ else:
                     st.session_state['selected_strat_map'] = m_name
                     st.rerun()
         else:
-            # INTERFACE DE LA MAP
             current_map = st.session_state['selected_strat_map']
             
-            # On vérifie si on veut voir le dossier ou Valoplant
-            # On place un bouton de retour et un toggle de mode
+            # On définit si on est en mode dossier ou non
+            # Utilisation de session_state pour que le CSS puisse le lire plus haut
+            if 'archive_view' not in st.session_state: st.session_state['archive_view'] = False
+            
             c_nav1, c_nav2, c_nav3 = st.columns([1, 4, 1])
-            
             with c_nav1:
-                if st.button("⬅ RETOUR", key="back_map"):
-                    st.session_state['selected_strat_map'] = None
-                    st.rerun()
-            
+                # Bouton retour visible seulement si l'interface n'est pas déjà masquée (sécurité)
+                if not hide_interface:
+                    if st.button("⬅ RETOUR"):
+                        st.session_state['selected_strat_map'] = None
+                        st.rerun()
             with c_nav2:
-                st.markdown(f"<h3 style='text-align:center; color:#ff4655;'>MISSION : {current_map.upper()}</h3>", unsafe_allow_html=True)
-            
+                if not hide_interface:
+                    st.markdown(f"<h3 style='text-align:center; color:#ff4655;'>MISSION : {current_map.upper()}</h3>", unsafe_allow_html=True)
             with c_nav3:
-                archive_view = st.toggle("📁 DOSSIER", key="toggle_mode")
+                st.session_state['archive_view'] = st.toggle("📁 DOSSIER", value=st.session_state['archive_view'])
 
-            if archive_view:
-                # MODE DOSSIER (Pas immersif pour pouvoir uploader)
+            if st.session_state['archive_view']:
+                # --- MODE DOSSIER ---
                 map_path = f"images_scrims/{current_map}"
                 for side in ["Attaque", "Defense"]:
                     if not os.path.exists(f"{map_path}/{side}"): os.makedirs(f"{map_path}/{side}")
@@ -294,15 +303,8 @@ else:
                                         st.rerun()
                         else: st.info("Vide.")
             else:
-                # MODE IMMERSIF (VALOPLANT PLEIN ÉCRAN)
-                # Injection de CSS pour cacher tout le reste de Streamlit
-                st.markdown("""
-                    <style>
-                    /* Cacher le header Streamlit et les paddings */
-                    header, [data-testid="stHeader"], .valo-title, hr, .stDivider { visibility: hidden !important; height: 0 !important; margin: 0 !important; padding: 0 !important; }
-                    .main .block-container { padding-top: 1rem !important; padding-bottom: 0 !important; max-width: 100% !important; }
-                    body { overflow: hidden !important; }
-                    </style>
+                # --- MODE VALOPLANT IMMERSIF ---
+                st.markdown(f"""
                     <div class="iframe-wrapper">
                         <iframe src="https://valoplant.gg" width="95%" height="100%" style="border: 2px solid #ff4655; border-radius: 15px; background: white;"></iframe>
                     </div>
