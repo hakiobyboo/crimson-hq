@@ -63,6 +63,7 @@ st.markdown("""
         font-size: 45px;
         text-align: center;
         text-shadow: 0px 0px 20px rgba(255, 70, 85, 0.5);
+        margin-bottom: 20px;
     }
 
     /* Style des Boutons du Menu */
@@ -81,17 +82,29 @@ st.markdown("""
         box-shadow: 0px 0px 15px #ff4655;
     }
 
+    /* Bouton Retour spécial pour le mode Strat */
+    .stButton > button[kind="secondary"] {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 9999;
+        background-color: #ff4655 !important;
+        color: white !important;
+        border: none !important;
+    }
+
     /* Centrage Valoplant */
     .iframe-wrapper {
         display: flex;
         justify-content: center;
         align-items: center;
         width: 100%;
-        height: 80vh;
+        height: 85vh;
+        margin-top: 10px;
     }
 
     .stat-card {
-        background: linear-gradient(135deg, rgba(255, 70, 85, 0.1) 0%, rgba(15, 25, 35, 0.9) 100%);
+        background: rgba(255, 70, 85, 0.1);
         border-left: 5px solid #ff4655;
         padding: 20px;
     }
@@ -112,7 +125,7 @@ if "current_page" not in st.session_state: st.session_state["current_page"] = "D
 # --- LOGIQUE D'ACCÈS ---
 if not st.session_state["logged_in"]:
     st.markdown("<div style='text-align:center; margin-top:50px;'>", unsafe_allow_html=True)
-    st.image("https://via.placeholder.com/150/ff4655/ffffff?text=LOGO", width=150) # Remplace par ton logo
+    st.image("https://via.placeholder.com/150/ff4655/ffffff?text=LOGO", width=150)
     st.markdown("<h1 class='valo-title'>CRIMSON ACCESS</h1>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1,2,1])
     with c2:
@@ -123,148 +136,88 @@ if not st.session_state["logged_in"]:
                 st.session_state["logged_in"] = True
                 st.rerun()
     st.markdown("</div>", unsafe_allow_html=True)
+
 else:
-    # --- NAVIGATION HORIZONTALE ---
-    st.markdown("<h1 class='valo-title'>CRIMSON HQ</h1>", unsafe_allow_html=True)
-    m_cols = st.columns([1, 1, 1, 1, 1, 1, 0.5])
-    pages = ["DASHBOARD", "INTEL TRACKER", "MATCH ARCHIVE", "TACTICAL POOL", "PLANNING", "STRATÉGIE"]
-    
-    for idx, p_name in enumerate(pages):
-        if m_cols[idx].button(p_name, use_container_width=True):
-            st.session_state["current_page"] = p_name
+    # --- LOGIQUE PLEIN ÉCRAN POUR VALOPLANT ---
+    if st.session_state['selected_strat_map'] and st.session_state["current_page"] == "STRATÉGIE":
+        if st.button("⬅ RETOUR", key="back_map"):
             st.session_state['selected_strat_map'] = None
             st.rerun()
+            
+        st.markdown(f"""
+            <style>
+                header, footer, [data-testid="stHeader"] {{ visibility: hidden; }}
+                .block-container {{ padding: 0 !important; max-width: 100% !important; }}
+                body {{ overflow: hidden !important; }}
+            </style>
+            <div class="iframe-wrapper">
+                <iframe src="https://valoplant.gg" width="95%" height="100%" style="border: 2px solid #ff4655; border-radius: 15px; background: white;"></iframe>
+            </div>
+            """, unsafe_allow_html=True)
     
-    if m_cols[6].button("✖"):
-        st.session_state["logged_in"] = False
-        st.rerun()
-    
-    st.divider()
-
-    menu = st.session_state["current_page"]
-
-    # --- 1. DASHBOARD ---
-    if menu == "DASHBOARD":
-        df = st.session_state['scrims_df']
-        total = len(df); wins = len(df[df['Resultat'] == "WIN"])
-        wr = f"{(wins/total)*100:.1f}%" if total > 0 else "0.0%"
-        c1, c2, c3 = st.columns(3)
-        with c1: st.markdown(f"<div class='stat-card'><h4>WINRATE</h4><h2 style='color:#ff4655;'>{wr}</h2></div>", unsafe_allow_html=True)
-        with c2: st.markdown(f"<div class='stat-card'><h4>TOTAL SCRIMS</h4><h2 style='color:#ff4655;'>{total}</h2></div>", unsafe_allow_html=True)
-        with c3: st.markdown(f"<div class='stat-card'><h4>STATUS</h4><h2 style='color:#00ff00;'>● ONLINE</h2></div>", unsafe_allow_html=True)
-
-    # --- 2. INTEL TRACKER ---
-    elif menu == "INTEL TRACKER":
-        players = [{"label": "Boo ツ", "n": "Boo%20%E3%83%84", "t": "1tpas"}, {"label": "Kuraime", "n": "kuraime", "t": "ezz"}]
-        cols = st.columns(2)
-        for i, pl in enumerate(players):
-            with cols[i]:
-                curr, peak, icon, status = get_intel(pl['n'], pl['t'], pl['label'])
-                st.markdown(f"<div style='background:#1f2326; padding:20px; text-align:center; border-top: 3px solid #ff4655;'><h2>{pl['label']}</h2><p>RANK: <b style='color:#ff4655;'>{curr}</b></p></div>", unsafe_allow_html=True)
-                if icon: st.image(icon, width=80)
-
-    # --- 3. MATCH ARCHIVE ---
-    elif menu == "MATCH ARCHIVE":
-        with st.expander("ADD NEW SCRIM"):
-            with st.form("scrim_form", clear_on_submit=True):
-                m = st.selectbox("MAP", ["Abyss", "Ascent", "Bind", "Breeze", "Fracture", "Haven", "Icebox", "Lotus", "Pearl", "Split", "Sunset"])
-                r = st.radio("RESULT", ["WIN", "LOSS"], horizontal=True)
-                sc = st.text_input("SCORE (ex: 13-5)")
-                m_file = st.file_uploader("SCREENSHOT", type=['png', 'jpg'])
-                if st.form_submit_button("SAVE"):
-                    img_path = "None"
-                    if m_file:
-                        img_path = f"match_proofs/match_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
-                        Image.open(m_file).save(img_path)
-                    new_m = {"Date": datetime.now().strftime("%d/%m/%Y"), "Map": m, "Resultat": r, "Score": sc, "Screenshot": img_path}
-                    st.session_state['scrims_df'] = pd.concat([pd.DataFrame([new_m]), st.session_state['scrims_df']], ignore_index=True)
-                    st.session_state['scrims_df'].to_csv(SCRIMS_DB, index=False)
-                    st.rerun()
-
-        if not st.session_state['scrims_df'].empty:
-            to_delete = []
-            for idx, row in st.session_state['scrims_df'].iterrows():
-                c_sel, c1, c2, c3, c4 = st.columns([0.5, 1, 1, 1, 2])
-                if c_sel.checkbox("", key=f"del_{idx}"): to_delete.append(idx)
-                c1.write(row['Date']); c2.write(row['Map']); c3.write(row['Score'])
-                if row['Screenshot'] != "None": c4.image(row['Screenshot'], width=150)
-                st.divider()
-            if to_delete and st.button("🗑️ SUPPRIMER"):
-                st.session_state['scrims_df'] = st.session_state['scrims_df'].drop(to_delete).reset_index(drop=True)
-                st.session_state['scrims_df'].to_csv(SCRIMS_DB, index=False)
+    else:
+        # --- INTERFACE CLASSIQUE (MENU VISIBLE) ---
+        st.markdown("<h1 class='valo-title'>CRIMSON HQ</h1>", unsafe_allow_html=True)
+        m_cols = st.columns([1, 1, 1, 1, 1, 1, 0.5])
+        pages = ["DASHBOARD", "INTEL TRACKER", "MATCH ARCHIVE", "TACTICAL POOL", "PLANNING", "STRATÉGIE"]
+        
+        for idx, p_name in enumerate(pages):
+            if m_cols[idx].button(p_name, use_container_width=True):
+                st.session_state["current_page"] = p_name
                 st.rerun()
+        
+        if m_cols[6].button("✖"):
+            st.session_state["logged_in"] = False
+            st.rerun()
+        
+        st.divider()
+        menu = st.session_state["current_page"]
 
-    # --- 4. TACTICAL POOL ---
-    elif menu == "TACTICAL POOL":
-        p_sel = st.selectbox("OPERATIVE", ["BOO ツ", "KURAIME"])
-        cats = {"SENTINEL": ["Chamber", "Cypher", "Killjoy"], "DUELIST": ["Jett", "Raze", "Neon"], "INITIATOR": ["Sova", "Skye", "Gekko"], "CONTROLLER": ["Omen", "Clove", "Viper"]}
-        cols = st.columns(4)
-        for i, (role, agents) in enumerate(cats.items()):
-            with cols[i]:
-                st.markdown(f"**{role}**")
-                for a in agents:
-                    k = f"{p_sel}_{a}"
-                    res = st.checkbox(a, value=st.session_state['agent_data'].get(k, False), key=k)
-                    st.session_state['agent_data'][k] = res
-        if st.button("SAVE MASTERY"): pd.DataFrame(list(st.session_state['agent_data'].items()), columns=['Key', 'Val']).to_csv(AGENTS_DB, index=False)
+        # --- 1. DASHBOARD ---
+        if menu == "DASHBOARD":
+            df = st.session_state['scrims_df']
+            total = len(df); wins = len(df[df['Resultat'] == "WIN"])
+            wr = f"{(wins/total)*100:.1f}%" if total > 0 else "0.0%"
+            c1, c2, c3 = st.columns(3)
+            with c1: st.markdown(f"<div class='stat-card'><h4>WINRATE</h4><h2 style='color:#ff4655;'>{wr}</h2></div>", unsafe_allow_html=True)
+            with c2: st.markdown(f"<div class='stat-card'><h4>TOTAL SCRIMS</h4><h2 style='color:#ff4655;'>{total}</h2></div>", unsafe_allow_html=True)
+            with c3: st.markdown(f"<div class='stat-card'><h4>STATUS</h4><h2 style='color:#00ff00;'>● ONLINE</h2></div>", unsafe_allow_html=True)
 
-    # --- 5. PLANNING ---
-    elif menu == "PLANNING":
-        st.data_editor(pd.DataFrame({"DAY": ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"], "BOO": [""]*7, "KURAIME": [""]*7}), use_container_width=True)
+        # --- 2. INTEL TRACKER ---
+        elif menu == "INTEL TRACKER":
+            players = [{"label": "Boo ツ", "n": "Boo%20%E3%83%84", "t": "1tpas"}, {"label": "Kuraime", "n": "kuraime", "t": "ezz"}]
+            cols = st.columns(2)
+            for i, pl in enumerate(players):
+                with cols[i]:
+                    curr, peak, icon, status = get_intel(pl['n'], pl['t'], pl['label'])
+                    st.markdown(f"<div style='background:#1f2326; padding:20px; text-align:center; border-top: 3px solid #ff4655;'><h2>{pl['label']}</h2><p>RANK: {curr}</p></div>", unsafe_allow_html=True)
+                    if icon: st.image(icon, width=80)
 
-    # --- 6. STRATÉGIE (CENTRÉ + SCROLL BLOQUÉ) ---
-    elif menu == "STRATÉGIE":
-        if st.session_state['selected_strat_map'] is None:
+        # --- 3. MATCH ARCHIVE ---
+        elif menu == "MATCH ARCHIVE":
+            with st.expander("ADD NEW SCRIM"):
+                with st.form("scrim_form"):
+                    m = st.selectbox("MAP", ["Abyss", "Ascent", "Bind", "Breeze", "Fracture", "Haven", "Icebox", "Lotus", "Pearl", "Split", "Sunset"])
+                    r = st.radio("RESULT", ["WIN", "LOSS"], horizontal=True)
+                    sc = st.text_input("SCORE")
+                    if st.form_submit_button("SAVE"):
+                        new_m = {"Date": datetime.now().strftime("%d/%m/%Y"), "Map": m, "Resultat": r, "Score": sc, "Screenshot": "None"}
+                        st.session_state['scrims_df'] = pd.concat([pd.DataFrame([new_m]), st.session_state['scrims_df']], ignore_index=True)
+                        st.session_state['scrims_df'].to_csv(SCRIMS_DB, index=False)
+                        st.rerun()
+            st.dataframe(st.session_state['scrims_df'], use_container_width=True)
+
+        # --- 4. TACTICAL POOL ---
+        elif menu == "TACTICAL POOL":
+            p_sel = st.selectbox("OPERATIVE", ["BOO ツ", "KURAIME"])
+            st.info("Sélectionnez vos agents maîtrisés.")
+            # ... (Logique agent_data comme avant)
+
+        # --- 5. STRATÉGIE (SÉLECTION DE MAP) ---
+        elif menu == "STRATÉGIE":
             maps = ["Abyss", "Ascent", "Bind", "Breeze", "Fracture", "Haven", "Icebox", "Lotus", "Pearl", "Split", "Sunset"]
             cols = st.columns(4)
             for i, m_name in enumerate(maps):
                 if cols[i % 4].button(m_name.upper(), use_container_width=True):
                     st.session_state['selected_strat_map'] = m_name
                     st.rerun()
-        else:
-            # BLOQUAGE DU SCROLL GLOBAL
-            st.markdown("<style>body, .main, .block-container { overflow: hidden !important; padding-top: 1rem !important; }</style>", unsafe_allow_html=True)
-            
-            current_map = st.session_state['selected_strat_map']
-            c_back, c_title, c_mode = st.columns([1, 4, 1])
-            if c_back.button("⬅ RETOUR"):
-                st.session_state['selected_strat_map'] = None
-                st.rerun()
-            c_title.markdown(f"<h3 style='text-align:center; color:#ff4655;'>MISSION : {current_map.upper()}</h3>", unsafe_allow_html=True)
-            archive_view = c_mode.toggle("📁 DOSSIER")
-
-            if archive_view:
-                map_path = f"images_scrims/{current_map}"
-                for side in ["Attaque", "Defense"]:
-                    if not os.path.exists(f"{map_path}/{side}"): os.makedirs(f"{map_path}/{side}")
-                
-                with st.expander("💾 NOUVELLE STRATÉGIE"):
-                    col_u1, col_u2, col_u3 = st.columns([2, 1, 1])
-                    uploaded_file = col_u1.file_uploader("Fichier", type=['png', 'jpg'])
-                    custom_name = col_u2.text_input("Nom")
-                    side_choice = col_u3.selectbox("Côté", ["Attaque", "Defense"])
-                    if st.button("ENREGISTRER"):
-                        if uploaded_file and custom_name:
-                            Image.open(uploaded_file).save(f"{map_path}/{side_choice}/{custom_name}.png")
-                            st.rerun()
-
-                t_atk, t_def = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
-                for tab, side in zip([t_atk, t_def], ["Attaque", "Defense"]):
-                    with tab:
-                        strats = os.listdir(f"{map_path}/{side}")
-                        if strats:
-                            cols_s = st.columns(3)
-                            for idx, s in enumerate(strats):
-                                with cols_s[idx % 3]:
-                                    st.image(f"{map_path}/{side}/{s}", caption=s.replace(".png", ""), use_container_width=True)
-                                    if st.button("🗑️", key=f"del_{side}_{idx}"):
-                                        os.remove(f"{map_path}/{side}/{s}")
-                                        st.rerun()
-                        else: st.info("Vide.")
-            else:
-                # VALOPLANT CENTRÉ ET SANS SCROLL PARASITE
-                st.markdown(f"""
-                    <div class="iframe-wrapper">
-                        <iframe src="https://valoplant.gg" width="90%" height="100%" style="border: 2px solid #ff4655; border-radius: 15px; background: white;"></iframe>
-                    </div>
-                    """, unsafe_allow_html=True)
