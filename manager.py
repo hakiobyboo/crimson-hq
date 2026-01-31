@@ -131,7 +131,7 @@ if not st.session_state["logged_in"]:
         e = st.text_input("UNIT ID")
         p = st.text_input("ENCRYPTION KEY", type="password")
         if st.button("INITIALIZE SYSTEM"):
-            if e == "titi12012008@gmail.com" and p == "Tn12janv2008":
+            if e == "Charlie@gmail.com" and p == "123456789":
                 st.session_state["logged_in"] = True
                 st.rerun()
 else:
@@ -245,4 +245,5 @@ else:
     # --- 5. PLANNING ---
     elif menu == "PLANNING":
         st.markdown("<h1 class='valo-title'>DEPLOYMENT</h1>", unsafe_allow_html=True)
+
         st.data_editor(pd.DataFrame({"DAY": ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"], "BOO": [""]*7, "KURAIME": [""]*7}), use_container_width=True)
