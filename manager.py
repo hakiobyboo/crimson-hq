@@ -9,10 +9,8 @@ from datetime import datetime
 st.set_page_config(page_title="CRIMSON PROTOCOL v2", layout="wide", page_icon="🩸")
 
 # --- INITIALISATION DES RÉPERTOIRES ET FICHIERS ---
-if not os.path.exists("images_scrims"):
-    os.makedirs("images_scrims")
-if not os.path.exists("match_proofs"):
-    os.makedirs("match_proofs")
+if not os.path.exists("images_scrims"): os.makedirs("images_scrims")
+if not os.path.exists("match_proofs"): os.makedirs("match_proofs")
 
 SCRIMS_DB = "scrims_database.csv"
 AGENTS_DB = "agents_database.csv"
@@ -20,10 +18,8 @@ RANKS_DB = "ranks_database.csv"
 
 def load_csv(file, columns):
     if os.path.exists(file):
-        try:
-            return pd.read_csv(file)
-        except:
-            return pd.DataFrame(columns=columns)
+        try: return pd.read_csv(file)
+        except: return pd.DataFrame(columns=columns)
     return pd.DataFrame(columns=columns)
 
 # --- SYSTÈME TRACKER RANGS (INTEL) ---
@@ -37,23 +33,19 @@ def get_intel(name, tag, label):
                 curr = d.get('currenttierpatched', 'Unknown')
                 peak = d.get('highest_tier_patched', 'N/A')
                 icon = d.get('images', {}).get('small')
-                
                 new_data = pd.DataFrame([{"Player": label, "Current": curr, "Peak": peak}])
                 old_df = load_csv(RANKS_DB, ["Player", "Current", "Peak"])
                 updated_df = pd.concat([old_df[old_df['Player'] != label], new_data], ignore_index=True)
                 updated_df.to_csv(RANKS_DB, index=False)
-                
                 return curr, peak, icon, "LIVE"
-    except:
-        pass
-    
+    except: pass
     saved_df = load_csv(RANKS_DB, ["Player", "Current", "Peak"])
     player_data = saved_df[saved_df['Player'] == label]
     if not player_data.empty:
         return player_data['Current'].values[0], player_data['Peak'].values[0], None, "OFFLINE"
     return "Disconnected", "N/A", None, "ERROR"
 
-# --- UI DESIGN GLOBAL ---
+# --- UI DESIGN GLOBAL (STYLE VALORANT HORIZONTAL) ---
 st.markdown("""
     <style>
     @import url('https://fonts.cdnfonts.com/css/valorant');
@@ -67,23 +59,25 @@ st.markdown("""
         font-family: 'Rajdhani', sans-serif;
     }
 
+    /* Titre Principal */
     .valo-title {
         font-family: 'VALORANT', sans-serif;
         color: #ff4655;
-        font-size: 50px;
+        font-size: 45px;
         text-align: center;
-        margin-bottom: 20px;
+        margin-bottom: 10px;
         text-shadow: 0px 0px 20px rgba(255, 70, 85, 0.5);
     }
 
+    /* Style des Boutons du Menu */
     div.stButton > button {
         background-color: transparent;
         color: #ece8e1;
         font-family: 'VALORANT', sans-serif;
         border: 2px solid #ff4655;
         clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
-        transition: 0.4s;
-        width: 100%;
+        transition: 0.3s;
+        font-size: 12px !important;
     }
 
     div.stButton > button:hover {
@@ -108,15 +102,16 @@ if 'agent_data' not in st.session_state:
     if os.path.exists(AGENTS_DB):
         df_ag = pd.read_csv(AGENTS_DB)
         st.session_state['agent_data'] = dict(zip(df_ag.Key, df_ag.Val))
-    else:
-        st.session_state['agent_data'] = {}
-if 'selected_strat_map' not in st.session_state:
-    st.session_state['selected_strat_map'] = None
-if "logged_in" not in st.session_state:
-    st.session_state["logged_in"] = False
+    else: st.session_state['agent_data'] = {}
+if 'selected_strat_map' not in st.session_state: st.session_state['selected_strat_map'] = None
+if "logged_in" not in st.session_state: st.session_state["logged_in"] = False
+if "current_page" not in st.session_state: st.session_state["current_page"] = "DASHBOARD"
 
 # --- LOGIQUE D'ACCÈS ---
 if not st.session_state["logged_in"]:
+    st.markdown("<div style='text-align:center; margin-top:50px;'>", unsafe_allow_html=True)
+    # Remplacer par ton lien de logo
+    st.image("https://via.placeholder.com/150/ff4655/ffffff?text=LOGO", width=150) 
     st.markdown("<h1 class='valo-title'>CRIMSON ACCESS</h1>", unsafe_allow_html=True)
     c1, c2, c3 = st.columns([1,2,1])
     with c2:
@@ -126,18 +121,30 @@ if not st.session_state["logged_in"]:
             if e == "titi12012008@gmail.com" and p == "Tn12janv2008":
                 st.session_state["logged_in"] = True
                 st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
 else:
-    # --- NAVIGATION ---
-    st.sidebar.markdown("<h2 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON HQ</h2>", unsafe_allow_html=True)
-    menu = st.sidebar.radio("SQUAD TERMINAL", ["DASHBOARD", "INTEL TRACKER", "MATCH ARCHIVE", "TACTICAL POOL", "PLANNING", "STRATÉGIE"])
+    # --- MENU HORIZONTAL SUPÉRIEUR ---
+    st.markdown("<h1 class='valo-title'>CRIMSON HQ</h1>", unsafe_allow_html=True)
     
-    if st.sidebar.button("SHUTDOWN"):
+    m_cols = st.columns([1, 1, 1, 1, 1, 1, 0.5])
+    pages = ["DASHBOARD", "INTEL TRACKER", "MATCH ARCHIVE", "TACTICAL POOL", "PLANNING", "STRATÉGIE"]
+    
+    for idx, p_name in enumerate(pages):
+        if m_cols[idx].button(p_name, use_container_width=True):
+            st.session_state["current_page"] = p_name
+            st.session_state['selected_strat_map'] = None # Reset map selection
+            st.rerun()
+    
+    if m_cols[6].button("✖", help="Shutdown"):
         st.session_state["logged_in"] = False
         st.rerun()
+    
+    st.divider()
+
+    menu = st.session_state["current_page"]
 
     # --- 1. DASHBOARD ---
     if menu == "DASHBOARD":
-        st.markdown("<h1 class='valo-title'>COMMAND CENTER</h1>", unsafe_allow_html=True)
         df = st.session_state['scrims_df']
         total = len(df)
         wins = len(df[df['Resultat'] == "WIN"])
@@ -149,7 +156,6 @@ else:
 
     # --- 2. INTEL TRACKER ---
     elif menu == "INTEL TRACKER":
-        st.markdown("<h1 class='valo-title'>SQUAD INTEL</h1>", unsafe_allow_html=True)
         with st.expander("🛠️ ÉDITION MANUELLE DU RANG"):
             col_m1, col_m2, col_m3 = st.columns(3)
             with col_m1: p_name = st.selectbox("Joueur", ["Boo ツ", "Kuraime"])
@@ -180,7 +186,6 @@ else:
 
     # --- 3. MATCH ARCHIVE ---
     elif menu == "MATCH ARCHIVE":
-        st.markdown("<h1 class='valo-title'>MATCH LOGS</h1>", unsafe_allow_html=True)
         with st.expander("ADD NEW SCRIM"):
             with st.form("scrim_form", clear_on_submit=True):
                 col_f1, col_f2 = st.columns(2)
@@ -190,7 +195,6 @@ else:
                 with col_f2:
                     sc = st.text_input("SCORE (ex: 13-5)")
                     m_file = st.file_uploader("SCREENSHOT DU MATCH", type=['png', 'jpg', 'jpeg'])
-                
                 if st.form_submit_button("SAVE"):
                     img_path = "None"
                     if m_file:
@@ -201,22 +205,16 @@ else:
                     st.session_state['scrims_df'].to_csv(SCRIMS_DB, index=False)
                     st.rerun()
 
-        st.write("### HISTORY")
         if not st.session_state['scrims_df'].empty:
             to_delete = []
             h_cols = st.columns([0.5, 1, 1, 1, 1, 2])
-            h_cols[0].write("**SEL.**")
-            h_cols[1].write("**DATE**")
-            h_cols[2].write("**MAP**")
-            h_cols[3].write("**RESULT**")
-            h_cols[4].write("**SCORE**")
-            h_cols[5].write("**SCREENSHOT**")
+            h_cols[0].write("**SEL.**"); h_cols[1].write("**DATE**"); h_cols[2].write("**MAP**")
+            h_cols[3].write("**RESULT**"); h_cols[4].write("**SCORE**"); h_cols[5].write("**SCREENSHOT**")
             st.markdown("---")
             for idx, row in st.session_state['scrims_df'].iterrows():
                 c_sel, c1, c2, c3, c4, c5 = st.columns([0.5, 1, 1, 1, 1, 2])
                 if c_sel.checkbox("", key=f"del_scrim_{idx}"): to_delete.append(idx)
-                c1.write(row['Date'])
-                c2.write(row['Map'])
+                c1.write(row['Date']); c2.write(row['Map'])
                 res_color = "#00ff00" if row['Resultat'] == "WIN" else "#ff4655"
                 c3.markdown(f"<b style='color:{res_color};'>{row['Resultat']}</b>", unsafe_allow_html=True)
                 c4.write(row['Score'])
@@ -224,19 +222,17 @@ else:
                     c5.image(row['Screenshot'], use_container_width=True)
                 else: c5.write("No image")
                 st.divider()
-            if to_delete:
-                if st.button("🗑️ SUPPRIMER LES SÉLECTIONNÉS"):
-                    for i in to_delete:
-                        path = st.session_state['scrims_df'].iloc[i]['Screenshot']
-                        if path != "None" and os.path.exists(str(path)): os.remove(path)
-                    st.session_state['scrims_df'] = st.session_state['scrims_df'].drop(to_delete).reset_index(drop=True)
-                    st.session_state['scrims_df'].to_csv(SCRIMS_DB, index=False)
-                    st.rerun()
+            if to_delete and st.button("🗑️ SUPPRIMER LES SÉLECTIONNÉS"):
+                for i in to_delete:
+                    path = st.session_state['scrims_df'].iloc[i]['Screenshot']
+                    if path != "None" and os.path.exists(str(path)): os.remove(path)
+                st.session_state['scrims_df'] = st.session_state['scrims_df'].drop(to_delete).reset_index(drop=True)
+                st.session_state['scrims_df'].to_csv(SCRIMS_DB, index=False)
+                st.rerun()
         else: st.info("Aucun match archivé.")
 
     # --- 4. TACTICAL POOL ---
     elif menu == "TACTICAL POOL":
-        st.markdown("<h1 class='valo-title'>AGENT MASTERY</h1>", unsafe_allow_html=True)
         p_sel = st.selectbox("OPERATIVE", ["BOO ツ", "KURAIME"])
         cats = {
             "SENTINEL": ["Chamber", "Cypher", "Killjoy", "Sage", "Vyse", "Deadlock"], 
@@ -257,10 +253,9 @@ else:
 
     # --- 5. PLANNING ---
     elif menu == "PLANNING":
-        st.markdown("<h1 class='valo-title'>DEPLOYMENT</h1>", unsafe_allow_html=True)
         st.data_editor(pd.DataFrame({"DAY": ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"], "BOO": [""]*7, "KURAIME": [""]*7}), use_container_width=True)
 
-    # --- 6. STRATÉGIE (ATTAQUE / DEFENSE + NOMMAGE) ---
+    # --- 6. STRATÉGIE (Dossiers Tactiques avec Attaque/Defense) ---
     elif menu == "STRATÉGIE":
         map_list = {
             "Abyss": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/53698d442a14b5a6be643d53eb970ac16442cb38-930x522.png?accountingTag=VAL&auto=format&fit=fill&q=80&w=930",
@@ -273,12 +268,10 @@ else:
             "Lotus": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/cad0b406c5924614083a8dc9846b0a8746a20bda-703x396.webp?accountingTag=VAL&auto=format&fit=fill&q=80&w=703",
             "Pearl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/34ba319c99d3d20ef8c6f7b6a61439e207b39247-915x515.webp?accountingTag=VAL&auto=format&fit=fill&q=80&w=915",
             "Split": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/878d51688c0f9dd0de827162e80c40811668e0c6-3840x2160.png?accountingTag=VAL&auto=format&fit=fill&q=80&w=1240",
-            "Sunset": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/5101e4ee241fbfca261bf8150230236c46c8b991-3840x2160.png?accountingTag=VAL&auto=format&fit=fill&q=80&w=1240",
-            "Corode": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/6e3e66577519c8290d874aa94d82e28aec2ccc3e-915x515.jpg?accountingTag=VAL&auto=format&fit=fill&q=80&w=915"
+            "Sunset": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/5101e4ee241fbfca261bf8150230236c46c8b991-3840x2160.png?accountingTag=VAL&auto=format&fit=fill&q=80&w=1240"
         }
 
         if st.session_state['selected_strat_map'] is None:
-            st.markdown("<h1 class='valo-title'>TACTICAL PLANNER</h1>", unsafe_allow_html=True)
             cols = st.columns(4)
             for i, (m_name, m_url) in enumerate(map_list.items()):
                 with cols[i % 4]:
@@ -287,70 +280,40 @@ else:
                         st.session_state['selected_strat_map'] = m_name
                         st.rerun()
         else:
-            st.markdown("<style>.block-container { padding-top: 0.5rem !important; max-width: 98% !important; } header { visibility: hidden; }</style>", unsafe_allow_html=True)
-            col_L, col_M, col_R = st.columns([1, 3, 1])
-            with col_L:
-                if st.button("⬅ RETOUR"):
-                    st.session_state['selected_strat_map'] = None
-                    st.rerun()
-            with col_M:
-                current_map = st.session_state['selected_strat_map']
-                st.markdown(f"<h3 style='text-align:center; color:#ff4655;'>MISSION : {current_map.upper()}</h3>", unsafe_allow_html=True)
-            with col_R:
-                deploy_mode = st.toggle("📂 ARCHIVES & DEPLOY")
+            current_map = st.session_state['selected_strat_map']
+            col_back, col_title, col_toggle = st.columns([1, 3, 1])
+            col_back.button("⬅ RETOUR", on_click=lambda: st.session_state.update({"selected_strat_map": None}))
+            col_title.markdown(f"<h3 style='text-align:center; color:#ff4655;'>MISSION : {current_map.upper()}</h3>", unsafe_allow_html=True)
+            deploy_mode = col_toggle.toggle("📂 ARCHIVES")
 
             if deploy_mode:
-                st.markdown(f"#### 📁 Dossier Tactique : {current_map}")
                 map_path = f"images_scrims/{current_map}"
-                # Initialisation des sous-dossiers
                 for side in ["Attaque", "Defense"]:
-                    if not os.path.exists(f"{map_path}/{side}"):
-                        os.makedirs(f"{map_path}/{side}")
-
-                # --- ZONE D'UPLOAD ---
+                    if not os.path.exists(f"{map_path}/{side}"): os.makedirs(f"{map_path}/{side}")
+                
                 with st.container(border=True):
                     col_u1, col_u2, col_u3 = st.columns([2, 1, 1])
-                    with col_u1: uploaded_file = st.file_uploader("Screenshot Valoplant", type=['png', 'jpg', 'jpeg'])
-                    with col_u2: custom_name = st.text_input("NOM DE LA STRAT")
-                    with col_u3: side_choice = st.selectbox("CÔTÉ", ["Attaque", "Defense"])
-                    
+                    uploaded_file = col_u1.file_uploader("Upload Strat", type=['png', 'jpg'])
+                    custom_name = col_u2.text_input("NOM")
+                    side_choice = col_u3.selectbox("CÔTÉ", ["Attaque", "Defense"])
                     if st.button("💾 SAUVEGARDER"):
                         if uploaded_file and custom_name:
-                            clean_name = "".join(x for x in custom_name if x.isalnum() or x in "._- ")
                             img = Image.open(uploaded_file)
-                            img.save(f"{map_path}/{side_choice}/{clean_name}.png")
-                            st.success(f"Stratégie '{clean_name}' ajoutée !")
+                            img.save(f"{map_path}/{side_choice}/{custom_name}.png")
                             st.rerun()
 
-                # --- AFFICHAGE PAR ONGLET ---
                 tab_atk, tab_def = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
-                
-                with tab_atk:
-                    strats_atk = os.listdir(f"{map_path}/Attaque")
-                    if strats_atk:
-                        cols_a = st.columns(3)
-                        for idx, s in enumerate(reversed(strats_atk)):
-                            with cols_a[idx % 3]:
-                                st.image(f"{map_path}/Attaque/{s}", caption=s.replace(".png", ""), use_container_width=True)
-                                if st.button("🗑️", key=f"del_atk_{idx}"):
-                                    os.remove(f"{map_path}/Attaque/{s}")
-                                    st.rerun()
-                    else: st.info("Aucune archive en Attaque.")
-
-                with tab_def:
-                    strats_def = os.listdir(f"{map_path}/Defense")
-                    if strats_def:
-                        cols_d = st.columns(3)
-                        for idx, s in enumerate(reversed(strats_def)):
-                            with cols_d[idx % 3]:
-                                st.image(f"{map_path}/Defense/{s}", caption=s.replace(".png", ""), use_container_width=True)
-                                if st.button("🗑️", key=f"del_def_{idx}"):
-                                    os.remove(f"{map_path}/Defense/{s}")
-                                    st.rerun()
-                    else: st.info("Aucune archive en Defense.")
+                for tab, side in zip([tab_atk, tab_def], ["Attaque", "Defense"]):
+                    with tab:
+                        strats = os.listdir(f"{map_path}/{side}")
+                        if strats:
+                            cols = st.columns(3)
+                            for idx, s in enumerate(strats):
+                                with cols[idx % 3]:
+                                    st.image(f"{map_path}/{side}/{s}", caption=s.replace(".png", ""), use_container_width=True)
+                                    if st.button("🗑️", key=f"del_{side}_{idx}"):
+                                        os.remove(f"{map_path}/{side}/{s}")
+                                        st.rerun()
+                        else: st.info(f"Aucune donnée en {side}")
             else:
-                st.markdown(
-                    f'<div style="display: flex; justify-content: center; width: 100%; height: 85vh;">'
-                    f'<iframe src="https://valoplant.gg" width="100%" height="100%" style="border: 2px solid #ff4655; border-radius:10px;"></iframe>'
-                    f'</div>', unsafe_allow_html=True
-                )
+                st.markdown(f'<iframe src="https://valoplant.gg" width="100%" height="700px" style="border: 2px solid #ff4655;"></iframe>', unsafe_allow_html=True)
