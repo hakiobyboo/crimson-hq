@@ -317,3 +317,4 @@ else:
                         else: st.info(f"Aucune donnée en {side}")
             else:
                 st.markdown(f'<iframe src="https://valoplant.gg" width="100%" height="700px" style="border: 2px solid #ff4655;"></iframe>', unsafe_allow_html=True)
+
