@@ -45,6 +45,18 @@ def get_intel(name, tag, label):
         return player_data['Current'].values[0], player_data['Peak'].values[0], None, "OFFLINE"
     return "Disconnected", "N/A", None, "ERROR"
 
+# --- GESTION DE LA SESSION (AVANT LE CSS) ---
+if 'scrims_df' not in st.session_state: st.session_state['scrims_df'] = load_csv(SCRIMS_DB, ["Date", "Map", "Resultat", "Score", "Screenshot"])
+if 'agent_data' not in st.session_state:
+    if os.path.exists(AGENTS_DB):
+        df_ag = pd.read_csv(AGENTS_DB)
+        st.session_state['agent_data'] = dict(zip(df_ag.Key, df_ag.Val))
+    else: st.session_state['agent_data'] = {}
+if 'selected_strat_map' not in st.session_state: st.session_state['selected_strat_map'] = None
+if 'archive_view' not in st.session_state: st.session_state['archive_view'] = False
+if "logged_in" not in st.session_state: st.session_state["logged_in"] = False
+if "current_page" not in st.session_state: st.session_state["current_page"] = "DASHBOARD"
+
 # --- UI DESIGN GLOBAL ---
 st.markdown("""
     <style>
@@ -65,7 +77,6 @@ st.markdown("""
         text-shadow: 0px 0px 20px rgba(255, 70, 85, 0.5);
     }
 
-    /* Style des Boutons du Menu */
     div.stButton > button {
         background-color: transparent;
         color: #ece8e1;
@@ -73,6 +84,7 @@ st.markdown("""
         border: 2px solid #ff4655;
         clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
         transition: 0.3s;
+        width: 100%;
     }
 
     div.stButton > button:hover {
@@ -81,23 +93,12 @@ st.markdown("""
         box-shadow: 0px 0px 15px #ff4655;
     }
 
-    /* Style spécifique pour le bouton RETOUR */
-    .stButton > button[kind="secondary"] {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        z-index: 10000;
-        background-color: #ff4655 !important;
-        color: white !important;
-        border: none !important;
-    }
-
     .iframe-wrapper {
         display: flex;
         justify-content: center;
         align-items: center;
         width: 100%;
-        height: 90vh;
+        height: 88vh;
     }
 
     .stat-card {
@@ -108,59 +109,45 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- GESTION DE LA SESSION ---
-if 'scrims_df' not in st.session_state: st.session_state['scrims_df'] = load_csv(SCRIMS_DB, ["Date", "Map", "Resultat", "Score", "Screenshot"])
-if 'agent_data' not in st.session_state:
-    if os.path.exists(AGENTS_DB):
-        df_ag = pd.read_csv(AGENTS_DB)
-        st.session_state['agent_data'] = dict(zip(df_ag.Key, df_ag.Val))
-    else: st.session_state['agent_data'] = {}
-if 'selected_strat_map' not in st.session_state: st.session_state['selected_strat_map'] = None
-if "logged_in" not in st.session_state: st.session_state["logged_in"] = False
-if "current_page" not in st.session_state: st.session_state["current_page"] = "DASHBOARD"
-
-# --- 1. ÉCRAN DE CONNEXION ---
+# --- 1. ECRAN DE CONNEXION ---
 if not st.session_state["logged_in"]:
-    st.markdown("<div style='text-align:center; margin-top:50px;'>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top:80px;'></div>", unsafe_allow_html=True)
     st.markdown("<h1 class='valo-title'>CRIMSON ACCESS</h1>", unsafe_allow_html=True)
-    c1, c2, c3 = st.columns([1,2,1])
-    with c2:
-        unit_id = st.text_input("UNIT ID")
-        key = st.text_input("ENCRYPTION KEY", type="password")
+    
+    col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
+    with col_l2:
+        u_id = st.text_input("UNIT ID", placeholder="Votre email...")
+        u_key = st.text_input("ENCRYPTION KEY", type="password", placeholder="Mot de passe...")
         if st.button("INITIALIZE SYSTEM"):
-            if unit_id == "titi12012008@gmail.com" and key == "Tn12janv2008":
+            if u_id == "titi12012008@gmail.com" and u_key == "Tn12janv2008":
                 st.session_state["logged_in"] = True
                 st.rerun()
             else:
-                st.error("ACCESS DENIED")
-    st.markdown("</div>", unsafe_allow_html=True)
+                st.error("ACCÈS REFUSÉ : Identifiants invalides.")
 
-# --- 2. INTERFACE PRINCIPALE (APRÈS CONNEXION) ---
+# --- 2. INTERFACE PRINCIPALE (UNIQUEMENT SI CONNECTÉ) ---
 else:
-    # Détection si on doit masquer l'interface pour Valoplant
-    # On ne masque QUE si on est dans STRATÉGIE, qu'une MAP est choisie, et qu'on est PAS en mode Dossier
-    hide_interface = (
+    # --- GESTION DE L'IMMERSION ---
+    is_immersive = (
         st.session_state["current_page"] == "STRATÉGIE" and 
-        st.session_state.get('selected_strat_map') is not None and
-        not st.session_state.get('archive_view', False)
+        st.session_state['selected_strat_map'] is not None and 
+        not st.session_state['archive_view']
     )
 
-    if hide_interface:
-        # CSS de masquage radical pour l'immersion
+    if is_immersive:
+        # On cache tout sauf le bouton retour personnalisé
         st.markdown("""
             <style>
-            header, [data-testid="stHeader"], .valo-title, hr, .stDivider { visibility: hidden !important; height: 0 !important; margin: 0 !important; padding: 0 !important; }
-            .main .block-container { padding-top: 1rem !important; max-width: 100% !important; }
-            body { overflow: hidden !important; }
+            header, [data-testid="stHeader"], .valo-title, hr, .stDivider { display: none !important; }
+            .main .block-container { padding-top: 0rem !important; padding-bottom: 0rem !important; max-width: 100% !important; }
             </style>
         """, unsafe_allow_html=True)
         
-        # Le bouton de retour est placé tout seul en haut
-        if st.button("⬅ RETOUR", key="back_immersion"):
+        if st.button("⬅ QUITTER LE MODE IMMERSIF"):
             st.session_state['selected_strat_map'] = None
             st.rerun()
     else:
-        # Navigation Standard
+        # Menu Standard
         st.markdown("<h1 class='valo-title'>CRIMSON HQ</h1>", unsafe_allow_html=True)
         m_cols = st.columns([1, 1, 1, 1, 1, 1, 0.5])
         pages = ["DASHBOARD", "INTEL TRACKER", "MATCH ARCHIVE", "TACTICAL POOL", "PLANNING", "STRATÉGIE"]
@@ -169,6 +156,7 @@ else:
             if m_cols[idx].button(p_name, use_container_width=True):
                 st.session_state["current_page"] = p_name
                 st.session_state['selected_strat_map'] = None
+                st.session_state['archive_view'] = False
                 st.rerun()
         
         if m_cols[6].button("✖"):
@@ -179,8 +167,7 @@ else:
 
     menu = st.session_state["current_page"]
 
-    # --- CONTENU DES PAGES ---
-    
+    # --- ROUTAGE DES PAGES ---
     if menu == "DASHBOARD":
         df = st.session_state['scrims_df']
         total = len(df); wins = len(df[df['Resultat'] == "WIN"])
@@ -200,13 +187,13 @@ else:
                 if icon: st.image(icon, width=80)
 
     elif menu == "MATCH ARCHIVE":
-        with st.expander("ADD NEW SCRIM"):
+        with st.expander("📝 ENREGISTRER UN SCRIM"):
             with st.form("scrim_form", clear_on_submit=True):
                 m = st.selectbox("MAP", ["Abyss", "Ascent", "Bind", "Breeze", "Fracture", "Haven", "Icebox", "Lotus", "Pearl", "Split", "Sunset"])
-                r = st.radio("RESULT", ["WIN", "LOSS"], horizontal=True)
+                r = st.radio("RESULTAT", ["WIN", "LOSS"], horizontal=True)
                 sc = st.text_input("SCORE (ex: 13-5)")
-                m_file = st.file_uploader("SCREENSHOT", type=['png', 'jpg'])
-                if st.form_submit_button("SAVE"):
+                m_file = st.file_uploader("CAPTURE D'ÉCRAN", type=['png', 'jpg'])
+                if st.form_submit_button("SAUVEGARDER"):
                     img_path = "None"
                     if m_file:
                         img_path = f"match_proofs/match_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
@@ -217,36 +204,48 @@ else:
                     st.rerun()
 
         if not st.session_state['scrims_df'].empty:
-            to_delete = []
+            to_del = []
+            st.write("### HISTORIQUE")
             for idx, row in st.session_state['scrims_df'].iterrows():
                 c_sel, c1, c2, c3, c4 = st.columns([0.5, 1, 1, 1, 2])
-                if c_sel.checkbox("", key=f"del_{idx}"): to_delete.append(idx)
-                c1.write(row['Date']); c2.write(row['Map']); c3.write(row['Score'])
+                if c_sel.checkbox("", key=f"del_{idx}"): to_del.append(idx)
+                c1.write(row['Date'])
+                c2.write(f"**{row['Map']}**")
+                c3.write(f"[{row['Resultat']}] {row['Score']}")
                 if row['Screenshot'] != "None": c4.image(row['Screenshot'], width=150)
                 st.divider()
-            if to_delete and st.button("🗑️ SUPPRIMER"):
-                st.session_state['scrims_df'] = st.session_state['scrims_df'].drop(to_delete).reset_index(drop=True)
+            if to_del and st.button("🗑️ SUPPRIMER LES MATCHS SÉLECTIONNÉS"):
+                st.session_state['scrims_df'] = st.session_state['scrims_df'].drop(to_del).reset_index(drop=True)
                 st.session_state['scrims_df'].to_csv(SCRIMS_DB, index=False)
                 st.rerun()
 
     elif menu == "TACTICAL POOL":
-        p_sel = st.selectbox("OPERATIVE", ["BOO ツ", "KURAIME"])
-        cats = {"SENTINEL": ["Chamber", "Cypher", "Killjoy"], "DUELIST": ["Jett", "Raze", "Neon"], "INITIATOR": ["Sova", "Skye", "Gekko"], "CONTROLLER": ["Omen", "Clove", "Viper"]}
+        p_sel = st.selectbox("SÉLECTIONNER L'OPÉRATEUR", ["BOO ツ", "KURAIME"])
+        cats = {
+            "SENTINEL": ["Chamber", "Cypher", "Killjoy", "Sage", "Vyse", "Deadlock"],
+            "DUELIST": ["Jett", "Raze", "Neon", "Reyna", "Iso", "Phoenix", "Yoru"],
+            "INITIATOR": ["Sova", "Skye", "Gekko", "Fade", "Breach", "KAY/O"],
+            "CONTROLLER": ["Omen", "Clove", "Viper", "Brimstone", "Astra", "Harbor"]
+        }
         cols = st.columns(4)
         for i, (role, agents) in enumerate(cats.items()):
             with cols[i]:
-                st.markdown(f"**{role}**")
+                st.markdown(f"### {role}")
                 for a in agents:
                     k = f"{p_sel}_{a}"
-                    res = st.checkbox(a, value=st.session_state['agent_data'].get(k, False), key=k)
-                    st.session_state['agent_data'][k] = res
-        if st.button("SAVE MASTERY"): pd.DataFrame(list(st.session_state['agent_data'].items()), columns=['Key', 'Val']).to_csv(AGENTS_DB, index=False)
+                    st.session_state['agent_data'][k] = st.checkbox(a, value=st.session_state['agent_data'].get(k, False), key=k)
+        
+        if st.button("💾 SAUVEGARDER LA MAÎTRISE"):
+            pd.DataFrame(list(st.session_state['agent_data'].items()), columns=['Key', 'Val']).to_csv(AGENTS_DB, index=False)
+            st.success("Données sauvegardées.")
 
     elif menu == "PLANNING":
-        st.data_editor(pd.DataFrame({"DAY": ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"], "BOO": [""]*7, "KURAIME": [""]*7}), use_container_width=True)
+        st.markdown("### EMPLOI DU TEMPS")
+        st.data_editor(pd.DataFrame({"JOUR": ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"], "BOO": [""]*7, "KURAIME": [""]*7}), use_container_width=True)
 
     elif menu == "STRATÉGIE":
         if st.session_state['selected_strat_map'] is None:
+            # Choix de la map
             maps = ["Abyss", "Ascent", "Bind", "Breeze", "Fracture", "Haven", "Icebox", "Lotus", "Pearl", "Split", "Sunset"]
             cols = st.columns(4)
             for i, m_name in enumerate(maps):
@@ -256,32 +255,27 @@ else:
         else:
             current_map = st.session_state['selected_strat_map']
             
-            # On définit si on est en mode dossier ou non
-            # Utilisation de session_state pour que le CSS puisse le lire plus haut
-            if 'archive_view' not in st.session_state: st.session_state['archive_view'] = False
-            
-            c_nav1, c_nav2, c_nav3 = st.columns([1, 4, 1])
-            with c_nav1:
-                # Bouton retour visible seulement si l'interface n'est pas déjà masquée (sécurité)
-                if not hide_interface:
+            # Barre de contrôle
+            if not is_immersive:
+                c_nav1, c_nav2, c_nav3 = st.columns([1, 4, 1])
+                with c_nav1:
                     if st.button("⬅ RETOUR"):
                         st.session_state['selected_strat_map'] = None
                         st.rerun()
-            with c_nav2:
-                if not hide_interface:
+                with c_nav2:
                     st.markdown(f"<h3 style='text-align:center; color:#ff4655;'>MISSION : {current_map.upper()}</h3>", unsafe_allow_html=True)
-            with c_nav3:
-                st.session_state['archive_view'] = st.toggle("📁 DOSSIER", value=st.session_state['archive_view'])
+                with c_nav3:
+                    st.session_state['archive_view'] = st.toggle("📁 DOSSIER", value=st.session_state['archive_view'])
 
             if st.session_state['archive_view']:
-                # --- MODE DOSSIER ---
+                # Mode Dossier de Stratégies
                 map_path = f"images_scrims/{current_map}"
                 for side in ["Attaque", "Defense"]:
                     if not os.path.exists(f"{map_path}/{side}"): os.makedirs(f"{map_path}/{side}")
                 
-                with st.expander("💾 NOUVELLE STRATÉGIE"):
+                with st.expander("💾 AJOUTER UNE STRATÉGIE"):
                     col_u1, col_u2, col_u3 = st.columns([2, 1, 1])
-                    uploaded_file = col_u1.file_uploader("Fichier", type=['png', 'jpg'])
+                    uploaded_file = col_u1.file_uploader("Image", type=['png', 'jpg'])
                     custom_name = col_u2.text_input("Nom")
                     side_choice = col_u3.selectbox("Côté", ["Attaque", "Defense"])
                     if st.button("ENREGISTRER"):
@@ -289,21 +283,21 @@ else:
                             Image.open(uploaded_file).save(f"{map_path}/{side_choice}/{custom_name}.png")
                             st.rerun()
 
-                t_atk, t_def = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
-                for tab, side in zip([t_atk, t_def], ["Attaque", "Defense"]):
+                t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
+                for tab, side in zip([t1, t2], ["Attaque", "Defense"]):
                     with tab:
-                        strats = os.listdir(f"{map_path}/{side}")
-                        if strats:
-                            cols_s = st.columns(3)
-                            for idx, s in enumerate(strats):
-                                with cols_s[idx % 3]:
-                                    st.image(f"{map_path}/{side}/{s}", caption=s.replace(".png", ""), use_container_width=True)
+                        files = os.listdir(f"{map_path}/{side}")
+                        if files:
+                            cols_f = st.columns(3)
+                            for idx, f in enumerate(files):
+                                with cols_f[idx % 3]:
+                                    st.image(f"{map_path}/{side}/{f}", caption=f.replace(".png", ""), use_container_width=True)
                                     if st.button("🗑️", key=f"del_{side}_{idx}"):
-                                        os.remove(f"{map_path}/{side}/{s}")
+                                        os.remove(f"{map_path}/{side}/{f}")
                                         st.rerun()
-                        else: st.info("Vide.")
+                        else: st.info("Aucun document dans ce dossier.")
             else:
-                # --- MODE VALOPLANT IMMERSIF ---
+                # Mode Valoplant Plein Écran
                 st.markdown(f"""
                     <div class="iframe-wrapper">
                         <iframe src="https://valoplant.gg" width="95%" height="100%" style="border: 2px solid #ff4655; border-radius: 15px; background: white;"></iframe>
