@@ -126,7 +126,7 @@ def show_tactical_pool():
         "👁️ INITIATEUR": {
             "Breach": "https://images3.alphacoders.com/114/1149735.jpg",
             "Fade": "https://images.wallpapersden.com/image/wxl-fade-valorant-gaming-character-digital-art_91742.jpg",
-            "Gekko": "https://i.pinimg.com/736x/79/c1/fd/79c1fd4a6c33cb25b40d1b262ed35e53.jpg",
+            "Gekko": "https://i.pinimg.com/1200x/e8/ff/46/e8ff46efa78a7203b47f5976f72d31fb.jpg",
             "KAY/O": "https://i.pinimg.com/1200x/ef/0f/b8/ef0fb88954b5176e3c05c4811a42604e.jpg",
             "Skye": "https://images.wallpapersden.com/image/wxl-skye-art-cool-valorant_77564.jpg",
             "Sova": "https://images.wallpapersden.com/image/wxl-sova-cool-art-valorant_81600.jpg",
@@ -252,6 +252,7 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
 
 
 
