@@ -102,39 +102,77 @@ def show_archive():
             st.rerun()
 
 def show_tactical_pool():
-    st.markdown("<h2 class='valo-title' style='font-size:2em;'>AGENT POOL</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 class='valo-title' style='text-align:center;'>AGENT POOL PAR RÔLE</h2>", unsafe_allow_html=True)
     
     p_sel = st.selectbox("UNIT ID", ["BOO ツ", "KURAIME"])
 
-    # Dictionnaire des agents avec leurs IDs officiels pour les images
-    # J'ai inclus tous les persos de tes captures d'écran
-    agents_list = {
-        "Astra": "https://immortalboost.com/blog/valorant/astra-valorant-agent-guide/",
-        "Breach": "5f8d3a7f-467b-97f3-062c-13acf203c002",
-        "Brimstone": "9ad6e251-4199-1392-8a0a-559b9bb1b13a",
-        "Chamber": "22697a3d-45bf-8dd7-4f03-10a07d64f12f",
-        "Clove": "bb2a14ca-4614-4690-8805-776732644265",
-        "Cypher": "117ed9d3-4836-2473-3e7b-5d1073097510",
-        "Deadlock": "cc8b6900-45c0-11ff-3136-32a2405c56b4",
-        "Fade": "dade69b4-4354-453d-9152-87569175927c",
-        "Gekko": "e370fa57-4757-3604-3644-49ba1543f2a8",
-        "Harbor": "95b5b8d0-4c7a-b64d-7603-9ce1f6d4ad48",
-        "Iso": "0e314694-4c11-daa7-33d3-c99026774e44",
-        "Jett": "ad3e3391-4351-b13e-f117-bc3596b3a1c1",
-        "KAY/O": "601db300-4316-2969-808b-ce5ad40616a1",
-        "Killjoy": "1e58de9d-4950-5125-93e9-a0aee9f97661",
-        "Neon": "bb2a14ca-4614-4690-8805-776732644265",
-        "Omen": "8e253930-4c0d-4a5d-13a3-33318f73b981",
-        "Phoenix": "eb93336a-449b-9c1b-ce31-2924316e6d78",
-        "Raze": "f944b06d-4a4d-8170-9d11-bc3596b3a1c1",
-        "Reyna": "a3bc0630-404a-b565-d5b7-bc3596b3a1c1",
-        "Sage": "569fdd95-4d0f-5d54-963f-8b1167b43f92",
-        "Skye": "6f2a0491-44a3-42a3-274f-bc3596b3a1c1",
-        "Sova": "320b2a48-4d9b-a075-3bca-14ac10b24036",
-        "Viper": "707eab51-4836-f488-046a-cda6bf348ad8",
-        "Vyse": "6c368297-4c4c-4740-4965-74892c9082fd",
-        "Yoru": "7f94d92c-4234-8836-96ff-bc3596b3a1c1"
+    # Organisation des agents par catégories
+    categories = {
+        "🛡️ SENTINEL": {
+            "Chamber": "https://media.valorant-api.com/agents/22697a3d-45bf-8dd7-4f03-10a07d64f12f/fullportrait.png",
+            "Cypher": "https://media.valorant-api.com/agents/117ed9d3-4836-2473-3e7b-5d1073097510/fullportrait.png",
+            "Deadlock": "https://media.valorant-api.com/agents/cc8b6900-45c0-11ff-3136-32a2405c56b4/fullportrait.png",
+            "Killjoy": "https://media.valorant-api.com/agents/1e58de9d-4950-5125-93e9-a0aee9f97661/fullportrait.png",
+            "Sage": "https://media.valorant-api.com/agents/569fdd95-4d0f-5d54-963f-8b1167b43f92/fullportrait.png",
+            "Vyse": "https://media.valorant-api.com/agents/6c368297-4c4c-4740-4965-74892c9082fd/fullportrait.png",
+            "Veto": "https://media.valorant-api.com/agents/6a928e08-466d-55e1-807e-9786a5df9b6e/fullportrait.png"
+        },
+        "☁️ CONTROLEUR": {
+            "Astra": "https://media.valorant-api.com/agents/41fb69c1-4189-7b37-f117-bc3596b3a1c1/fullportrait.png",
+            "Brimstone": "https://media.valorant-api.com/agents/9ad6e251-4199-1392-8a0a-559b9bb1b13a/fullportrait.png",
+            "Clove": "https://media.valorant-api.com/agents/bb2a14ca-4614-4690-8805-776732644265/fullportrait.png",
+            "Harbor": "https://media.valorant-api.com/agents/95b5b8d0-4c7a-b64d-7603-9ce1f6d4ad48/fullportrait.png",
+            "Omen": "https://media.valorant-api.com/agents/8e253930-4c0d-4a5d-13a3-33318f73b981/fullportrait.png",
+            "Viper": "https://media.valorant-api.com/agents/707eab51-4836-f488-046a-cda6bf348ad8/fullportrait.png",
+            "Tejo": "https://media.valorant-api.com/agents/dad62021-4fec-586b-715a-b98a3330f69a/fullportrait.png"
+        },
+        "👁️ INITIATEUR": {
+            "Breach": "https://media.valorant-api.com/agents/5f8d3a7f-467b-97f3-062c-13acf203c002/fullportrait.png",
+            "Fade": "https://media.valorant-api.com/agents/dade69b4-4354-453d-9152-87569175927c/fullportrait.png",
+            "Gekko": "https://media.valorant-api.com/agents/e370fa57-4757-3604-3644-49ba1543f2a8/fullportrait.png",
+            "KAY/O": "https://media.valorant-api.com/agents/601db300-4316-2969-808b-ce5ad40616a1/fullportrait.png",
+            "Skye": "https://media.valorant-api.com/agents/6f2a0491-44a3-42a3-274f-bc3596b3a1c1/fullportrait.png",
+            "Sova": "https://media.valorant-api.com/agents/320b2a48-4d9b-a075-3bca-14ac10b24036/fullportrait.png",
+            "Waylay": "https://media.valorant-api.com/agents/6a2b8e01-466a-55a1-807a-9786a5df9b6e/fullportrait.png"
+        },
+        "🔥 DUELISTER": {
+            "Iso": "https://media.valorant-api.com/agents/0e314694-4c11-daa7-33d3-c99026774e44/fullportrait.png",
+            "Jett": "https://media.valorant-api.com/agents/ad3e3391-4351-b13e-f117-bc3596b3a1c1/fullportrait.png",
+            "Neon": "https://media.valorant-api.com/agents/bb2a14ca-4614-4690-8805-776732644265/fullportrait.png",
+            "Phoenix": "https://media.valorant-api.com/agents/eb93336a-449b-9c1b-ce31-2924316e6d78/fullportrait.png",
+            "Raze": "https://media.valorant-api.com/agents/f944b06d-4a4d-8170-9d11-bc3596b3a1c1/fullportrait.png",
+            "Reyna": "https://media.valorant-api.com/agents/a3bc0630-404a-b565-d5b7-bc3596b3a1c1/fullportrait.png",
+            "Yoru": "https://media.valorant-api.com/agents/7f94d92c-4234-8836-96ff-bc3596b3a1c1/fullportrait.png"
+        }
     }
+
+    # On boucle sur chaque catégorie pour créer des sections
+    for cat_name, agents in categories.items():
+        st.markdown(f"#### {cat_name}")
+        cols = st.columns(4)
+        
+        for i, (name, img_url) in enumerate(agents.items()):
+            with cols[i % 4]:
+                key = f"{p_sel}_{name}"
+                is_mastered = st.session_state['agent_data'].get(key, False)
+                
+                # Design de la petite carte
+                border = "2px solid #ff4655" if is_mastered else "1px solid #333"
+                bg_color = "rgba(255, 70, 85, 0.1)" if is_mastered else "transparent"
+                
+                st.markdown(f"""
+                    <div style="border: {border}; background-color: {bg_color}; padding: 5px; border-radius: 5px; text-align: center; margin-bottom: 5px;">
+                        <p style="margin: 0; font-weight: bold; font-size: 0.7em;">{name.upper()}</p>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                st.image(img_url, use_container_width=True)
+                
+                if st.button("MASTER" if not is_mastered else "UNMARK", key=f"btn_{key}", use_container_width=True):
+                    st.session_state['agent_data'][key] = not is_mastered
+                    save_agents_mastery(st.session_state['agent_data'])
+                    st.rerun()
+        st.divider() # Petite ligne de séparation entre les catégories
 
     # On crée une grille de 4 colonnes comme sur ton image
     cols = st.columns(4)
@@ -264,6 +302,7 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
 
 
 
