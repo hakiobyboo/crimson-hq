@@ -135,54 +135,6 @@ def show_dashboard():
         st.markdown("### 📊 PERFORMANCE")
         st.line_chart(pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance']))
 
-# --- 3. PAGE INTEL TRACKER ---
-def show_intel():
-    # Remets ici ton code pour l'Intel Tracker (Ranks, etc.)
-    st.title("🎯 INTEL TRACKER")
-    # ... le reste du code de show_intel
-
-# --- 4. AUTRES PAGES (Archive, Tactical, Stratégie) ---
-# Ajoute ici tes fonctions show_archive(), show_tactical(), show_planning(), show_strategie()
-            
-# --- 2. TACTICAL HUB (Remplaçant de l'Intel Tracker) ---
-def show_intel():
-    st.markdown("<h1 style='text-align:center; color:#bd93f9; font-family:VALORANT;'>TACTICAL HUB</h1>", unsafe_allow_html=True)
-    
-    map_list = ["Abyss", "Ascent", "Bind", "Haven", "Lotus", "Sunset", "Split"]
-    tab1, tab2, tab3 = st.tabs(["🗺️ MAP POOL", "📖 STRAT BOOK", "🛠️ GESTION"])
-
-    with tab1:
-        st.subheader("Maîtrise du Map Pool")
-        cols = st.columns(3)
-        for i, m in enumerate(map_list):
-            with cols[i % 3]:
-                st.markdown(f"""
-                    <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; border-left:3px solid #bd93f9; margin-bottom:10px;">
-                        <b style="color:#bd93f9;">{m}</b><br>
-                        <small style="color:white;">READY</small>
-                    </div>
-                """, unsafe_allow_html=True)
-
-    with tab2:
-        st.subheader("Bibliothèque Stratégique")
-        if os.path.exists(STRAT_DB):
-            df_strats = pd.read_csv(STRAT_DB)
-            if not df_strats.empty:
-                for _, row in df_strats.iterrows():
-                    st.info(f"**[{row['Map']}] {row['Titre']}**\n\n{row['Description']}\n\n[Lien]({row['Lien']})")
-            else:
-                st.write("Le carnet est vide.")
-        else:
-            st.write("Aucune stratégie enregistrée.")
-
-    with tab3:
-        st.subheader("Ajouter une Stratégie")
-        with st.form("new_strat"):
-            m = st.selectbox("Map", map_list)
-            t = st.text_input("Titre de la strat")
-            l = st.text_input("Lien YouTube/TikTok")
-            d = st.text_area("Description rapide")
-            
 # --- 3. MATCH ARCHIVE ---
 def show_archive():
     with st.expander("➕ ENREGISTRER UN NOUVEAU SCRIM"):
@@ -605,6 +557,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
