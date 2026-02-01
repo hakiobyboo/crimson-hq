@@ -205,6 +205,7 @@ def show_tactical_pool():
             "Waylay": "https://i.pinimg.com/736x/e0/36/37/e0363703adc24fc3b2e1dded3b563259.jpg"
         }
     }
+
     for cat_name, agents in categories.items():
         st.markdown(f"#### {cat_name}")
         cols = st.columns(4)
@@ -339,6 +340,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
