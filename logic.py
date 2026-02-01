@@ -18,7 +18,30 @@ def show_dashboard():
     with c3: st.markdown(f"<div class='stat-card'><h4>STATUS</h4><h2 style='color:#00ff00;'>● ONLINE</h2></div>", unsafe_allow_html=True)
 
 # --- 2. INTEL TRACKER ---
+from database import get_intel, update_intel_manual # Assure-toi d'ajouter l'import
+
 def show_intel():
+    # --- NOUVEAU : AJOUT MANUEL ---
+    with st.expander("🛠️ ADMINISTRATION : MISE À JOUR MANUELLE DES RANGS"):
+        col_m1, col_m2, col_m3 = st.columns(3)
+        with col_m1:
+            p_name = st.selectbox("Sélectionner l'unité", ["Boo ツ", "Kuraime"])
+        with col_m2:
+            new_curr = st.text_input("Rang Actuel (ex: Gold 2)")
+        with col_m3:
+            new_peak = st.text_input("Peak Rank (ex: Platinum 1)")
+        
+        if st.button("FORCER LA MISE À JOUR"):
+            if new_curr and new_peak:
+                update_intel_manual(p_name, new_curr, new_peak)
+                st.success(f"Données de {p_name} synchronisées !")
+                st.rerun()
+            else:
+                st.error("Veuillez remplir les deux champs.")
+
+    st.divider()
+
+    # --- AFFICHAGE DES CARTES (CODE ORIGINAL) ---
     players = [
         {"label": "Boo ツ", "n": "Boo%20%E3%83%84", "t": "1tpas"}, 
         {"label": "Kuraime", "n": "kuraime", "t": "ezz"}
@@ -37,7 +60,6 @@ def show_intel():
                 </div>
             """, unsafe_allow_html=True)
             if icon: st.image(icon, width=80)
-
 # --- 3. MATCH ARCHIVE ---
 def show_archive():
     with st.expander("➕ ENREGISTRER UN NOUVEAU SCRIM"):
@@ -173,3 +195,4 @@ def show_strategy_map(current_map):
                                 os.remove(f"{map_path}/{side}/{f}")
                                 st.rerun()
                 else: st.info(f"Aucune archive pour {side}")
+
