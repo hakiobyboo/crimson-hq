@@ -19,7 +19,6 @@ def show_dashboard():
 
 # --- 2. INTEL TRACKER ---
 def show_intel():
-    # --- AJOUT MANUEL DES RANGS ---
     with st.expander("🛠️ ADMINISTRATION : MISE À JOUR MANUELLE DES RANGS"):
         col_m1, col_m2, col_m3 = st.columns(3)
         with col_m1:
@@ -39,7 +38,6 @@ def show_intel():
 
     st.divider()
 
-    # --- AFFICHAGE DES CARTES ---
     players = [
         {"label": "Boo ツ", "n": "Boo%20%E3%83%84", "t": "1tpas"}, 
         {"label": "Kuraime", "n": "kuraime", "t": "ezz"}
@@ -74,6 +72,7 @@ def show_archive():
             if st.form_submit_button("SAUVEGARDER DANS LA DB"):
                 img_path = "None"
                 if m_file:
+                    if not os.path.exists("match_proofs"): os.makedirs("match_proofs")
                     img_path = f"match_proofs/match_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
                     Image.open(m_file).save(img_path)
                 
@@ -101,12 +100,11 @@ def show_archive():
             save_scrim_db(st.session_state['scrims_df'])
             st.rerun()
 
+# --- 4. TACTICAL POOL ---
 def show_tactical_pool():
     st.markdown("<h2 class='valo-title' style='text-align:center;'>AGENT POOL PAR RÔLE</h2>", unsafe_allow_html=True)
-    
     p_sel = st.selectbox("UNIT ID", ["BOO ツ", "KURAIME"])
 
-    # 1. On définit les catégories (une seule source de vérité)
     categories = {
         "🛡️ SENTINEL": {
             "Chamber": "https://media.valorant-api.com/agents/22697a3d-45bf-8dd7-4f03-10a07d64f12f/fullportrait.png",
@@ -146,103 +144,32 @@ def show_tactical_pool():
         }
     }
 
-    # 2. On affiche chaque catégorie UNE SEULE FOIS
     for cat_name, agents in categories.items():
         st.markdown(f"#### {cat_name}")
         cols = st.columns(4)
-        
         for i, (name, img_url) in enumerate(agents.items()):
             with cols[i % 4]:
                 key = f"{p_sel}_{name}"
-                # Sécurité : on initialise à False si la clé n'existe pas
                 is_mastered = st.session_state.get('agent_data', {}).get(key, False)
                 
-                # Design de la petite carte
                 border = "2px solid #ff4655" if is_mastered else "1px solid #333"
                 bg_color = "rgba(255, 70, 85, 0.1)" if is_mastered else "transparent"
                 
                 st.markdown(f"""
                     <div style="border: {border}; background-color: {bg_color}; padding: 5px; border-radius: 5px; text-align: center; margin-bottom: 5px;">
-                        <p style="margin: 0; font-weight: bold; font-size: 0.7em;">{name.upper()}</p>
+                        <p style="margin: 0; font-weight: bold; font-size: 0.7em; color: white;">{name.upper()}</p>
                     </div>
                 """, unsafe_allow_html=True)
                 
                 st.image(img_url, use_container_width=True)
                 
-                # Bouton unique
                 if st.button("MASTER" if not is_mastered else "UNMARK", key=f"btn_{key}", use_container_width=True):
-                    if 'agent_data' not in st.session_state:
-                        st.session_state['agent_data'] = {}
+                    if 'agent_data' not in st.session_state: st.session_state['agent_data'] = {}
                     st.session_state['agent_data'][key] = not is_mastered
                     save_agents_mastery(st.session_state['agent_data'])
                     st.rerun()
         st.divider()
-        
-    # On boucle sur chaque catégorie pour créer des sections
-    for cat_name, agents in categories.items():
-        st.markdown(f"#### {cat_name}")
-        cols = st.columns(4)
-        
-        for i, (name, img_url) in enumerate(agents.items()):
-            with cols[i % 4]:
-                key = f"{p_sel}_{name}"
-                is_mastered = st.session_state['agent_data'].get(key, False)
-                
-                # Design de la petite carte
-                border = "2px solid #ff4655" if is_mastered else "1px solid #333"
-                bg_color = "rgba(255, 70, 85, 0.1)" if is_mastered else "transparent"
-                
-                st.markdown(f"""
-                    <div style="border: {border}; background-color: {bg_color}; padding: 5px; border-radius: 5px; text-align: center; margin-bottom: 5px;">
-                        <p style="margin: 0; font-weight: bold; font-size: 0.7em;">{name.upper()}</p>
-                    </div>
-                """, unsafe_allow_html=True)
-                
-                st.image(img_url, use_container_width=True)
-                
-                if st.button("MASTER" if not is_mastered else "UNMARK", key=f"btn_{key}", use_container_width=True):
-                    st.session_state['agent_data'][key] = not is_mastered
-                    save_agents_mastery(st.session_state['agent_data'])
-                    st.rerun()
-        st.divider() # Petite ligne de séparation entre les catégories
 
-    # On crée une grille de 4 colonnes comme sur ton image
-    cols = st.columns(4)
-    
-    for i, (name, uid) in enumerate(agents_list.items()):
-        with cols[i % 4]:
-            # URL de l'image officielle (portrait vertical)
-            img_url = f"https://media.valorant-api.com/agents/{uid}/fullportrait.png"
-            
-            # Gestion de l'état dans la session
-            key = f"{p_sel}_{name}"
-            is_mastered = st.session_state['agent_data'].get(key, False)
-            
-            # Design de la carte
-            # On change la bordure si c'est sélectionné
-            border_color = "#ff4655" if is_mastered else "#333"
-            bg_color = "rgba(255, 70, 85, 0.2)" if is_mastered else "rgba(0,0,0,0.3)"
-            
-            st.markdown(f"""
-                <div style="
-                    border: 2px solid {border_color};
-                    background-color: {bg_color};
-                    border-radius: 5px;
-                    padding: 10px;
-                    text-align: center;
-                    margin-bottom: 10px;
-                    transition: 0.3s;
-                ">
-                    <img src="{img_url}" style="width: 100%; border-radius: 3px;">
-                    <p style="margin-top: 5px; font-weight: bold; font-family: 'VALORANT'; color: white;">{name.upper()}</p>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            # Le bouton de validation
-            if st.button("MASTERED" if not is_mastered else "UNMARK", key=f"btn_{key}", use_container_width=True):
-                st.session_state['agent_data'][key] = not is_mastered
-                save_agents_mastery(st.session_state['agent_data'])
-                st.rerun()
 # --- 5. PLANNING ---
 def show_planning():
     st.markdown("### DISPONIBILITÉS DE L'UNITÉ")
@@ -253,7 +180,7 @@ def show_planning():
     })
     st.data_editor(df_plan, use_container_width=True)
 
-# --- 6. STRATÉGIE (SÉLECTION ET AFFICHAGE) ---
+# --- 6. STRATÉGIE ---
 def show_map_selection():
     map_list = {
         "Abyss": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/53698d442a14b5a6be643d53eb970ac16442cb38-930x522.png",
@@ -268,7 +195,7 @@ def show_map_selection():
         "Split": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/878d51688c0f9dd0de827162e80c40811668e0c6-3840x2160.png",
         "Sunset": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/5101e4ee241fbfca261bf8150230236c46c8b991-3840x2160.png",
         "Corrode": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/6e3e66577519c8290d874aa94d82e28aec2ccc3e-915x515.jpg?accountingTag=VAL&auto=format&fit=fill&q=80&w=915"
-        }
+    }
     cols = st.columns(3)
     for i, (m_name, m_url) in enumerate(map_list.items()):
         with cols[i % 3]:
@@ -278,18 +205,13 @@ def show_map_selection():
                 st.rerun()
 
 def show_strategy_map(current_map):
-    # 1. On affiche le bouton RETOUR en premier
-    # Le CSS dans styles.py (top: 10px) s'occupera de le placer tout en haut à gauche
     if st.button("⬅ RETOUR"):
         st.session_state['selected_strat_map'] = None
         st.rerun()
 
-    # 2. Sélecteur de mode (toujours visible pour pouvoir switcher vers les archives)
     view_mode = st.radio("INTERFACE", ["VALOPLANT LIVE", "ARCHIVES TACTIQUES"], horizontal=True, label_visibility="collapsed")
     
     if view_mode == "VALOPLANT LIVE":
-        # --- MODE LIVE : On affiche uniquement l'iframe ---
-        # L'iframe commence à 65px du haut grâce au CSS de styles.py pour laisser la place au bouton
         st.markdown(f"""
             <div class="iframe-container">
                 <iframe src="https://valoplant.gg" 
@@ -299,16 +221,12 @@ def show_strategy_map(current_map):
             </div>
         """, unsafe_allow_html=True)
     else:
-        # --- MODE ARCHIVES : On affiche l'interface normale avec scroll ---
         st.markdown(f"### MISSION ACTIVE : {current_map.upper()}")
-        
-        # On réactive le scroll car les archives peuvent être longues
         st.markdown("<style>html, body, [data-testid='stAppViewContainer'] { overflow: auto !important; }</style>", unsafe_allow_html=True)
         
         map_path = f"images_scrims/{current_map}"
         for side in ["Attaque", "Defense"]:
-            if not os.path.exists(f"{map_path}/{side}"): 
-                os.makedirs(f"{map_path}/{side}")
+            if not os.path.exists(f"{map_path}/{side}"): os.makedirs(f"{map_path}/{side}")
         
         with st.expander("📤 AJOUTER UN DOCUMENT TACTIQUE"):
             col_u1, col_u2, col_u3 = st.columns([2, 1, 1])
@@ -334,4 +252,3 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
-
