@@ -103,29 +103,29 @@ def show_dashboard():
             "nom": "NEF",
             "role": "SENTINEL / FLEX",
             "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Nef", 
-            "url": "https://tracker.gg/valorant/profile/riot/NEF%231234/overview",
-            "kd": "1.24", "hs": "26%"
+            "url": "https://tracker.gg/valorant/profile/riot/Nef%23SPK/overview?playlist=competitive&platform=pc&season=3ea2b318-423b-cf86-25da-7cbb0eefbe2d",
+            "kd": "1.07", "hs": "26%"
         },
         {
             "nom": "BOO ツ",
             "role": "IGL / SMOKER",
             "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Boo",
-            "url": "https://tracker.gg/valorant/profile/riot/BOO%23TWIN/overview",
-            "kd": "1.12", "hs": "21%"
+            "url": "https://tracker.gg/valorant/profile/riot/Boo%20ツ%231tpas/overview?platform=pc&playlist=competitive&season=3ea2b318-423b-cf86-25da-7cbb0eefbe2d",
+            "kd": "1.04", "hs": "35.4%"
         },
         {
             "nom": "KURAIME",
             "role": "DUELIST",
             "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Kuraime",
-            "url": "https://tracker.gg/valorant/profile/riot/KURAIME%23WIN/overview",
-            "kd": "1.35", "hs": "28%"
+            "url": "https://tracker.gg/valorant/profile/riot/kuraime%23ezz/overview?playlist=competitive&platform=pc&season=3ea2b318-423b-cf86-25da-7cbb0eefbe2d",
+            "kd": "0.99", "hs": "39.3%"
         },
         {
             "nom": "TURBOS",
             "role": "INITIATOR",
             "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Turbos",
-            "url": "https://tracker.gg/valorant/profile/riot/TURBOS%23000/overview",
-            "kd": "1.05", "hs": "19%"
+            "url": "https://tracker.gg/valorant/profile/riot/turboS%23SPEED/overview?playlist=competitive&platform=pc&season=3ea2b318-423b-cf86-25da-7cbb0eefbe2d",
+            "kd": "0.99", "hs": "23.4%"
         }
     ]
 
@@ -707,6 +707,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
