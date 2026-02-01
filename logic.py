@@ -253,6 +253,11 @@ PLANNING_DB = "data/planning.csv"
 DISPOS_DB = "data/dispos.csv"
 
 def save_data(data, path):
+    # --- AJOUT SÉCURITÉ : Crée le dossier 'data' s'il n'existe pas ---
+    directory = os.path.dirname(path)
+    if directory and not os.path.exists(directory):
+        os.makedirs(directory)
+    
     pd.DataFrame(data).to_csv(path, index=False)
 
 def load_data(path):
@@ -489,6 +494,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
