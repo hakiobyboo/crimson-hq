@@ -53,34 +53,34 @@ def apply_immersive_mode():
     """Cache toute l'interface Streamlit et FORCE le plein écran pour Valoplant"""
     st.markdown("""
         <style>
-        /* 1. Cache les éléments inutiles */
+        /* 1. Cache les éléments inutiles de Streamlit */
         header, [data-testid="stHeader"], .valo-title, hr, .stDivider, [data-testid="stSidebar"] { 
             display: none !important; 
         }
 
-        /* 2. On s'assure que le bouton RETOUR est visible par-dessus l'iframe */
-        /* On cible le bouton dans la première colonne de la page de strat */
+        /* 2. Positionnement du bouton RETOUR tout en haut */
         div.stButton > button {
-            position: relative;
-            z-index: 10001 !important; /* Plus haut que l'iframe */
-            margin-bottom: 10px;
+            position: fixed;
+            top: 10px;      /* Distance par rapport au bord haut */
+            left: 20px;     /* Distance par rapport au bord gauche */
+            z-index: 10002 !important; 
+            background-color: #ff4655 !important;
+            color: white !important;
         }
 
-        /* 3. Suppression des marges pour coller aux bords */
-        [data-testid="stAppViewBlockContainer"] {
-            padding: 10px !important; /* On laisse un peu de place en haut pour le bouton */
-            max-width: 100% !important;
-        }
-
-        /* 4. L'iframe est placée juste en dessous du bouton */
+        /* 3. Ajustement du conteneur de l'iframe pour qu'il commence PLUS BAS */
         .iframe-container {
             position: fixed;
-            top: 60px; /* On descend l'iframe pour laisser de la place au bouton RETOUR */
+            top: 65px;      /* Augmenté à 65px pour laisser de la place au-dessus de Stratégie */
             left: 0;
             width: 100vw;
-            height: calc(100vh - 60px);
+            height: calc(100vh - 65px);
             z-index: 9999;
             background-color: #0f1923;
+        }
+
+        [data-testid="stAppViewBlockContainer"] {
+            padding: 0px !important;
         }
 
         iframe {
@@ -89,9 +89,10 @@ def apply_immersive_mode():
             border: none !important;
         }
 
-        /* Bloque le scroll du site pour focus l'iframe */
+        /* Bloque le scroll du site principal */
         html, body, [data-testid="stAppViewContainer"] {
             overflow: hidden !important;
         }
         </style>
     """, unsafe_allow_html=True)
+
