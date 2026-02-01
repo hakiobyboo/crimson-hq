@@ -5,69 +5,8 @@ from PIL import Image
 from datetime import datetime
 from database import get_intel, load_csv, save_agents_mastery, save_scrim_db, SCRIMS_DB, AGENTS_DB, update_intel_manual
 
-import streamlit as st
-import pandas as pd
-import os
-
-# --- CONFIGURATION DES FICHIERS ---
-PLANNING_DB = "data/planning.csv"
-DISPOS_DB = "data/dispos.csv"
-
-def load_data(path):
-    if os.path.exists(path):
-        return pd.read_csv(path).to_dict('records')
-    return []
-
 def show_dashboard():
-
-    # --- STYLE CSS AVEC ANIMATIONS ET GLOW ---
-    st.markdown("""
-        <style>
-        .stat-box {
-            background: linear-gradient(135deg, rgba(255,70,85,0.1) 0%, rgba(15,25,35,0.8) 100%);
-            border-left: 4px solid #ff4655;
-            padding: 15px; border-radius: 5px; text-align: center; margin-bottom: 20px;
-        }
-        .stat-val { font-family: monospace; font-size: 1.8em; color: #00ff00; text-shadow: 0 0 10px rgba(0,255,0,0.5); }
-        
-        /* --- CARTES JOUEURS AVEC ANIMATION --- */
-        .player-card-dash {
-            background: rgba(15, 25, 35, 0.9);
-            border: 2px solid rgba(189, 147, 249, 0.2);
-            border-radius: 20px; padding: 20px; text-align: center; 
-            transition: all 0.4s ease-in-out; /* Animation fluide */
-            box-shadow: 0 0 10px rgba(0,0,0,0.5); 
-            margin-bottom: 15px;
-        }
-
-        /* Effet au passage de la souris */
-        .player-card-dash:hover {
-            border-color: #bd93f9;
-            box-shadow: 0 0 25px rgba(189, 147, 249, 0.4); /* Le Glow */
-            transform: translateY(-8px); /* Soulèvement */
-        }
-
-        .img-profile {
-            width: 100px; height: 100px; border-radius: 50%;
-            border: 3px solid #bd93f9; object-fit: cover;
-            transition: transform 0.4s;
-        }
-        
-        .player-card-dash:hover .img-profile {
-            transform: scale(1.1); /* Zoom léger sur la photo au hover */
-        }
-
-        .tracker-link {
-            display: block; background: linear-gradient(90deg, #ff4655 0%, #ff758c 100%);
-            color: white !important; text-decoration: none !important;
-            padding: 10px; border-radius: 5px; font-family: 'VALORANT', sans-serif; font-size: 0.7em;
-            transition: 0.3s;
-        }
-        .tracker-link:hover { opacity: 0.8; transform: scale(1.05); }
-        </style>
-    """, unsafe_allow_html=True)
-    
-    # --- 1. CALCULS DYNAMIQUES (Win Rate & Scrims) ---
+    # --- 1. CALCULS DYNAMIQUES ---
     planning_data = load_data(PLANNING_DB)
     df_planning = pd.DataFrame(planning_data)
     
@@ -75,17 +14,16 @@ def show_dashboard():
     total_finished = 0
     
     if not df_planning.empty and 'Resultat' in df_planning.columns:
-        # On ne calcule que sur les matchs ayant un résultat "Win" ou "Loss"
         finished_matches = df_planning[df_planning['Resultat'].isin(['Win', 'Loss'])]
         total_finished = len(finished_matches)
-        
         if total_finished > 0:
             wins = len(finished_matches[finished_matches['Resultat'] == 'Win'])
             win_rate_display = f"{(wins / total_finished) * 100:.0f}%"
 
-    # --- 2. STYLE CSS UNIQUE ---
+    # --- 2. STYLE CSS UNIQUE (Fusionné & Animé) ---
     st.markdown("""
         <style>
+        /* Stats du haut */
         .stat-box {
             background: linear-gradient(135deg, rgba(255,70,85,0.1) 0%, rgba(15,25,35,0.8) 100%);
             border-left: 4px solid #ff4655;
@@ -94,22 +32,32 @@ def show_dashboard():
         .stat-val { font-family: monospace; font-size: 1.8em; color: #00ff00; text-shadow: 0 0 10px rgba(0,255,0,0.5); }
         .stat-label { color: white; font-size: 0.7em; text-transform: uppercase; letter-spacing: 1px; }
 
+        /* --- CARTES JOUEURS AVEC ANIMATION --- */
         .player-card-dash {
             background: rgba(15, 25, 35, 0.9);
             border: 2px solid rgba(189, 147, 249, 0.3);
-            border-radius: 20px; padding: 20px; text-align: center; transition: 0.4s;
+            border-radius: 20px; padding: 20px; text-align: center; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Animation fluide */
             box-shadow: 0 0 15px rgba(189, 147, 249, 0.1); margin-bottom: 15px;
         }
+
         .player-card-dash:hover {
             border-color: #bd93f9;
-            box-shadow: 0 0 30px rgba(189, 147, 249, 0.4);
-            transform: translateY(-5px);
+            box-shadow: 0 0 30px rgba(189, 147, 249, 0.5); /* Le Glow */
+            transform: translateY(-10px); /* Soulèvement */
         }
+
         .img-profile {
             width: 110px; height: 110px; border-radius: 50%;
             border: 3px solid #bd93f9; object-fit: cover;
             box-shadow: 0 0 15px rgba(189, 147, 249, 0.6); margin-bottom: 10px;
+            transition: transform 0.4s;
         }
+        
+        .player-card-dash:hover .img-profile {
+            transform: scale(1.1) rotate(3deg); /* Zoom + petite rotation */
+        }
+
         .name-tag { font-family: 'VALORANT', sans-serif; color: white; font-size: 1.1em; margin-bottom: 5px; }
         .role-tag { color: #bd93f9; font-size: 0.6em; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; }
         
@@ -118,11 +66,15 @@ def show_dashboard():
             background: rgba(255, 255, 255, 0.05);
             padding: 10px; border-radius: 10px; margin-bottom: 15px;
         }
+
         .tracker-link {
             display: block; background: linear-gradient(90deg, #ff4655 0%, #ff758c 100%);
             color: white !important; text-decoration: none !important;
             padding: 10px; border-radius: 5px; font-family: 'VALORANT', sans-serif; font-size: 0.7em;
+            transition: 0.3s;
         }
+        .tracker-link:hover { filter: brightness(1.2); transform: scale(1.05); }
+
         .alert-card {
             background: rgba(255, 255, 255, 0.03); border-radius: 10px;
             padding: 15px; border-left: 5px solid #ff4655; margin-bottom: 10px;
@@ -132,7 +84,7 @@ def show_dashboard():
 
     st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON COMMAND CENTER</h1>", unsafe_allow_html=True)
 
-    # --- 3. STATS GLOBALES (DYNAMIQUES) ---
+    # --- 3. AFFICHAGE DES STATS ---
     col_s1, col_s2, col_s3, col_s4 = st.columns(4)
     with col_s1: 
         st.markdown(f'<div class="stat-box"><div class="stat-val">{win_rate_display}</div><div class="stat-label">Win Rate Global</div></div>', unsafe_allow_html=True)
@@ -142,7 +94,6 @@ def show_dashboard():
         st.markdown(f'<div class="stat-box" style="border-left-color:#00eeff;"><div class="stat-val" style="color:#00eeff;">{total_finished}</div><div class="stat-label">Scrims Joués</div></div>', unsafe_allow_html=True)
     with col_s4: 
         st.markdown('<div class="stat-box" style="border-left-color:#bd93f9;"><div class="stat-val" style="color:#bd93f9;">62%</div><div class="stat-label">Clutch</div></div>', unsafe_allow_html=True)
-
     # --- 4. ROSTER ET ALERTES ---
     c_left, c_right = st.columns([1.2, 0.8])
 
@@ -729,6 +680,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
