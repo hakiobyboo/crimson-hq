@@ -225,37 +225,72 @@ def show_strategy_map(current_map):
     """, unsafe_allow_html=True)
 
     # --- 2. LOGIQUE D'AFFICHAGE ---
-  if st.session_state.get('strat_view_mode') == "VALOPLANT":
-        # --- 1. LE STYLE "ZERO MARGE" ---
+    
+    if st.session_state.get('strat_view_mode') == "VALOPLANT":
+        # 1. On crée une barre de navigation fixe en haut de l'écran
+        # --- 1. CSS POUR LE MODE "GÉANT" ---
         st.markdown("""
+            <div style="position: fixed; top: 0; left: 0; width: 100%; height: 60px; 
+                        background-color: #0f1923; z-index: 9999; display: flex; 
+                        align-items: center; padding: 0 20px; border-bottom: 2px solid #ff4655;">
+                <p style="color: #ff4655; font-family: 'VALORANT', sans-serif; margin: 0;">CRIMSON STRAT VIEW</p>
+            </div>
+            <div style="height: 60px;"></div>
             <style>
-                /* On supprime le scroll au niveau le plus haut possible (le navigateur) */
-                html, body, [data-testid="stAppViewBlockContainer"] {
-                    overflow: hidden !important;
-                    margin: 0 !important;
-                    padding: 0 !important;
+                /* On cache tout Streamlit */
+                header, [data-testid="stHeader"], footer { display: none !important; }
+                
+                /* On force le conteneur à prendre 100% de la largeur et hauteur */
+                [data-testid="stAppViewBlockContainer"] {
+                    padding: 0px !important;
+                    max-width: 100% !important;
                 }
-                /* On cache le header Streamlit qui décale tout vers le bas */
-                header { visibility: hidden; }
+
+                /* On bloque le scroll de la page principale */
+                .main, html, body {
+                    overflow: hidden !important;
+                    height: 100vh !important;
+                }
+
+                /* On crée une barre de boutons flottante en haut */
+                .floating-nav {
+                    position: fixed;
+                    top: 10px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    z-index: 9999;
+                    display: flex;
+                    gap: 10px;
+                    background: rgba(15, 25, 35, 0.8);
+                    padding: 10px;
+                    border: 1px solid #ff4655;
+                    border-radius: 5px;
+                }
             </style>
         """, unsafe_allow_html=True)
 
-        # --- 2. TES BOUTONS ---
-        # On les garde, mais on réduit l'espace qu'ils prennent
+        # 2. Tes boutons habituels
+        # --- 2. LES BOUTONS (Version simplifiée pour éviter le décalage) ---
+        # Note : On utilise les colonnes Streamlit normalement, elles vont se placer en haut
         nav_c1, nav_c2 = st.columns(2)
         with nav_c1:
             if st.button("⬅ QUITTER (MENU MAPS)", use_container_width=True):
+            if st.button("⬅ QUITTER", use_container_width=True):
                 st.session_state['selected_strat_map'] = None
                 st.rerun()
         with nav_c2:
             if st.button("📂 VOIR LE DOSSIER", use_container_width=True):
+            if st.button("📂 DOSSIER", use_container_width=True):
                 st.session_state['strat_view_mode'] = "DOSSIER"
                 st.rerun()
-        
-        # --- 3. L'IFRAME GÉANTE ---
-        # scrolling=False est CRUCIAL ici pour ne pas avoir de double barre
-        # On utilise une hauteur calculée (90% de la fenêtre)
-        st.components.v1.iframe("https://valoplant.gg", height=880, scrolling=False)
+
+        # 3. L'astuce : On force l'Iframe à NE PAS avoir de scroll et à prendre toute la place
+        # On désactive le scrolling de Streamlit et on fixe la hauteur
+        st.components.v1.iframe("https://valoplant.gg", height=600, scrolling=False)
+
+        # --- 3. L'IFRAME EN TAILLE MAXIMUM ---
+        # On met 90vh (90% de la hauteur de l'écran) pour que ce soit le plus gros possible
+        st.components.v1.iframe("https://valoplant.gg", height=900, scrolling=False)
         # 4. Le script de blocage "Anti-Scroll" injecté directement
         st.markdown("""
             <style>
@@ -270,9 +305,9 @@ def show_strategy_map(current_map):
         # --- INTERFACE DOSSIER LOCAL ---
         # Ici on réactive le scroll pour pouvoir descendre voir les images
         st.markdown("<style>.main { overflow: auto !important; }</style>", unsafe_allow_html=True)
-        
+
         st.markdown(f"<h3 style='text-align:center; color:#ff4655;'>📁 DOSSIER : {current_map.upper()}</h3>", unsafe_allow_html=True)
-        
+
         # Boutons de navigation du dossier
         back_c1, back_c2 = st.columns(2)
         with back_c1:
@@ -285,7 +320,7 @@ def show_strategy_map(current_map):
                 st.rerun()
 
         st.divider()
-        
+
         # Gestion des fichiers (Ton code existant pour le dossier)
         map_path = f"images_scrims/{current_map}"
         for side in ["Attaque", "Defense"]:
@@ -317,16 +352,3 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else:
                     st.info(f"Aucune stratégie en {side} pour le moment.")
-
-
-
-
-
-
-
-
-
-
-
-
-
