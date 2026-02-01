@@ -210,36 +210,36 @@ def show_map_selection():
 
 def show_strategy_map(current_map):
     """Vue avec navigation propre et Iframe plein écran"""
-    
+
     # Barre de navigation avec 2 colonnes pour les boutons
     nav_c1, nav_c2 = st.columns(2)
-    
-  if st.session_state.get('strat_view_mode') == "VALOPLANT":
-        # Barre de navigation flottante
+
+    if st.session_state.get('strat_view_mode') == "VALOPLANT":
+        # --- MODE VALOPLANT ---
+   if st.session_state.get('strat_view_mode') == "VALOPLANT":
+        # --- BARRE DE NAVIGATION FLOTTANTE ---
+        # On met les boutons dans un container pour qu'ils ne poussent pas l'iframe
         nav_c1, nav_c2 = st.columns(2)
         with nav_c1:
-            if st.button("⬅ QUITTER", use_container_width=True):
+            if st.button("⬅ QUITTER (MENU MAPS)", use_container_width=True):
                 st.session_state['selected_strat_map'] = None
                 st.rerun()
         with nav_c2:
-            if st.button("📂 DOSSIER", use_container_width=True):
+            if st.button("📂 VOIR LE DOSSIER", use_container_width=True):
                 st.session_state['strat_view_mode'] = "DOSSIER"
                 st.rerun()
-        
-        # L'iframe prend TOUTE la hauteur de l'écran restante
-        # On utilise une hauteur de 95vh pour laisser un peu de place aux boutons
-        st.components.v1.iframe("https://valoplant.gg", height=1000)
-        
+
+        # L'iframe Valoplant (la molette fonctionnera ici car le scroll global est bloqué par styles.py)
         # --- IFRAME PLEIN ÉCRAN ---
         # On utilise une hauteur légèrement réduite (92vh) pour laisser la place aux boutons en haut
         # sans que cela ne crée de scroll bar.
         st.components.v1.iframe("https://valoplant.gg", height=800, scrolling=False)
-    
+
     else:
         # --- MODE DOSSIER ---
         # On débloque le scroll pour voir les images du dossier
         st.markdown("<style>.main { overflow: auto !important; }</style>", unsafe_allow_html=True)
-        
+
         with nav_c1:
             if st.button("⬅ RETOUR MENU MAPS", use_container_width=True):
                 st.session_state['selected_strat_map'] = None
@@ -248,10 +248,10 @@ def show_strategy_map(current_map):
             if st.button("🌐 RETOUR VALOPLANT", use_container_width=True):
                 st.session_state['strat_view_mode'] = "VALOPLANT"
                 st.rerun()
-        
+
         st.divider()
         st.markdown(f"### 📁 DOSSIER TACTIQUE : {current_map.upper()}")
-        
+
         map_path = f"images_scrims/{current_map}"
         for side in ["Attaque", "Defense"]:
             if not os.path.exists(f"{map_path}/{side}"): 
@@ -280,8 +280,3 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
-
-
-
-
-
