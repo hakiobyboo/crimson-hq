@@ -155,8 +155,19 @@ def show_dashboard():
         chart_data = pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance'])
         st.line_chart(chart_data)
 
-# Fichier pour sauvegarder les strats
-STRAT_DB = "data/strats.csv"
+import streamlit as st
+import pandas as pd
+import os
+
+# --- CONFIGURATION DES FICHIERS ---
+PLANNING_DB = "data/planning.csv"
+DISPOS_DB = "data/dispos.csv"
+STRAT_DB = "data/strats.csv" # Nouveau fichier pour le Tactical Hub
+
+def load_data(path):
+    if os.path.exists(path):
+        return pd.read_csv(path).to_dict('records')
+    return []
 
 def save_strat(map_name, title, link, desc):
     new_data = {"Map": map_name, "Titre": title, "Lien": link, "Description": desc}
@@ -166,93 +177,98 @@ def save_strat(map_name, title, link, desc):
     else:
         df.to_csv(STRAT_DB, index=False)
 
-def show_intel():
-    st.markdown("<h1 style='text-align:center; color:#bd93f9; font-family:VALORANT;'>TACTICAL HUB</h1>", unsafe_allow_html=True)
+# --- 1. DASHBOARD AVEC WIN RATE AUTO ---
+def show_dashboard():
+    planning_data = load_data(PLANNING_DB)
+    df_planning = pd.DataFrame(planning_data)
     
-    # --- STYLE CSS SPÉCIFIQUE ---
+    win_rate_display = "0%"
+    total_finished = 0
+    
+    if not df_planning.empty and 'Resultat' in df_planning.columns:
+        finished_matches = df_planning[df_planning['Resultat'].isin(['Win', 'Loss'])]
+        total_finished = len(finished_matches)
+        if total_finished > 0:
+            wins = len(finished_matches[finished_matches['Resultat'] == 'Win'])
+            win_rate_display = f"{(wins / total_finished) * 100:.0f}%"
+
+    # Style CSS (Glow Crimson)
     st.markdown("""
         <style>
-        .map-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(189, 147, 249, 0.2);
-            padding: 15px; border-radius: 10px; margin-bottom: 10px;
+        .stat-box {
+            background: linear-gradient(135deg, rgba(255,70,85,0.1) 0%, rgba(15,25,35,0.8) 100%);
+            border-left: 4px solid #ff4655;
+            padding: 15px; border-radius: 5px; text-align: center; margin-bottom: 20px;
         }
-        .strat-card {
-            background: linear-gradient(90deg, rgba(189, 147, 249, 0.1) 0%, rgba(15, 25, 35, 0.8) 100%);
-            border-left: 4px solid #bd93f9;
-            padding: 15px; border-radius: 5px; margin-bottom: 10px;
+        .stat-val { font-family: monospace; font-size: 1.8em; color: #00ff00; text-shadow: 0 0 10px rgba(0,255,0,0.5); }
+        .stat-label { color: white; font-size: 0.7em; text-transform: uppercase; letter-spacing: 1px; }
+        .player-card-dash {
+            background: rgba(15, 25, 35, 0.9);
+            border: 2px solid rgba(189, 147, 249, 0.3);
+            border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 15px;
         }
+        .img-profile { width: 100px; height: 100px; border-radius: 50%; border: 2px solid #bd93f9; object-fit: cover; }
+        .tracker-link { display: block; background: #ff4655; color: white !important; padding: 8px; border-radius: 5px; text-decoration: none; font-size: 0.7em; }
         </style>
     """, unsafe_allow_html=True)
 
+    st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON COMMAND CENTER</h1>", unsafe_allow_html=True)
+
+    # Stats Row
+    c1, c2, c3, c4 = st.columns(4)
+    c1.markdown(f'<div class="stat-box"><div class="stat-val">{win_rate_display}</div><div class="stat-label">Win Rate</div></div>', unsafe_allow_html=True)
+    c2.markdown('<div class="stat-box"><div class="stat-val">1.24</div><div class="stat-label">K/D Team</div></div>', unsafe_allow_html=True)
+    c3.markdown(f'<div class="stat-box" style="border-left-color:#00eeff;"><div class="stat-val" style="color:#00eeff;">{total_finished}</div><div class="stat-label">Pracks</div></div>', unsafe_allow_html=True)
+    c4.markdown('<div class="stat-box" style="border-left-color:#bd93f9;"><div class="stat-val" style="color:#bd93f9;">62%</div><div class="stat-label">Clutch</div></div>', unsafe_allow_html=True)
+
+    # Roster & Alerts
+    col_left, col_right = st.columns([1.2, 0.8])
+    with col_left:
+        st.markdown("### 👥 ACTIVE ROSTER")
+        roster = [
+            {"nom": "NEF", "role": "DUELIST", "img": "https://i.pinimg.com/736x/e2/79/d9/e279d990748c8a4d650f01eeb7daff82.jpg", "kd": "1.07", "url": "https://tracker.gg/valorant/profile/riot/Nef%23SPK/overview"},
+            {"nom": "BOO ツ", "role": "IGL", "img": "https://i.pinimg.com/736x/f4/30/16/f43016461f09a37ac9d721b043439873.jpg", "kd": "1.04", "url": "https://tracker.gg/valorant/profile/riot/Boo%20ツ%231tpas/overview"}
+        ]
+        r_cols = st.columns(2)
+        for i, p in enumerate(roster):
+            with r_cols[i%2]:
+                st.markdown(f'<div class="player-card-dash"><img src="{p["img"]}" class="img-profile"><h4>{p["nom"]}</h4><p style="color:#bd93f9; font-size:0.8em;">{p["role"]}</p><a href="{p["url"]}" target="_blank" class="tracker-link">TRACKER</a></div>', unsafe_allow_html=True)
+
+# --- 2. TACTICAL HUB (Remplaçant de l'Intel Tracker) ---
+def show_intel():
+    st.markdown("<h1 style='text-align:center; color:#bd93f9; font-family:VALORANT;'>TACTICAL HUB</h1>", unsafe_allow_html=True)
+    
+    map_list = ["Abyss", "Ascent", "Bind", "Haven", "Lotus", "Sunset", "Split"]
     tab1, tab2, tab3 = st.tabs(["🗺️ MAP POOL", "📖 STRAT BOOK", "🛠️ GESTION"])
 
-    # --- TAB 1 : MAP POOL ---
     with tab1:
         st.subheader("Maîtrise du Map Pool")
-        # On définit les maps actuelles
-        map_list = ["Abyss", "Ascent", "Bind", "Haven", "Lotus", "Sunset", "Split"]
-        
         cols = st.columns(3)
         for i, m in enumerate(map_list):
             with cols[i % 3]:
-                # On simule un niveau de maîtrise (tu pourras le rendre dynamique plus tard)
-                mastery = 50 
-                st.markdown(f"""
-                    <div class="map-card">
-                        <h3 style="color:#bd93f9; margin:0;">{m}</h3>
-                        <small>MAÎTRISE TACTIQUE</small>
-                        <h2 style="color:white; margin:0;">{mastery}%</h2>
-                    </div>
-                """, unsafe_allow_html=True)
+                st.markdown(f'<div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; border-left:3px solid #bd93f9;"><b>{m}</b><br><small>READY</small></div>', unsafe_allow_html=True)
 
-    # --- TAB 2 : STRAT BOOK ---
     with tab2:
-        st.subheader("Bibliothèque de Stratégies")
+        st.subheader("Bibliothèque Stratégique")
         if os.path.exists(STRAT_DB):
             df_strats = pd.read_csv(STRAT_DB)
-            selected_map = st.selectbox("Filtrer par Map", ["Toutes"] + map_list)
-            
-            filtered_df = df_strats if selected_map == "Toutes" else df_strats[df_planning['Map'] == selected_map]
-            
-            for _, row in filtered_df.iterrows():
-                st.markdown(f"""
-                    <div class="strat-card">
-                        <span style="color:#bd93f9; font-size:0.8em;">{row['Map']}</span>
-                        <h4 style="margin:5px 0;">{row['Titre']}</h4>
-                        <p style="font-size:0.9em; color:#bbb;">{row['Description']}</p>
-                        <a href="{row['Lien']}" target="_blank" style="color:#00eeff; text-decoration:none;">Lien de la ressource ↗</a>
-                    </div>
-                """, unsafe_allow_html=True)
+            for _, row in df_strats.iterrows():
+                st.info(f"**[{row['Map']}] {row['Titre']}**\n\n{row['Description']}\n\n[Lien]({row['Lien']})")
         else:
-            st.info("Aucune stratégie enregistrée pour le moment.")
+            st.write("Aucune stratégie enregistrée.")
 
-    # --- TAB 3 : GESTION (AJOUTER MANUELLEMENT) ---
     with tab3:
-        st.subheader("Ajouter une nouvelle Stratégie")
-        with st.form("add_strat_form"):
-            col_a, col_b = st.columns(2)
-            map_name = col_a.selectbox("Map", map_list)
-            title = col_b.text_input("Nom de la Strat (ex: Execute A Fast)")
-            link = st.text_input("Lien (YouTube / TikTok / Image)")
-            desc = st.text_area("Description / Notes")
-            
-            submit = st.form_submit_button("Enregistrer la Stratégie")
-            
-            if submit:
-                if title and link:
-                    save_strat(map_name, title, link, desc)
-                    st.success(f"Stratégie pour {map_name} ajoutée !")
-                    st.rerun()
-                else:
-                    st.error("Veuillez remplir le titre et le lien.")
-
-        st.divider()
-        st.subheader("Notes d'entraînement")
-        notes = st.text_area("Notes libres (Débrief de prack, rappels...)", "Ex: Travailler les timings de smoke sur Sunset.")
-        if st.button("Sauvegarder les notes"):
-            st.success("Notes mises à jour !")
-
+        st.subheader("Ajouter une Strat")
+        with st.form("new_strat"):
+            m = st.selectbox("Map", map_list)
+            t = st.text_input("Titre")
+            l = st.text_input("Lien YouTube/TikTok")
+            d = st.text_area("Description")
+            if st.form_submit_button("Enregistrer"):
+                save_strat(m, t, l, d)
+                st.success("Enregistré !")
+                st.rerun()
+                
     # Affichage des cartes
     cols = st.columns(2)
     
@@ -696,6 +712,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
