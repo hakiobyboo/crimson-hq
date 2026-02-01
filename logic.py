@@ -313,3 +313,5 @@ def show_strategy_map(current_map):
                 else: 
                     st.info(f"Aucune archive pour {side}")
                     st.info(f"Aucune image trouvée dans le dossier {side}.")
+
+
