@@ -103,8 +103,10 @@ else:
         elif menu == "TACTICAL POOL":
             logic.show_tactical_pool()
         elif menu == "PLANNING":
-            st.info("Page Planning en cours de développement.")
+            # Appel de la nouvelle fonction planning
+            logic.show_planning()
         elif menu == "STRATÉGIE":
             if st.session_state['selected_strat_map'] is None:
                 logic.show_map_selection()
+
 
