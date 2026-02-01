@@ -96,8 +96,6 @@ else:
         
         if menu == "DASHBOARD":
             logic.show_dashboard()
-        elif menu == "INTEL TRACKER":
-            logic.show_intel()
         elif menu == "MATCH ARCHIVE":
             logic.show_archive()
         elif menu == "TACTICAL POOL":
@@ -108,5 +106,6 @@ else:
         elif menu == "STRATÉGIE":
             if st.session_state['selected_strat_map'] is None:
                 logic.show_map_selection()
+
 
 
