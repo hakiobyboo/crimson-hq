@@ -249,109 +249,120 @@ def show_tactical_pool():
         st.divider()
 
 def show_planning():
-    st.markdown("<h2 class='valo-title' style='text-align:center;'>OPERATIONAL PLANNING</h2>", unsafe_allow_html=True)
-    
-    # --- STYLE CSS AMÉLIORÉ ---
+    # --- STYLE CSS (Commun aux deux onglets) ---
     st.markdown("""
         <style>
-        .planning-container {
-            padding: 15px;
-            background: rgba(15, 25, 35, 0.4);
+        .valo-card {
+            background: rgba(15, 25, 35, 0.8);
             border-radius: 10px;
-            border: 1px solid rgba(255, 70, 85, 0.2);
+            border: 1px solid rgba(255, 70, 85, 0.3);
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .player-name {
+            font-family: 'VALORANT', sans-serif;
+            color: #ff4655;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        .availability-text {
+            color: #00ff00;
+            font-family: monospace;
+            font-size: 1em;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 5px 10px;
+            border-radius: 5px;
+            border-left: 3px solid #00ff00;
         }
         .mission-entry {
             background: linear-gradient(90deg, rgba(255,70,85,0.05) 0%, rgba(15,25,35,0.9) 100%);
             border-left: 4px solid #ff4655;
-            padding: 15px 20px;
-            margin-bottom: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
             border-radius: 0 10px 10px 0;
-            position: relative;
-        }
-        .day-tag { font-family: 'VALORANT', sans-serif; color: #ff4655; font-size: 0.8em; letter-spacing: 1px; }
-        .time-tag { color: #00ff00; font-family: monospace; font-size: 1.2em; font-weight: bold; }
-        .opp-tag { color: white; font-size: 1.1em; font-weight: bold; text-transform: uppercase; }
-        .map-info { color: #888; font-size: 0.9em; font-style: italic; }
-        .status-badge {
-            position: absolute; right: 20px; top: 20px;
-            font-size: 0.65em; padding: 3px 10px; border-radius: 3px;
-            border: 1px solid #ff4655; color: #ff4655; font-weight: bold;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # Initialisation de la base de données de session
-    if 'planning_data' not in st.session_state:
-        st.session_state['planning_data'] = []
+    # Création des onglets
+    tab1, tab2 = st.tabs(["📅 OPÉRATIONS (PLANNING)", "👥 DISPONIBILITÉS SQUAD"])
 
-    # --- FORMULAIRE D'AJOUT MANUEL ---
-    with st.expander("➕ AJOUTER UN NOUVEAU SCRIM / ENTRAÎNEMENT"):
-        with st.form("new_mission_form", clear_on_submit=True):
-            c1, c2, c3 = st.columns(3)
-            with c1: 
-                date_input = st.date_input("DATE")
-                time_input = st.text_input("HEURE", value="21:00")
-            with c2:
-                adversaire = st.text_input("ADVERSAIRE", placeholder="ex: Team Vitality")
-                map_name = st.selectbox("MAP", ["ASCENT", "BIND", "HAVEN", "SPLIT", "ICEBOX", "BREEZE", "FRACTURE", "PEARL", "LOTUS", "SUNSET", "ABYSS", "TBD"])
-            with c3:
-                m_type = st.selectbox("TYPE DE SESSION", ["SCRIM", "MATCH", "STRAT", "PRACTICE"])
-                submit = st.form_submit_button("VALIDER L'OPÉRATION")
-
-            if submit:
-                new_scrim = {
-                    "id": len(st.session_state['planning_data']),
-                    "date": date_input.strftime("%d/%m/%Y"),
-                    "time": time_input,
-                    "opp": adversaire if adversaire else "TBD",
-                    "map": map_name,
-                    "type": m_type
-                }
-                st.session_state['planning_data'].append(new_scrim)
-                st.success(f"Mission contre {adversaire} ajoutée !")
-                st.rerun()
-
-    st.divider()
-
-    # --- AFFICHAGE ET MODIFICATION ---
-    if not st.session_state['planning_data']:
-        st.info("Aucune opération prévue. Utilisez le formulaire ci-dessus pour ajouter un Scrim.")
-    else:
-        st.markdown("<div class='planning-container'>", unsafe_allow_html=True)
+    # --- ONGLET 1 : PLANNING ---
+    with tab1:
+        st.markdown("<h3 style='color:white; text-align:center;'>MISSION LOG</h3>", unsafe_allow_html=True)
         
-        # On affiche chaque mission avec un bouton supprimer à côté
-        for idx, m in enumerate(st.session_state['planning_data']):
-            # Design de l'entrée
-            col_card, col_del = st.columns([0.85, 0.15])
-            
-            with col_card:
-                # Couleurs par type
-                colors = {"SCRIM": "#ff4655", "MATCH": "#ff0000", "STRAT": "#00eeff", "PRACTICE": "#ffb000"}
-                color = colors.get(m['type'], "#ffffff")
+        # Initialisation data
+        if 'planning_data' not in st.session_state: st.session_state['planning_data'] = []
+
+        # Formulaire d'ajout
+        with st.expander("➕ PLANIFIER UNE OPÉRATION"):
+            with st.form("new_mission_form", clear_on_submit=True):
+                c1, c2 = st.columns(2)
+                with c1:
+                    d_in = st.date_input("DATE")
+                    t_in = st.text_input("HEURE", "21:00")
+                with c2:
+                    opp = st.text_input("ADVERSAIRE")
+                    m_in = st.selectbox("MAP", ["ASCENT", "BIND", "HAVEN", "SPLIT", "ICEBOX", "BREEZE", "FRACTURE", "PEARL", "LOTUS", "SUNSET", "ABYSS", "TBD"])
                 
+                m_type = st.radio("TYPE", ["SCRIM", "MATCH", "STRAT"], horizontal=True)
+                if st.form_submit_button("DÉPLOYER"):
+                    st.session_state['planning_data'].append({
+                        "date": d_in.strftime("%d/%m/%Y"), "time": t_in, 
+                        "opp": opp if opp else "TBD", "map": m_in, "type": m_type
+                    })
+                    st.rerun()
+
+        # Affichage
+        for idx, m in enumerate(st.session_state['planning_data']):
+            col_m, col_d = st.columns([0.9, 0.1])
+            color = "#ff4655" if m['type'] != "STRAT" else "#00eeff"
+            with col_m:
                 st.markdown(f"""
                     <div class="mission-entry" style="border-left-color: {color}">
-                        <div class="status-badge" style="color: {color}; border-color: {color}">{m['type']}</div>
-                        <div class="day-tag">{m['date']}</div>
-                        <div class="time-tag">{m['time']}</div>
-                        <div class="opp-tag">VS {m['opp']}</div>
-                        <div class="map-info">OBJECTIF: {m['map']}</div>
+                        <div style="color:{color}; font-size:0.7em; font-weight:bold;">{m['type']}</div>
+                        <div style="color:white; font-weight:bold;">{m['date']} - {m['time']}</div>
+                        <div style="color:#00ff00; font-family:monospace;">VS {m['opp']} | MAP: {m['map']}</div>
                     </div>
                 """, unsafe_allow_html=True)
-            
-            with col_del:
-                st.write("") # Espace pour aligner
-                st.write("")
+            with col_d:
                 if st.button("🗑️", key=f"del_{idx}"):
                     st.session_state['planning_data'].pop(idx)
                     st.rerun()
-        
-        st.markdown("</div>", unsafe_allow_html=True)
 
-    # Option pour tout effacer
-    if st.session_state['planning_data']:
-        if st.sidebar.button("⚠️ RESET TOUT LE PLANNING"):
-            st.session_state['planning_data'] = []
+    # --- ONGLET 2 : DISPONIBILITÉS ---
+    with tab2:
+        st.markdown("<h3 style='color:white; text-align:center;'>SQUAD AVAILABILITY</h3>", unsafe_allow_html=True)
+        
+        # On définit les joueurs
+        players = ["BOO ツ", "KURAIME", "TURBOS", "NEF"]
+        
+        # Initialisation des dispos dans le session_state si vide
+        if 'dispos' not in st.session_state:
+            st.session_state['dispos'] = {p: "Non renseigné" for p in players}
+
+        st.info("Chaque joueur peut modifier ses horaires manuellement ci-dessous.")
+
+        # Affichage des cartes de joueurs
+        cols = st.columns(2)
+        for i, p in enumerate(players):
+            with cols[i % 2]:
+                st.markdown(f"""
+                    <div class="valo-card">
+                        <div class="player-name">{p}</div>
+                        <div class="availability-text">{st.session_state['dispos'][p]}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                # Petit champ de modification rapide
+                new_val = st.text_input(f"Modifier pour {p}", key=f"input_{p}", label_visibility="collapsed", placeholder="Ex: 18h - 00h")
+                if st.button(f"Update {p}"):
+                    if new_val:
+                        st.session_state['dispos'][p] = new_val
+                        st.rerun()
+
+        if st.button("RESET TOUTES LES DISPOS"):
+            st.session_state['dispos'] = {p: "Non renseigné" for p in players}
             st.rerun()
 
 def show_map_selection():
@@ -447,6 +458,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
