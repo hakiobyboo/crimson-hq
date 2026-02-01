@@ -242,22 +242,14 @@ def show_strategy_map(current_map):
             </div>
         """, unsafe_allow_html=True)
     
-   else:
+    else:
         # --- MODE DOSSIER ---
         st.markdown(f"### 📂 ARCHIVES LOCALES : {current_map.upper()}")
         
-        # --- NOUVELLE BARRE DE RETOUR ---
-        col_ret1, col_ret2 = st.columns(2)
-        with col_ret1:
-            if st.button("🏠 RETOUR SÉLECTION MAPS", use_container_width=True):
-                st.session_state['selected_strat_map'] = None
-                st.rerun()
-        with col_ret2:
-            if st.button("🌐 RETOUR VERS VALOPLANT", use_container_width=True):
-                st.session_state['strat_view_mode'] = "VALOPLANT"
-                st.rerun()
-        
-        st.write("---")
+        # Le bouton que tu as demandé : Retour direct à l'accueil des maps
+        if st.button("⬅ RETOUR À LA SÉLECTION DES MAPS"):
+            st.session_state['selected_strat_map'] = None
+            st.rerun()
             
         map_path = f"images_scrims/{current_map}"
         for side in ["Attaque", "Defense"]:
@@ -289,6 +281,7 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
 
 
 
