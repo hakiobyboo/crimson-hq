@@ -226,7 +226,7 @@ def show_strategy_map(current_map):
                 st.rerun()
         
         # L'iframe Valoplant (la molette fonctionnera ici car le scroll global est bloqué par styles.py)
-        st.components.v1.iframe("https://valoplant.gg", height=600, scrolling=True)
+        st.components.v1.iframe("https://valoplant.gg", height=620, scrolling=True)
     
     else:
         # --- MODE DOSSIER ---
@@ -273,4 +273,5 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
