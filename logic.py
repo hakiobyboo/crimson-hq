@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import logic
 import os
 from PIL import Image
 from datetime import datetime
@@ -184,6 +183,7 @@ def show_planning():
 # --- 6. STRATÉGIE ---
 
 def show_map_selection():
+    """Affiche la grille des maps"""
     st.markdown("<h2 class='valo-title' style='text-align:center;'>SÉLECTION DE LA ZONE D'OPÉRATION</h2>", unsafe_allow_html=True)
 
     map_list = {
@@ -211,127 +211,123 @@ def show_map_selection():
                 st.rerun()
 
 def show_strategy_map(current_map):
-    """Logique de navigation forcée : Valoplant -> Dossier -> Retour"""
-    """Affiche soit Valoplant, soit le Dossier selon le mode"""
+    """Vue détaillée avec Valoplant ou Dossier"""
 
-    # --- MODE VALOPLANT ---
-    if st.session_state.get('strat_view_mode') == "VALOPLANT":
-        # CSS Ultra-agressif pour bloquer le scroll
-        st.markdown("""
-            <style>
-                html, body, [data-testid="stAppViewBlockContainer"] {
-                    overflow: hidden !important;
-                    height: 100vh !important;
-                }
-                header {display: none !important;} /* Cache le header Streamlit */
-            </style>
-        """, unsafe_allow_html=True)
+    # 1. Barre d'outils (Boutons en haut)
+    c1, c2, c3 = st.columns([1, 2, 1])
+    # --- 1. CSS POUR FIXER L'ÉCRAN ET BLOQUER LA MOLETTE ---
+    # On force la hauteur à 100% et on cache le scroll de Streamlit
+    st.markdown("""
+        <style>
+            /* Cache le scrollbar global */
+            div[data-testid="stAppViewBlockContainer"] {
+                padding-top: 2rem !important;
+                padding-bottom: 0rem !important;
+                overflow: hidden !important;
+            }
+            .main { overflow: hidden !important; }
+            iframe { border-radius: 10px; border: 1px solid #333; }
+        </style>
+    """, unsafe_allow_html=True)
 
-        # Barre supérieure minimaliste
-        c1, c2 = st.columns([3, 1])
-        c1.markdown(f"<h2 style='color:#ff4655; margin:0;'>📍 {current_map.upper()}</h2>", unsafe_allow_html=True)
-        if c2.button("📂 OUVRIR LE DOSSIER", use_container_width=True):
-            st.session_state['strat_view_mode'] = "DOSSIER"
-    # Barre de navigation haute
-    col_back, col_title, col_folder = st.columns([1, 2, 1])
-    
-    with col_back:
+    # --- 2. BARRE DE NAVIGATION (Boutons Retour et Dossier) ---
+    nav_col1, nav_col2, nav_col3 = st.columns([1, 2, 1])
+
+    with c1:
         if st.button("⬅ RETOUR AUX MAPS", use_container_width=True):
+    with nav_col1:
+        if st.button("⬅ RETOUR MAPS", use_container_width=True):
             st.session_state['selected_strat_map'] = None
             st.rerun()
 
-        # Valoplant en plein écran
-        st.components.v1.iframe("https://valoplant.gg", height=900, scrolling=False)
-
-    # --- MODE DOSSIER ---
-    else:
-        # Ici le scroll est autorisé car on a besoin de voir les images
-        st.markdown("""<style>.main { overflow: auto !important; }</style>""", unsafe_allow_html=True)
-            
-    with col_title:
+    with c2:
+        st.markdown(f"<h3 style='text-align:center; color:#ff4655; margin-top:5px;'>{current_map.upper()}</h3>", unsafe_allow_html=True)
+    with nav_col2:
         st.markdown(f"<h3 style='text-align:center; color:#ff4655; margin:0;'>{current_map.upper()}</h3>", unsafe_allow_html=True)
 
-        c1, c2, c3 = st.columns([1, 2, 1])
-        with c1:
-            if st.button("⬅ RETOUR MAPS", use_container_width=True):
-                st.session_state['selected_strat_map'] = None
-    with col_folder:
-        if st.session_state['strat_view_mode'] == "VALOPLANT":
-            if st.button("📂 VOIR LE DOSSIER", use_container_width=True):
+    with c3:
+        label = "📂 VOIR LE DOSSIER" if st.session_state['strat_view_mode'] == "VALOPLANT" else "🌐 VALOPLANT LIVE"
+        if st.button(label, use_container_width=True):
+            st.session_state['strat_view_mode'] = "DOSSIER" if st.session_state['strat_view_mode'] == "VALOPLANT" else "VALOPLANT"
+            st.rerun()
+    with nav_col3:
+        # Toggle entre Valoplant et Dossier
+        if st.session_state.get('strat_view_mode') == "VALOPLANT":
+            if st.button("📂 DOSSIER", use_container_width=True):
                 st.session_state['strat_view_mode'] = "DOSSIER"
                 st.rerun()
-        with c2:
-            st.markdown(f"<h2 style='text-align:center; color:#ff4655;'>ARCHIVES : {current_map}</h2>", unsafe_allow_html=True)
-        with c3:
-            if st.button("🌐 VALOPLANT", use_container_width=True):
         else:
-            if st.button("🌐 REVENIR À VALOPLANT", use_container_width=True):
+            if st.button("🌐 VALOPLANT", use_container_width=True):
                 st.session_state['strat_view_mode'] = "VALOPLANT"
                 st.rerun()
 
-        st.divider()
     st.divider()
 
-    # --- MODE 1 : VALOPLANT LIVE ---
+    # --- MODE VALOPLANT (FIXE SANS SCROLL) ---
     if st.session_state['strat_view_mode'] == "VALOPLANT":
-        st.components.v1.iframe("https://valoplant.gg", height=850, scrolling=True)
+        # Injection CSS pour bloquer le scroll de la page principale et forcer le plein écran de l'iframe
+        st.markdown("""
+            <style>
+                /* Bloque le scroll de l'application Streamlit */
+                .main { overflow: hidden; }
+                .iframe-container {
+                    position: relative;
+                    width: 100%;
+                    height: 85vh;
+                    overflow: hidden;
+                }
+                iframe {
+                    width: 100%;
+                    height: 100%;
+                    border: none;
+                }
+            </style>
+            <div class="iframe-container">
+                <iframe src="https://valoplant.gg" allow="clipboard-read; clipboard-write"></iframe>
+            </div>
+        """, unsafe_allow_html=True)
 
-    # --- MODE 2 : DOSSIER TACTIQUE (Archives locales) ---
+    # --- MODE DOSSIER ---
+    # --- 3. AFFICHAGE DU CONTENU ---
+    if st.session_state.get('strat_view_mode') == "VALOPLANT":
+        # On utilise une hauteur fixe importante pour l'iframe
+        st.components.v1.iframe("https://valoplant.gg", height=800, scrolling=True)
     else:
-        st.markdown(f"### 📂 ARCHIVES LOCALES : {current_map.upper()}")
+        # Contenu du Dossier (ton code précédent)
+        st.markdown(f"#### 📂 ARCHIVES LOCALES : {current_map}")
         map_path = f"images_scrims/{current_map}"
         
-        # Création des dossiers si inexistants
+        # S'assurer que les dossiers existent
         for side in ["Attaque", "Defense"]:
             if not os.path.exists(f"{map_path}/{side}"): os.makedirs(f"{map_path}/{side}")
 
-        # Zone d'ajout de strats
-        with st.expander("➕ ENREGISTRER UNE IMAGE"):
-            col1, col2, col3 = st.columns([2,1,1])
-            up = col1.file_uploader("Screenshot", type=['png', 'jpg'])
-            nm = col2.text_input("Nom")
-            sd = col3.selectbox("Côté", ["Attaque", "Defense"])
-            if st.button("✅ VALIDER LA STRATÉGIE", type="primary"):
-                if up and nm:
-                    map_path = f"images_scrims/{current_map}/{sd}"
-                    if not os.path.exists(map_path): os.makedirs(map_path)
-                    Image.open(up).save(f"{map_path}/{nm}.png")
-                    st.success("Stratégie ajoutée !")
-        # Zone d'ajout
-        with st.expander("➕ AJOUTER UNE NOUVELLE STRATÉGIE"):
-            c_u1, c_u2, c_u3 = st.columns([2, 1, 1])
-            up_file = c_u1.file_uploader("Image", type=['png', 'jpg', 'jpeg'])
-            up_name = c_u2.text_input("Nom de la strat")
-            up_side = c_u3.selectbox("Côté", ["Attaque", "Defense"])
-            
-            if st.button("✅ VALIDER LA STRATÉGIE", use_container_width=True, type="primary"):
-                if up_file and up_name:
-                    Image.open(up_file).save(f"{map_path}/{up_side}/{up_name}.png")
-                    st.success(f"Stratégie '{up_name}' enregistrée !")
+        with st.expander("📤 AJOUTER UNE STRATÉGIE"):
+            u_col1, u_col2, u_col3 = st.columns([2,1,1])
+            up_f = u_col1.file_uploader("Capture", type=['png', 'jpg'])
+            up_n = u_col2.text_input("Nom")
+            up_s = u_col3.selectbox("Côté", ["Attaque", "Defense"])
+            if st.button("✅ ENREGISTRER", use_container_width=True, type="primary"):
+            c1, c2, c3 = st.columns([2, 1, 1])
+            up_f = c1.file_uploader("Image", type=['png', 'jpg'])
+            up_n = c2.text_input("Nom de la strat")
+            up_s = c3.selectbox("Côté", ["Attaque", "Defense"])
+            if st.button("✅ VALIDER", use_container_width=True, type="primary"):
+                if up_f and up_n:
+                    Image.open(up_f).save(f"{map_path}/{up_s}/{up_n}.png")
+                    st.success("Enregistré !")
                     st.rerun()
-                else:
-                    st.error("Il manque le nom ou l'image.")
 
-        # Affichage
-        # Affichage des onglets Attaque/Défense
         t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
         for tab, side in zip([t1, t2], ["Attaque", "Defense"]):
             with tab:
-                path = f"images_scrims/{current_map}/{side}"
-                if os.path.exists(path):
-                    files = [f for f in os.listdir(path) if f.endswith(('.png', '.jpg'))]
-                    if files:
-                        cols = st.columns(3)
-                        for idx, f in enumerate(files):
-                            with cols[idx%3]:
-                                st.image(f"{path}/{f}", caption=f, use_container_width=True)
-                                if st.button("🗑️", key=f"del_{side}_{idx}"):
-                                    os.remove(f"{path}/{f}")
-                                    st.rerun()
-                files = [f for f in os.listdir(f"{map_path}/{side}") if f.endswith(('.png', '.jpg', '.jpeg'))]
-        
-st.info(f"Aucune stratégie enregistrée pour le côté {side}.")
-
-
-
-
+                files = [f for f in os.listdir(f"{map_path}/{side}") if f.endswith(('.png', '.jpg'))]
+                if files:
+                    cols = st.columns(3)
+                    for idx, f in enumerate(files):
+                        with cols[idx % 3]:
+                            st.image(f"{map_path}/{side}/{f}", use_container_width=True)
+                            if st.button("🗑️", key=f"del_{side}_{idx}"):
+                                os.remove(f"{map_path}/{side}/{f}")
+                                st.rerun()
+                else:
+                    st.info("Aucune stratégie ici.")
