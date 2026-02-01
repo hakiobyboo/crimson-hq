@@ -5,7 +5,9 @@ from PIL import Image
 from datetime import datetime
 from database import get_intel, load_csv, save_agents_mastery, save_scrim_db, SCRIMS_DB, AGENTS_DB, update_intel_manual
 
-# --- 1. DASHBOARD ---
+import streamlit as st
+import pandas as pd
+import os
 
 # --- CONFIGURATION DES FICHIERS ---
 PLANNING_DB = "data/planning.csv"
@@ -17,7 +19,23 @@ def load_data(path):
     return []
 
 def show_dashboard():
-    # --- 1. STYLE CSS UNIQUE ---
+    # --- 1. CALCULS DYNAMIQUES (Win Rate & Scrims) ---
+    planning_data = load_data(PLANNING_DB)
+    df_planning = pd.DataFrame(planning_data)
+    
+    win_rate_display = "0%"
+    total_finished = 0
+    
+    if not df_planning.empty and 'Resultat' in df_planning.columns:
+        # On ne calcule que sur les matchs ayant un résultat "Win" ou "Loss"
+        finished_matches = df_planning[df_planning['Resultat'].isin(['Win', 'Loss'])]
+        total_finished = len(finished_matches)
+        
+        if total_finished > 0:
+            wins = len(finished_matches[finished_matches['Resultat'] == 'Win'])
+            win_rate_display = f"{(wins / total_finished) * 100:.0f}%"
+
+    # --- 2. STYLE CSS UNIQUE ---
     st.markdown("""
         <style>
         .stat-box {
@@ -44,8 +62,8 @@ def show_dashboard():
             border: 3px solid #bd93f9; object-fit: cover;
             box-shadow: 0 0 15px rgba(189, 147, 249, 0.6); margin-bottom: 10px;
         }
-        .name-tag { font-family: 'VALORANT', sans-serif; color: white; font-size: 1.3em; margin-bottom: 5px; }
-        .role-tag { color: #bd93f9; font-size: 0.7em; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; }
+        .name-tag { font-family: 'VALORANT', sans-serif; color: white; font-size: 1.1em; margin-bottom: 5px; }
+        .role-tag { color: #bd93f9; font-size: 0.6em; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; }
         
         .mini-stats-container {
             display: flex; justify-content: space-around;
@@ -55,7 +73,7 @@ def show_dashboard():
         .tracker-link {
             display: block; background: linear-gradient(90deg, #ff4655 0%, #ff758c 100%);
             color: white !important; text-decoration: none !important;
-            padding: 10px; border-radius: 5px; font-family: 'VALORANT', sans-serif; font-size: 0.8em;
+            padding: 10px; border-radius: 5px; font-family: 'VALORANT', sans-serif; font-size: 0.7em;
         }
         .alert-card {
             background: rgba(255, 255, 255, 0.03); border-radius: 10px;
@@ -66,14 +84,18 @@ def show_dashboard():
 
     st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON COMMAND CENTER</h1>", unsafe_allow_html=True)
 
-    # --- 2. STATS GLOBALES ---
+    # --- 3. STATS GLOBALES (DYNAMIQUES) ---
     col_s1, col_s2, col_s3, col_s4 = st.columns(4)
-    with col_s1: st.markdown('<div class="stat-box"><div class="stat-val">78%</div><div class="stat-label">Win Rate</div></div>', unsafe_allow_html=True)
-    with col_s2: st.markdown('<div class="stat-box"><div class="stat-val">1.24</div><div class="stat-label">K/D Team</div></div>', unsafe_allow_html=True)
-    with col_s3: st.markdown('<div class="stat-box" style="border-left-color:#00eeff;"><div class="stat-val" style="color:#00eeff;">12</div><div class="stat-label">Scrims</div></div>', unsafe_allow_html=True)
-    with col_s4: st.markdown('<div class="stat-box" style="border-left-color:#bd93f9;"><div class="stat-val" style="color:#bd93f9;">62%</div><div class="stat-label">Clutch</div></div>', unsafe_allow_html=True)
+    with col_s1: 
+        st.markdown(f'<div class="stat-box"><div class="stat-val">{win_rate_display}</div><div class="stat-label">Win Rate Global</div></div>', unsafe_allow_html=True)
+    with col_s2: 
+        st.markdown('<div class="stat-box"><div class="stat-val">1.24</div><div class="stat-label">K/D Team</div></div>', unsafe_allow_html=True)
+    with col_s3: 
+        st.markdown(f'<div class="stat-box" style="border-left-color:#00eeff;"><div class="stat-val" style="color:#00eeff;">{total_finished}</div><div class="stat-label">Scrims Joués</div></div>', unsafe_allow_html=True)
+    with col_s4: 
+        st.markdown('<div class="stat-box" style="border-left-color:#bd93f9;"><div class="stat-val" style="color:#bd93f9;">62%</div><div class="stat-label">Clutch</div></div>', unsafe_allow_html=True)
 
-    # --- 3. ROSTER ET ALERTES ---
+    # --- 4. ROSTER ET ALERTES ---
     c_left, c_right = st.columns([1.2, 0.8])
 
     with c_left:
@@ -83,8 +105,7 @@ def show_dashboard():
             {"nom": "BOO ツ", "role": "IGL / SENTINEL", "img": "https://i.pinimg.com/736x/f4/30/16/f43016461f09a37ac9d721b043439873.jpg", "kd": "1.04", "hs": "35.4%", "url": "https://tracker.gg/valorant/profile/riot/Boo%20ツ%231tpas/overview"},
             {"nom": "KURAIME", "role": "DUELIST", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Kuraime", "kd": "0.99", "hs": "39.3%", "url": "https://tracker.gg/valorant/profile/riot/kuraime%23ezz/overview"},
             {"nom": "TURBOS", "role": "INITIATOR", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Turbos", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/turboS%23SPEED/overview"},
-            {"nom": "N2", "role": "CONTROLEUR", "img": "https://i.pinimg.com/736x/f7/7d/b5/f77db5e6c5948aec49c1dfe5a8c37885.jpg", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/ego%20peeker%23N2N2/matches?platform=pc&playlist=competitive&season=3ea2b318-423b-cf86-25da-7cbb0eefbe2d"}
-        
+            {"nom": "N2", "role": "CONTROLEUR", "img": "https://i.pinimg.com/736x/f7/7d/b5/f77db5e6c5948aec49c1dfe5a8c37885.jpg", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/ego%20peeker%23N2N2/overview"}
         ]
         
         r_cols = st.columns(2)
@@ -107,15 +128,17 @@ def show_dashboard():
         st.markdown("### 🚨 SYSTEM ALERTS")
         
         # Alerte Planning (Dynamique)
-        planning = load_data(PLANNING_DB)
-        if planning:
-            m = planning[0]
-            st.markdown(f"""
-                <div class="alert-card">
-                    <b style="color:#ff4655;">NEXT SCRIM:</b><br>
-                    <small>{m['jour']} vs {m['opp']} @ {m['time']}</small>
-                </div>
-            """, unsafe_allow_html=True)
+        if not df_planning.empty:
+            # On cherche le premier match qui n'a pas encore de résultat
+            upcoming = df_planning[df_planning['Resultat'].isna() | (df_planning['Resultat'] == "")]
+            if not upcoming.empty:
+                m = upcoming.iloc[0]
+                st.markdown(f"""
+                    <div class="alert-card">
+                        <b style="color:#ff4655;">NEXT SCRIM:</b><br>
+                        <small>{m['jour']} vs {m['opp']} @ {m['time']}</small>
+                    </div>
+                """, unsafe_allow_html=True)
         
         # Alerte Dispos (Dynamique)
         dispos = load_data(DISPOS_DB)
@@ -127,7 +150,7 @@ def show_dashboard():
                     <small>{", ".join(missing)} n'ont pas rempli leurs dispos.</small>
                 </div>
             """, unsafe_allow_html=True)
-        
+
         st.markdown("### 📊 PERFORMANCE")
         chart_data = pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance'])
         st.line_chart(chart_data)
@@ -633,6 +656,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
