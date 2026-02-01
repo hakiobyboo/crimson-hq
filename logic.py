@@ -116,7 +116,7 @@ def show_tactical_pool():
             "Veto": "https://i.ytimg.com/vi/I4T-7Kw6jKQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDkzKWLj2MKubuILXFmd6avfe_1PA"
         },
         "☁️ CONTROLEUR": {
-            "Astra": "",
+            "Astra": "https://i.pinimg.com/736x/52/96/d9/5296d9245052e767cedac9b5e100dd90.jpg",
             "Brimstone": "https://images.wallpapersden.com/image/wxl-brimstone-new-valorant-poster_72344.jpg",
             "Clove": "https://images.wallpapersden.com/image/wxl-cool-clove-4k-valorant_92740.jpg",
             "Harbor": "https://images8.alphacoders.com/128/thumb-1920-1282950.png",
@@ -126,11 +126,11 @@ def show_tactical_pool():
         "👁️ INITIATEUR": {
             "Breach": "https://images3.alphacoders.com/114/1149735.jpg",
             "Fade": "https://images.wallpapersden.com/image/wxl-fade-valorant-gaming-character-digital-art_91742.jpg",
-            "Gekko": "",
-            "KAY/O": "",
+            "Gekko": "https://i.pinimg.com/736x/79/c1/fd/79c1fd4a6c33cb25b40d1b262ed35e53.jpg",
+            "KAY/O": "https://i.pinimg.com/1200x/ef/0f/b8/ef0fb88954b5176e3c05c4811a42604e.jpg",
             "Skye": "https://images.wallpapersden.com/image/wxl-skye-art-cool-valorant_77564.jpg",
             "Sova": "https://images.wallpapersden.com/image/wxl-sova-cool-art-valorant_81600.jpg",
-            "Tejo": ""
+            "Tejo": "https://i.pinimg.com/736x/30/51/37/305137a6f4c69f7ed72d37d398fa2510.jpg"
         },
         "🔥 DUELISTER": {
             "Iso": "https://images.wallpapersden.com/image/wxl-iso-valorant-x-overwatch-2-style_91783.jpg",
@@ -138,9 +138,9 @@ def show_tactical_pool():
             "Neon": "https://images.wallpapersden.com/image/wxl-neon-hd-valorant-nightmare_84224.jpg",
             "Phoenix": "https://images2.alphacoders.com/132/thumb-1920-1328732.png",
             "Raze": "https://images.wallpapersden.com/image/wxl-raze-new-valorant_77567.jpg",
-            "Reyna": "",
+            "Reyna": "https://i.pinimg.com/736x/c5/d1/4b/c5d14b3aa7f75ede4b527f7040556f84.jpg",
             "Yoru": "https://images.wallpapersden.com/image/wxl-yoru-fan-art-valorant_83634.jpg",
-            "Waylay": ""
+            "Waylay": "https://i.pinimg.com/736x/e0/36/37/e0363703adc24fc3b2e1dded3b563259.jpg"
         }
     }
 
@@ -252,6 +252,7 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
 
 
 
