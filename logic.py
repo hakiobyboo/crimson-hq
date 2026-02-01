@@ -107,7 +107,7 @@ def show_tactical_pool():
 
     categories = {
         "🛡️ SENTINEL": {
-            "Chamber": "https://www.altchar.com/game-news/valorant-chamber-will-be-getting-another-nerf-a8vie0N8Zdpo",
+            "Chamber": "https://bo3.gg/valorant/articles/agent-chamber-guide",
             "Cypher": "https://media.valorant-api.com/agents/117ed9d3-4836-2473-3e7b-5d1073097510/fullportrait.png",
             "Deadlock": "https://media.valorant-api.com/agents/cc8b6900-45c0-11ff-3136-32a2405c56b4/fullportrait.png",
             "Killjoy": "https://media.valorant-api.com/agents/1e58de9d-4950-5125-93e9-a0aee9f97661/fullportrait.png",
@@ -252,5 +252,6 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
 
 
