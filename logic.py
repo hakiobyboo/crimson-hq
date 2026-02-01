@@ -246,28 +246,40 @@ def show_intel():
         cols = st.columns(3)
         for i, m in enumerate(map_list):
             with cols[i % 3]:
-                st.markdown(f'<div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; border-left:3px solid #bd93f9;"><b>{m}</b><br><small>READY</small></div>', unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; border-left:3px solid #bd93f9; margin-bottom:10px;">
+                        <b style="color:#bd93f9;">{m}</b><br>
+                        <small style="color:white;">READY</small>
+                    </div>
+                """, unsafe_allow_html=True)
 
     with tab2:
         st.subheader("Bibliothèque Stratégique")
         if os.path.exists(STRAT_DB):
             df_strats = pd.read_csv(STRAT_DB)
-            for _, row in df_strats.iterrows():
-                st.info(f"**[{row['Map']}] {row['Titre']}**\n\n{row['Description']}\n\n[Lien]({row['Lien']})")
+            if not df_strats.empty:
+                for _, row in df_strats.iterrows():
+                    st.info(f"**[{row['Map']}] {row['Titre']}**\n\n{row['Description']}\n\n[Lien]({row['Lien']})")
+            else:
+                st.write("Le carnet est vide.")
         else:
             st.write("Aucune stratégie enregistrée.")
 
     with tab3:
-        st.subheader("Ajouter une Strat")
+        st.subheader("Ajouter une Stratégie")
         with st.form("new_strat"):
             m = st.selectbox("Map", map_list)
-            t = st.text_input("Titre")
+            t = st.text_input("Titre de la strat")
             l = st.text_input("Lien YouTube/TikTok")
-            d = st.text_area("Description")
+            d = st.text_area("Description rapide")
+            
             if st.form_submit_button("Enregistrer"):
-                save_strat(m, t, l, d)
-                st.success("Enregistré !")
-                st.rerun()
+                if t and l:
+                    save_strat(m, t, l, d)
+                    st.success("Stratégie enregistrée !")
+                    st.rerun()
+                else:
+                    st.error("Remplis au moins le titre et le lien !")
                 
     # Affichage des cartes
     cols = st.columns(2)
@@ -712,6 +724,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
