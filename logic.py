@@ -155,20 +155,6 @@ def save_strat(map_name, title, link, desc):
         df.to_csv(STRAT_DB, mode='a', header=False, index=False)
     else:
         df.to_csv(STRAT_DB, index=False)
-def show_dashboard():
-    # --- 1. CALCULS DYNAMIQUES ---
-    # On utilise load_csv de database.py car PLANNING_DB y est défini ou géré
-    df_planning = load_csv("data/planning.csv", ["Date", "Adversaire", "Resultat"])
-    
-    win_rate_display = "0%"
-    total_finished = 0
-    
-    if not df_planning.empty and 'Resultat' in df_planning.columns:
-        finished_matches = df_planning[df_planning['Resultat'].isin(['Win', 'Loss'])]
-        total_finished = len(finished_matches)
-        if total_finished > 0:
-            wins = len(finished_matches[finished_matches['Resultat'] == 'Win'])
-            win_rate_display = f"{(wins / total_finished) * 100:.0f}%"
 
     # --- 2. STYLE CSS AVEC ANIMATIONS ---
     st.markdown("""
@@ -708,6 +694,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
