@@ -109,7 +109,7 @@ def show_tactical_pool():
         "🛡️ SENTINEL": {
             "Chamber": "https://images.wallpapersden.com/image/wxl-chamber-valorant-hd-cool_91233.jpg",
             "Cypher": "https://images.wallpapersden.com/image/wxl-cypher-background-valorant-art_82069.jpg",
-            "Deadlock": "https://media.valorant-api.com/agents/cc8b6900-45c0-11ff-3136-32a2405c56b4/fullportrait.png",
+            "Deadlock": "https://images5.alphacoders.com/139/thumb-1920-1399745.jpg",
             "Killjoy": "https://media.valorant-api.com/agents/1e58de9d-4950-5125-93e9-a0aee9f97661/fullportrait.png",
             "Sage": "https://media.valorant-api.com/agents/569fdd95-4d0f-5d54-963f-8b1167b43f92/fullportrait.png",
             "Vyse": "https://media.valorant-api.com/agents/6c368297-4c4c-4740-4965-74892c9082fd/fullportrait.png",
@@ -252,6 +252,7 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
 
 
 
