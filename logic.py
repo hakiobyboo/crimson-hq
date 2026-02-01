@@ -338,17 +338,6 @@ def show_strategy_map(current_map):
                                     os.remove(f"{path}/{f}")
                                     st.rerun()
                 files = [f for f in os.listdir(f"{map_path}/{side}") if f.endswith(('.png', '.jpg', '.jpeg'))]
-                if files:
-                    cols = st.columns(3)
-                    for idx, f in enumerate(files):
-                        with cols[idx % 3]:
-                            st.image(f"{map_path}/{side}/{f}", caption=f.replace(".png", ""), use_container_width=True)
-                            if st.button("🗑️", key=f"del_{side}_{idx}"):
-                                os.remove(f"{map_path}/{side}/{f}")
-                                st.rerun()
-                else:
-                    st.info("Aucune donnée.")
+        
+st.info(f"Aucune stratégie enregistrée pour le côté {side}.")
 
-
-
-                    st.info(f"Aucune stratégie enregistrée pour le côté {side}.")
