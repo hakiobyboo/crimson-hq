@@ -155,20 +155,18 @@ def show_map_selection():
                 st.rerun()
 
 def show_strategy_map(current_map):
-    # --- BARRE DE NAVIGATION (Bouton Retour ajouté ici) ---
-    col_nav1, col_nav2 = st.columns([1, 4])
-    with col_nav1:
-        if st.button("⬅ RETOUR"):
-            st.session_state['selected_strat_map'] = None
-            st.rerun()
-    with col_nav2:
-        st.markdown(f"### MISSION ACTIVE : {current_map.upper()}")
+    # 1. On affiche le bouton RETOUR en premier
+    # Le CSS dans styles.py (top: 10px) s'occupera de le placer tout en haut à gauche
+    if st.button("⬅ RETOUR"):
+        st.session_state['selected_strat_map'] = None
+        st.rerun()
 
-    # Sélecteur de mode
+    # 2. Sélecteur de mode (toujours visible pour pouvoir switcher vers les archives)
     view_mode = st.radio("INTERFACE", ["VALOPLANT LIVE", "ARCHIVES TACTIQUES"], horizontal=True, label_visibility="collapsed")
     
     if view_mode == "VALOPLANT LIVE":
-        # --- VALOPLANT EN PLEIN ÉCRAN ---
+        # --- MODE LIVE : On affiche uniquement l'iframe ---
+        # L'iframe commence à 65px du haut grâce au CSS de styles.py pour laisser la place au bouton
         st.markdown(f"""
             <div class="iframe-container">
                 <iframe src="https://valoplant.gg" 
@@ -178,7 +176,10 @@ def show_strategy_map(current_map):
             </div>
         """, unsafe_allow_html=True)
     else:
-        # --- RÉTABLIR LE SCROLL POUR LES ARCHIVES ---
+        # --- MODE ARCHIVES : On affiche l'interface normale avec scroll ---
+        st.markdown(f"### MISSION ACTIVE : {current_map.upper()}")
+        
+        # On réactive le scroll car les archives peuvent être longues
         st.markdown("<style>html, body, [data-testid='stAppViewContainer'] { overflow: auto !important; }</style>", unsafe_allow_html=True)
         
         map_path = f"images_scrims/{current_map}"
