@@ -50,24 +50,20 @@ def apply_global_styles():
     """, unsafe_allow_html=True)
 
 def apply_immersive_mode():
-    """Version épurée : masque le header mais laisse les boutons de logic.py libres"""
+    """Version propre : cache l'interface Streamlit mais laisse les boutons libres"""
     st.markdown("""
         <style>
-        /* Masque le header Streamlit pour gagner de la place */
-        header, [data-testid="stHeader"] { 
+        header, [data-testid="stHeader"], footer { 
             visibility: hidden !important;
             height: 0px !important;
         }
-
-        /* Supprime le padding inutile en haut */
         [data-testid="stAppViewBlockContainer"] {
             padding-top: 1rem !important;
         }
-
-        /* Bloque le scroll principal pour Valoplant */
+        /* Bloque le scroll du site principal pour que la molette aille dans l'iframe */
         .main { overflow: hidden !important; }
         
-        /* On s'assure que les boutons ne sont PLUS figés en haut à gauche */
+        /* Annule le mode fixe qui cassait tout */
         div.stButton > button {
             position: static !important;
         }
