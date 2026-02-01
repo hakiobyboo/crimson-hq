@@ -249,45 +249,110 @@ def show_tactical_pool():
         st.divider()
 
 def show_planning():
+    st.markdown("<h2 class='valo-title' style='text-align:center;'>OPERATIONAL PLANNING</h2>", unsafe_allow_html=True)
+    
+    # --- STYLE CSS AMÉLIORÉ ---
     st.markdown("""
         <style>
-        .mission-card {
-            background: linear-gradient(135deg, rgba(255,70,85,0.1) 0%, rgba(15,25,35,0.9) 100%);
-            border-left: 5px solid #ff4655;
+        .planning-container {
             padding: 15px;
-            border-radius: 0px 15px 15px 0px;
-            margin-bottom: 20px;
+            background: rgba(15, 25, 35, 0.4);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 70, 85, 0.2);
+        }
+        .mission-entry {
+            background: linear-gradient(90deg, rgba(255,70,85,0.05) 0%, rgba(15,25,35,0.9) 100%);
+            border-left: 4px solid #ff4655;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-radius: 0 10px 10px 0;
             position: relative;
-            overflow: hidden;
         }
-        .mission-card::before {
-            content: "OPERATIONAL";
-            position: absolute;
-            top: 5px;
-            right: 10px;
-            font-size: 0.6em;
-            color: rgba(255,255,255,0.3);
-            letter-spacing: 2px;
-        }
-        .time-tag {
-            color: #ff4655;
-            font-family: 'VALORANT', sans-serif;
-            font-size: 1.2em;
-        }
-        .mission-title {
-            color: white;
-            text-transform: uppercase;
-            font-weight: bold;
-            letter-spacing: 1px;
+        .day-tag { font-family: 'VALORANT', sans-serif; color: #ff4655; font-size: 0.8em; letter-spacing: 1px; }
+        .time-tag { color: #00ff00; font-family: monospace; font-size: 1.2em; font-weight: bold; }
+        .opp-tag { color: white; font-size: 1.1em; font-weight: bold; text-transform: uppercase; }
+        .map-info { color: #888; font-size: 0.9em; font-style: italic; }
+        .status-badge {
+            position: absolute; right: 20px; top: 20px;
+            font-size: 0.65em; padding: 3px 10px; border-radius: 3px;
+            border: 1px solid #ff4655; color: #ff4655; font-weight: bold;
         }
         </style>
-        
-        <div class="mission-card">
-            <div class="time-tag">21:00 - 23:30</div>
-            <div class="mission-title">SCRIM vs TEAM_ALPHA</div>
-            <div style="color: gray; font-size: 0.8em;">MAP: BIND | FOCUS: EXEC A SITE</div>
-        </div>
     """, unsafe_allow_html=True)
+
+    # Initialisation de la base de données de session
+    if 'planning_data' not in st.session_state:
+        st.session_state['planning_data'] = []
+
+    # --- FORMULAIRE D'AJOUT MANUEL ---
+    with st.expander("➕ AJOUTER UN NOUVEAU SCRIM / ENTRAÎNEMENT"):
+        with st.form("new_mission_form", clear_on_submit=True):
+            c1, c2, c3 = st.columns(3)
+            with c1: 
+                date_input = st.date_input("DATE")
+                time_input = st.text_input("HEURE", value="21:00")
+            with c2:
+                adversaire = st.text_input("ADVERSAIRE", placeholder="ex: Team Vitality")
+                map_name = st.selectbox("MAP", ["ASCENT", "BIND", "HAVEN", "SPLIT", "ICEBOX", "BREEZE", "FRACTURE", "PEARL", "LOTUS", "SUNSET", "ABYSS", "TBD"])
+            with c3:
+                m_type = st.selectbox("TYPE DE SESSION", ["SCRIM", "MATCH", "STRAT", "PRACTICE"])
+                submit = st.form_submit_button("VALIDER L'OPÉRATION")
+
+            if submit:
+                new_scrim = {
+                    "id": len(st.session_state['planning_data']),
+                    "date": date_input.strftime("%d/%m/%Y"),
+                    "time": time_input,
+                    "opp": adversaire if adversaire else "TBD",
+                    "map": map_name,
+                    "type": m_type
+                }
+                st.session_state['planning_data'].append(new_scrim)
+                st.success(f"Mission contre {adversaire} ajoutée !")
+                st.rerun()
+
+    st.divider()
+
+    # --- AFFICHAGE ET MODIFICATION ---
+    if not st.session_state['planning_data']:
+        st.info("Aucune opération prévue. Utilisez le formulaire ci-dessus pour ajouter un Scrim.")
+    else:
+        st.markdown("<div class='planning-container'>", unsafe_allow_html=True)
+        
+        # On affiche chaque mission avec un bouton supprimer à côté
+        for idx, m in enumerate(st.session_state['planning_data']):
+            # Design de l'entrée
+            col_card, col_del = st.columns([0.85, 0.15])
+            
+            with col_card:
+                # Couleurs par type
+                colors = {"SCRIM": "#ff4655", "MATCH": "#ff0000", "STRAT": "#00eeff", "PRACTICE": "#ffb000"}
+                color = colors.get(m['type'], "#ffffff")
+                
+                st.markdown(f"""
+                    <div class="mission-entry" style="border-left-color: {color}">
+                        <div class="status-badge" style="color: {color}; border-color: {color}">{m['type']}</div>
+                        <div class="day-tag">{m['date']}</div>
+                        <div class="time-tag">{m['time']}</div>
+                        <div class="opp-tag">VS {m['opp']}</div>
+                        <div class="map-info">OBJECTIF: {m['map']}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+            
+            with col_del:
+                st.write("") # Espace pour aligner
+                st.write("")
+                if st.button("🗑️", key=f"del_{idx}"):
+                    st.session_state['planning_data'].pop(idx)
+                    st.rerun()
+        
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    # Option pour tout effacer
+    if st.session_state['planning_data']:
+        if st.sidebar.button("⚠️ RESET TOUT LE PLANNING"):
+            st.session_state['planning_data'] = []
+            st.rerun()
 
 def show_map_selection():
     """Affiche la grille des maps"""
@@ -382,6 +447,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
