@@ -117,7 +117,7 @@ def show_tactical_pool():
         },
         "☁️ CONTROLEUR": {
             "Astra": "https://img.uhdpaper.com/wallpaper/astra-valorant-374@5@c-thumb.jpg?dl",
-            "Brimstone": "",
+            "Brimstone": "https://img.uhdpaper.com/wallpaper/brimstone-valorant-376@5@c-thumb.jpg?dl",
             "Clove": "",
             "Harbor": "",
             "Omen": "",
@@ -252,6 +252,7 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
 
 
 
