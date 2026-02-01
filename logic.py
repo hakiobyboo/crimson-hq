@@ -7,70 +7,149 @@ from database import get_intel, load_csv, save_agents_mastery, save_scrim_db, SC
 
 # --- 1. DASHBOARD ---
 def show_dashboard():
-    # --- STYLE CSS DASHBOARD FUTURISTE ---
+    # --- STYLE CSS AVANCE ---
     st.markdown("""
         <style>
-        /* Carte Identité Joueur */
-        .player-card {
+        /* Grille des joueurs */
+        .dashboard-grid {
+            display: flex;
+            justify-content: space-around;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        /* Carte de joueur style Crimson */
+        .player-card-dash {
             background: rgba(15, 25, 35, 0.9);
-            border-radius: 15px;
-            border: 1px solid rgba(255, 70, 85, 0.4);
-            padding: 20px;
+            border: 2px solid rgba(189, 147, 249, 0.3); /* Bordure Violette */
+            border-radius: 20px;
+            padding: 25px;
             text-align: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 15px rgba(255, 70, 85, 0.1);
+            width: 280px;
+            transition: 0.4s;
+            box-shadow: 0 0 15px rgba(189, 147, 249, 0.1);
         }
-        .player-card:hover {
-            border-color: #ff4655;
-            box-shadow: 0 0 25px rgba(255, 70, 85, 0.4);
-            transform: translateY(-5px);
+        
+        .player-card-dash:hover {
+            border-color: #bd93f9; /* Violet Glow au survol */
+            box-shadow: 0 0 30px rgba(189, 147, 249, 0.4);
+            transform: translateY(-10px);
         }
-        .player-img {
-            width: 100px;
-            height: 100px;
+
+        .img-profile {
+            width: 130px;
+            height: 130px;
             border-radius: 50%;
-            border: 3px solid #ff4655;
+            border: 3px solid #bd93f9;
             object-fit: cover;
-            margin-bottom: 10px;
-            box-shadow: 0 0 10px #ff4655;
-        }
-        .player-name-dash {
-            font-family: 'VALORANT', sans-serif;
-            color: white;
-            font-size: 1.2em;
-            letter-spacing: 2px;
-        }
-        .player-role {
-            color: #888;
-            font-size: 0.8em;
-            text-transform: uppercase;
+            box-shadow: 0 0 15px rgba(189, 147, 249, 0.6);
             margin-bottom: 15px;
         }
 
-        /* Stats Globales */
-        .stat-box {
-            background: linear-gradient(135deg, rgba(255,70,85,0.1) 0%, rgba(15,25,35,0.8) 100%);
-            border-left: 4px solid #ff4655;
-            padding: 15px;
-            border-radius: 5px;
-            text-align: center;
-        }
-        .stat-val {
-            font-family: monospace;
-            font-size: 2em;
-            color: #00ff00;
-            text-shadow: 0 0 10px rgba(0,255,0,0.5);
-        }
-        .stat-label {
+        .name-tag {
+            font-family: 'VALORANT', sans-serif;
             color: white;
-            font-size: 0.7em;
+            font-size: 1.5em;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .role-tag {
+            color: #bd93f9;
+            font-size: 0.8em;
+            font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        /* Bouton Tracker.gg */
+        .tracker-link {
+            display: block;
+            background: linear-gradient(90deg, #ff4655 0%, #ff758c 100%);
+            color: white !important;
+            text-decoration: none !important;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-family: 'VALORANT', sans-serif;
+            font-size: 0.8em;
+            transition: 0.3s;
+            margin-top: 15px;
+            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+
+        .tracker-link:hover {
+            filter: brightness(1.2);
+            box-shadow: 0 0 15px rgba(255, 70, 85, 0.6);
+        }
+
+        .mini-stats-container {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border-radius: 10px;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    st.markdown("<h2 class='valo-title' style='text-align:center;'>CRIMSON COMMAND CENTER</h2>", unsafe_allow_html=True)
+    st.markdown("<h1 class='valo-title' style='text-align:center;'>CRIMSON COMMAND CENTER</h1>", unsafe_allow_html=True)
+
+    # --- DONNÉES DU ROSTER ---
+    # Remplace les URLs des images par les vraies photos (ex: assets/nef.png)
+    # Remplace les URLs tracker par les vrais liens
+    roster_data = [
+        {
+            "nom": "NEF",
+            "role": "SENTINEL / FLEX",
+            "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Nef", 
+            "url": "https://tracker.gg/valorant/profile/riot/NEF%231234/overview",
+            "kd": "1.24", "hs": "26%"
+        },
+        {
+            "nom": "BOO ツ",
+            "role": "IGL / SMOKER",
+            "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Boo",
+            "url": "https://tracker.gg/valorant/profile/riot/BOO%23TWIN/overview",
+            "kd": "1.12", "hs": "21%"
+        },
+        {
+            "nom": "KURAIME",
+            "role": "DUELIST",
+            "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Kuraime",
+            "url": "https://tracker.gg/valorant/profile/riot/KURAIME%23WIN/overview",
+            "kd": "1.35", "hs": "28%"
+        },
+        {
+            "nom": "TURBOS",
+            "role": "INITIATOR",
+            "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Turbos",
+            "url": "https://tracker.gg/valorant/profile/riot/TURBOS%23000/overview",
+            "kd": "1.05", "hs": "19%"
+        }
+    ]
+
+    # --- AFFICHAGE DES CARTES ---
+    cols = st.columns(4)
+    for i, player in enumerate(roster_data):
+        with cols[i]:
+            st.markdown(f"""
+                <div class="player-card-dash">
+                    <img src="{player['img']}" class="img-profile">
+                    <div class="name-tag">{player['nom']}</div>
+                    <div class="role-tag">{player['role']}</div>
+                    
+                    <div class="mini-stats-container">
+                        <div><small style="color:#888;">K/D</small><br><b style="color:#00ff00;">{player['kd']}</b></div>
+                        <div><small style="color:#888;">HS%</small><br><b style="color:#00ff00;">{player['hs']}</b></div>
+                    </div>
+                    
+                    <a href="{player['url']}" target="_blank" class="tracker-link">VIEW TRACKER</a>
+                </div>
+            """, unsafe_allow_html=True)
+
+    st.divider()
+    st.info("💡 Cliquez sur 'VIEW TRACKER' pour ouvrir les statistiques détaillées sur Tracker.gg")
 
     # --- SECTION 1 : STATS GLOBALES (Le haut du Dash) ---
     col_s1, col_s2, col_s3, col_s4 = st.columns(4)
@@ -628,6 +707,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
