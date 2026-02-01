@@ -118,16 +118,16 @@ def show_tactical_pool():
         "☁️ CONTROLEUR": {
             "Astra": "https://img.uhdpaper.com/wallpaper/astra-valorant-374@5@c-thumb.jpg?dl",
             "Brimstone": "https://img.uhdpaper.com/wallpaper/brimstone-valorant-376@5@c-thumb.jpg?dl",
-            "Clove": "",
-            "Harbor": "",
+            "Clove": "https://img.uhdpaper.com/wallpaper/clove-valorant-game-362@3@a-thumb.jpg?dl",
+            "Harbor": "https://images8.alphacoders.com/128/thumb-1920-1282950.png",
             "Omen": "",
-            "Viper": "",
-            "Tejo": ""
+            "Viper": "hhttps://img.uhdpaper.com/wallpaper/valorant-viper-485@2@a-thumb.jpg?dl",
+            "Tejo": "https://playvalorant.com/en-gb/news/game-updates/tejo-man-of-action/"
         },
         "👁️ INITIATEUR": {
-            "Breach": "",
+            "Breach": "https://images3.alphacoders.com/114/1149735.jpg",
             "Fade": "",
-            "Gekko": "",
+            "Gekko": "https://img.uhdpaper.com/wallpaper/gekko-valorant-390@5@c-thumb.jpg?dl",
             "KAY/O": "",
             "Skye": "",
             "Sova": ""  
@@ -136,11 +136,11 @@ def show_tactical_pool():
             "Iso": "",
             "Jett": "",
             "Neon": "",
-            "Phoenix": "",
+            "Phoenix": "https://images2.alphacoders.com/132/thumb-1920-1328732.png",
             "Raze": "",
             "Reyna": "",
             "Yoru": "",
-            "Waylay": ""
+            "Waylay": "https://i.ytimg.com/vi/Mysl3rx6ttE/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLD_ddRKjb5bZ0m43pCB1aos9OHJ-w"
         }
     }
 
@@ -252,6 +252,7 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
 
 
 
