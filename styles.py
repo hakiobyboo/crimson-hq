@@ -50,49 +50,31 @@ def apply_global_styles():
     """, unsafe_allow_html=True)
 
 def apply_immersive_mode():
-    """Cache toute l'interface Streamlit et FORCE le plein écran pour Valoplant"""
+    """Version propre : cache l'interface Streamlit mais laisse les boutons de logic.py fonctionner"""
     st.markdown("""
         <style>
-        /* 1. Cache les éléments inutiles de Streamlit */
-        header, [data-testid="stHeader"], .valo-title, hr, .stDivider, [data-testid="stSidebar"] { 
-            display: none !important; 
+        /* 1. Cache uniquement le header et le menu burger de Streamlit */
+        header, [data-testid="stHeader"], footer { 
+            visibility: hidden !important;
+            height: 0px !important;
         }
 
-        /* 2. Positionnement du bouton RETOUR tout en haut */
-        div.stButton > button {
-            position: fixed;
-            top: 10px;      /* Distance par rapport au bord haut */
-            left: 20px;     /* Distance par rapport au bord gauche */
-            z-index: 10002 !important; 
-            background-color: #ff4655 !important;
-            color: white !important;
-        }
-
-        /* 3. Ajustement du conteneur de l'iframe pour qu'il commence PLUS BAS */
-        .iframe-container {
-            position: fixed;
-            top: 65px;      /* Augmenté à 65px pour laisser de la place au-dessus de Stratégie */
-            left: 0;
-            width: 100vw;
-            height: calc(100vh - 65px);
-            z-index: 9999;
-            background-color: #0f1923;
-        }
-
+        /* 2. On libère de l'espace en haut */
         [data-testid="stAppViewBlockContainer"] {
-            padding: 0px !important;
+            padding-top: 10px !important;
+            padding-bottom: 0px !important;
         }
 
-        iframe {
-            width: 100% !important;
-            height: 100% !important;
-            border: none !important;
-        }
-
-        /* Bloque le scroll du site principal */
+        /* 3. Bloque le scroll du site principal uniquement (pour favoriser l'iframe) */
         html, body, [data-testid="stAppViewContainer"] {
             overflow: hidden !important;
         }
+        
+        /* Supprime l'ancien forçage des boutons en haut à gauche */
+        div.stButton > button {
+            position: static !important;
+        }
         </style>
     """, unsafe_allow_html=True)
+
 
