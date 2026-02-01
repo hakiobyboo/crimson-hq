@@ -209,78 +209,77 @@ def show_map_selection():
                 st.rerun()
 
 def show_strategy_map(current_map):
-    """Vue Plein Écran pour Valoplant avec navigation fluide"""
+    """Vue Valoplant sans scroll et navigation à boutons multiples"""
 
-    # --- 1. CSS POUR LE MODE PLEIN ÉCRAN ---
-    # On réduit les marges de Streamlit au maximum pour coller au bord
+    # --- 1. CSS POUR VERROUILLER LE SCROLL GLOBAL ---
+    # On force la page à rester fixe pour que seule l'iframe utilise la molette
     st.markdown("""
         <style>
             .main { overflow: hidden !important; }
             div[data-testid="stAppViewBlockContainer"] {
-                padding-top: 0.5rem !important; 
+                padding-top: 0.5rem !important;
                 padding-bottom: 0rem !important;
-                padding-left: 1rem !important;
-                padding-right: 1rem !important;
             }
-            iframe {
-                border: none;
-                border-radius: 5px;
-            }
+            iframe { border: 2px solid #ff4655; border-radius: 8px; }
         </style>
     """, unsafe_allow_html=True)
 
-    # --- 2. BARRE DE NAVIGATION ULTRA-COMPACTE ---
-    # Cette barre reste visible pour te permettre de revenir en arrière
-    nav_col1, nav_col2, nav_col3 = st.columns([1, 2, 1])
-
-    with nav_col1:
-        if st.button("⬅ QUITTER LA MAP", use_container_width=True):
-            st.session_state['selected_strat_map'] = None
-            st.rerun()
-
-    with nav_col2:
-        # Titre discret pour laisser de la place
-        st.markdown(f"<h4 style='text-align:center; color:#ff4655; margin:0;'>PROJET : {current_map.upper()}</h4>", unsafe_allow_html=True)
-
-    with nav_col3:
-        if st.session_state.get('strat_view_mode') == "VALOPLANT":
-            if st.button("📂 DOSSIER LOCAL", use_container_width=True):
+    # --- 2. LOGIQUE D'AFFICHAGE ---
+    
+    if st.session_state.get('strat_view_mode') == "VALOPLANT":
+        # --- INTERFACE VALOPLANT LIVE ---
+        st.markdown(f"<h3 style='text-align:center; color:#ff4655; margin-bottom:10px;'>🌐 SESSION LIVE : {current_map.upper()}</h3>", unsafe_allow_html=True)
+        
+        # Deux boutons distincts pour plus de clarté
+        nav_c1, nav_c2 = st.columns(2)
+        with nav_c1:
+            if st.button("⬅ RETOUR AU MENU DES MAPS", use_container_width=True):
+                st.session_state['selected_strat_map'] = None
+                st.rerun()
+        with nav_c2:
+            if st.button("📂 OUVRIR LE DOSSIER TACTIQUE", use_container_width=True):
                 st.session_state['strat_view_mode'] = "DOSSIER"
                 st.rerun()
-        else:
-            if st.button("🌐 RETOUR VALOPLANT", use_container_width=True):
+
+        # Iframe Valoplant (La molette ne fera plus bouger ton site Crimson)
+        st.components.v1.iframe("https://valoplant.gg", height=800, scrolling=True)
+
+    else:
+        # --- INTERFACE DOSSIER LOCAL ---
+        # Ici on réactive le scroll pour pouvoir descendre voir les images
+        st.markdown("<style>.main { overflow: auto !important; }</style>", unsafe_allow_html=True)
+        
+        st.markdown(f"<h3 style='text-align:center; color:#ff4655;'>📁 DOSSIER : {current_map.upper()}</h3>", unsafe_allow_html=True)
+        
+        # Boutons de navigation du dossier
+        back_c1, back_c2 = st.columns(2)
+        with back_c1:
+            if st.button("⬅ MENU PRINCIPAL (MAPS)", use_container_width=True):
+                st.session_state['selected_strat_map'] = None
+                st.rerun()
+        with back_c2:
+            if st.button("🌐 REVENIR À VALOPLANT", use_container_width=True):
                 st.session_state['strat_view_mode'] = "VALOPLANT"
                 st.rerun()
 
-    # --- 3. AFFICHAGE DYNAMIQUE ---
-    if st.session_state.get('strat_view_mode') == "VALOPLANT":
-        # On utilise une hauteur de 88vh (88% de la hauteur de la fenêtre) pour un effet plein écran
-        st.components.v1.iframe("https://valoplant.gg", height=850, scrolling=True)
-    
-    else:
-        # On réactive le scroll uniquement pour le mode Dossier
-        st.markdown("<style>.main { overflow: auto !important; }</style>", unsafe_allow_html=True)
-        
         st.divider()
-        st.markdown(f"### 📁 ARCHIVES TACTIQUES : {current_map}")
         
+        # Gestion des fichiers (Ton code existant pour le dossier)
         map_path = f"images_scrims/{current_map}"
         for side in ["Attaque", "Defense"]:
             if not os.path.exists(f"{map_path}/{side}"): os.makedirs(f"{map_path}/{side}")
 
-        # Zone d'upload
-        with st.expander("➕ AJOUTER UNE CAPTURE D'ÉCRAN"):
+        with st.expander("📤 ARCHIVER UNE NOUVELLE STRATÉGIE"):
             c1, c2, c3 = st.columns([2, 1, 1])
-            up_f = c1.file_uploader("Image", type=['png', 'jpg'])
+            up_f = c1.file_uploader("Capture", type=['png', 'jpg'])
             up_n = c2.text_input("Nom de la strat")
             up_s = c3.selectbox("Côté", ["Attaque", "Defense"])
-            if st.button("💾 ENREGISTRER DANS LE DOSSIER", use_container_width=True, type="primary"):
+            if st.button("💾 SAUVEGARDER DANS LE DOSSIER", use_container_width=True):
                 if up_f and up_n:
                     Image.open(up_f).save(f"{map_path}/{up_s}/{up_n}.png")
-                    st.success("Stratégie archivée !")
+                    st.success("Image ajoutée !")
                     st.rerun()
 
-        # Tabs
         t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
         for tab, side in zip([t1, t2], ["Attaque", "Defense"]):
             with tab:
@@ -295,5 +294,6 @@ def show_strategy_map(current_map):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
                 else:
-                    st.info(f"Aucune donnée pour {side}.")
+                    st.info(f"Aucune stratégie en {side} pour le moment.")
+
 
