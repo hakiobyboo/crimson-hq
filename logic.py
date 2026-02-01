@@ -259,21 +259,7 @@ def show_intel():
                     st.success("Stratégie enregistrée !")
                     st.rerun()
                 else:
-                    st.error("Remplis au moins le titre et le lien !")
-                
-    # Affichage des cartes
-    cols = st.columns(2)       
-            st.markdown(f"""
-                <div class='player-card'>
-                    <p style='color:{color}; font-weight:bold;'>● {status}</p>
-                    <h2 style='font-family:VALORANT;'>{pl['label']}</h2>
-                    <p>RANK: <b style='color:#ff4655;'>{curr}</b></p>
-                    <p style='font-size:0.8em; opacity:0.6;'>PEAK: {peak}</p>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            if icon: 
-                st.image(icon, width=80)
+                    st.error("Remplis au moins le titre et le lien !")0)
 
 # --- 3. MATCH ARCHIVE ---
 def show_archive():
@@ -697,6 +683,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
