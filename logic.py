@@ -181,7 +181,11 @@ def show_planning():
     st.data_editor(df_plan, use_container_width=True)
 
 # --- 6. STRATÉGIE ---
+
 def show_map_selection():
+    """Affiche la grille des maps pour la sélection initiale"""
+    st.markdown("<h2 class='valo-title' style='text-align:center;'>SÉLECTION DE LA ZONE D'OPÉRATION</h2>", unsafe_allow_html=True)
+    
     map_list = {
         "Abyss": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/53698d442a14b5a6be643d53eb970ac16442cb38-930x522.png",
         "Ascent": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/5cb7e65c04a489eccd725ce693fdc11e99982e10-3840x2160.png",
@@ -194,89 +198,86 @@ def show_map_selection():
         "Pearl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/34ba319c99d3d20ef8c6f7b6a61439e207b39247-915x515.webp",
         "Split": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/878d51688c0f9dd0de827162e80c40811668e0c6-3840x2160.png",
         "Sunset": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/5101e4ee241fbfca261bf8150230236c46c8b991-3840x2160.png",
-        "Corrode": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/6e3e66577519c8290d874aa94d82e28aec2ccc3e-915x515.jpg?accountingTag=VAL&auto=format&fit=fill&q=80&w=915"
+        "Corrode": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/6e3e66577519c8290d874aa94d82e28aec2ccc3e-915x515.jpg"
     }
+    
     cols = st.columns(3)
     for i, (m_name, m_url) in enumerate(map_list.items()):
         with cols[i % 3]:
             st.image(m_url, use_container_width=True)
-            if st.button(f"SÉLECTIONNER {m_name.upper()}", key=f"select_{m_name}"):
+            if st.button(f"SÉLECTIONNER {m_name.upper()}", key=f"select_{m_name}", use_container_width=True):
                 st.session_state['selected_strat_map'] = m_name
+                st.session_state['strat_view_mode'] = "VALOPLANT" # Par défaut on arrive sur Valoplant
                 st.rerun()
-                
+
 def show_strategy_map(current_map):
-    # --- BARRE DE NAVIGATION SUPÉRIEURE ---
-    col_nav1, col_nav2, col_nav3 = st.columns([1, 1, 1])
+    """Affiche soit Valoplant, soit le Dossier selon le mode"""
     
-    with col_nav1:
-        if st.button("⬅ RETOUR", use_container_width=True):
+    # Barre de navigation haute
+    col_back, col_title, col_folder = st.columns([1, 2, 1])
+    
+    with col_back:
+        if st.button("⬅ RETOUR AUX MAPS", use_container_width=True):
             st.session_state['selected_strat_map'] = None
             st.rerun()
             
-    # Initialisation du mode si non présent
-    if 'strat_view_mode' not in st.session_state:
-        st.session_state['strat_view_mode'] = "DOSSIER"
-
-    with col_nav2:
-        if st.button("📂 DOSSIER", use_container_width=True):
-            st.session_state['strat_view_mode'] = "DOSSIER"
-            st.rerun()
-
-    with col_nav3:
-        if st.button("🌐 VALOPLANT", use_container_width=True):
-            st.session_state['strat_view_mode'] = "VALOPLANT"
-            st.rerun()
+    with col_title:
+        st.markdown(f"<h3 style='text-align:center; color:#ff4655; margin:0;'>{current_map.upper()}</h3>", unsafe_allow_html=True)
+        
+    with col_folder:
+        if st.session_state['strat_view_mode'] == "VALOPLANT":
+            if st.button("📂 VOIR LE DOSSIER", use_container_width=True):
+                st.session_state['strat_view_mode'] = "DOSSIER"
+                st.rerun()
+        else:
+            if st.button("🌐 REVENIR À VALOPLANT", use_container_width=True):
+                st.session_state['strat_view_mode'] = "VALOPLANT"
+                st.rerun()
 
     st.divider()
 
-    # --- AFFICHAGE DU CONTENU ---
+    # --- MODE 1 : VALOPLANT LIVE ---
     if st.session_state['strat_view_mode'] == "VALOPLANT":
-        # MODE LIVE : L'iframe Valoplant
-        st.markdown(f"""
-            <div class="iframe-container">
-                <iframe src="https://valoplant.gg" 
-                        allow="clipboard-read; clipboard-write" 
-                        scrolling="yes" style="width:100%; height:80vh; border:none;">
-                </iframe>
-            </div>
-        """, unsafe_allow_html=True)
-    
+        st.components.v1.iframe("https://valoplant.gg", height=850, scrolling=True)
+
+    # --- MODE 2 : DOSSIER TACTIQUE (Archives locales) ---
     else:
-        # MODE DOSSIER : Ton système de gestion de maps
-        st.markdown(f"### 📍 ARCHIVES : {current_map.upper()}")
-        
+        st.markdown(f"### 📂 ARCHIVES LOCALES : {current_map.upper()}")
         map_path = f"images_scrims/{current_map}"
-        # Création des dossiers si besoin
-        for side in ["Attaque", "Defense"]:
-            if not os.path.exists(f"{map_path}/{side}"): 
-                os.makedirs(f"{map_path}/{side}")
         
-        # Formulaire d'upload
-        with st.expander("📤 AJOUTER UNE STRATÉGIE (IMAGE)"):
-            col_u1, col_u2, col_u3 = st.columns([2, 1, 1])
-            up_file = col_u1.file_uploader("Choisir l'image", type=['png', 'jpg'])
-            up_name = col_u2.text_input("Nom (ex: Split A)")
-            up_side = col_u3.selectbox("Côté", ["Attaque", "Defense"])
-            if st.button("SAUVEGARDER"):
+        # Création des dossiers si inexistants
+        for side in ["Attaque", "Defense"]:
+            if not os.path.exists(f"{map_path}/{side}"): os.makedirs(f"{map_path}/{side}")
+
+        # Zone d'ajout
+        with st.expander("➕ AJOUTER UNE NOUVELLE STRATÉGIE"):
+            c_u1, c_u2, c_u3 = st.columns([2, 1, 1])
+            up_file = c_u1.file_uploader("Image", type=['png', 'jpg', 'jpeg'])
+            up_name = c_u2.text_input("Nom de la strat")
+            up_side = c_u3.selectbox("Côté", ["Attaque", "Defense"])
+            
+            if st.button("✅ VALIDER LA STRATÉGIE", use_container_width=True, type="primary"):
                 if up_file and up_name:
                     Image.open(up_file).save(f"{map_path}/{up_side}/{up_name}.png")
-                    st.success(f"Strat {up_name} enregistrée !")
+                    st.success(f"Stratégie '{up_name}' enregistrée !")
                     st.rerun()
+                else:
+                    st.error("Il manque le nom ou l'image.")
 
-        # Onglets Attaque / Défense
+        # Affichage des onglets Attaque/Défense
         t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
         for tab, side in zip([t1, t2], ["Attaque", "Defense"]):
             with tab:
-                files = os.listdir(f"{map_path}/{side}")
+                files = [f for f in os.listdir(f"{map_path}/{side}") if f.endswith(('.png', '.jpg', '.jpeg'))]
                 if files:
-                    cols_f = st.columns(3)
+                    cols = st.columns(3)
                     for idx, f in enumerate(files):
-                        with cols_f[idx % 3]:
+                        with cols[idx % 3]:
                             st.image(f"{map_path}/{side}/{f}", caption=f.replace(".png", ""), use_container_width=True)
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{map_path}/{side}/{f}")
                                 st.rerun()
-                else: 
-                    st.info(f"Aucune stratégie enregistrée pour le côté {side}")
+                else:
+                    st.info(f"Aucune stratégie enregistrée pour le côté {side}.")
 
 
