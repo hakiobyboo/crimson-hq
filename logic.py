@@ -166,6 +166,8 @@ def show_intel():
         {"label": "Kuraime", "n": "kuraime", "t": "ezz"}, 
         {"label": "turboS", "n": "turboS", "t": "SPEED"}, 
         {"label": "Nef", "n": "Nef", "t": "SPK"},
+         {"label": "N2", "n": "N2", "t": "ego peeker#N2N2"},
+         
     ]
 
     with st.expander("🛠️ ADMINISTRATION : MISE À JOUR MANUELLE DES RANGS"):
@@ -631,6 +633,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
