@@ -116,7 +116,7 @@ def show_tactical_pool():
             "Veto": "https://media.valorant-api.com/agents/6a928e08-466d-55e1-807e-9786a5df9b6e/fullportrait.png"
         },
         "☁️ CONTROLEUR": {
-            "Astra": "https://media.valorant-api.com/agents/41fb69c1-4189-7b37-f117-bc3596b3a1c1/fullportrait.png",
+            "Astra": "https://playvalorant.com/fr-fr/agents/astra",
             "Brimstone": "https://media.valorant-api.com/agents/9ad6e251-4199-1392-8a0a-559b9bb1b13a/fullportrait.png",
             "Clove": "https://media.valorant-api.com/agents/bb2a14ca-4614-4690-8805-776732644265/fullportrait.png",
             "Harbor": "https://media.valorant-api.com/agents/95b5b8d0-4c7a-b64d-7603-9ce1f6d4ad48/fullportrait.png",
@@ -252,3 +252,4 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
