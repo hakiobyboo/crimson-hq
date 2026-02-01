@@ -214,33 +214,36 @@ def show_tactical_pool():
         st.markdown(f"### {cat_name}")
         cols = st.columns(4)
         
-        for i, (name, img_url) in enumerate(agents.items()):
-            with cols[i % 4]:
-                key = f"{p_sel}_{name}"
-                # On récupère la valeur, par défaut 0
-                current_level = st.session_state['agent_data'].get(key, 0)
-                
-                options = ["⚪ JAMAIS", "🔴 À TESTER", "🟢 OK", "🟡 MAIN"]
-                classes = ["g-never", "g-test", "g-ok", "g-star"]
+for i, (name, img_url) in enumerate(agents.items()):
+    with cols[i % 4]:
+        key = f"{p_sel}_{name}"
+        
+        # 1. Sécurisation de l'index pour éviter le TypeError
+        raw_val = st.session_state.get('agent_data', {}).get(key, 0)
+        # On s'assure que c'est un entier entre 0 et 3
+        current_level = min(max(int(raw_val), 0), 3) 
+        
+        options = ["⚪ JAMAIS", "🔴 À TESTER", "🟢 OK", "🟡 MAIN"]
+        classes = ["g-never", "g-test", "g-ok", "g-star"]
 
-                # Rendu de la carte
-                st.markdown(f"""
-                    <div class='agent-card {classes[current_level]}'>
-                        <div class='agent-name-label'>{name.upper()}</div>
-                        <img src="{img_url}">
-                    </div>
-                """, unsafe_allow_html=True)
+        # 2. Rendu de la carte
+        st.markdown(f"""
+            <div class='agent-card {classes[current_level]}'>
+                <div class='agent-name-label'>{name.upper()}</div>
+                <img src="{img_url}">
+            </div>
+        """, unsafe_allow_html=True)
 
-                # Sélecteur
-                new_val = st.selectbox(f"lvl_{key}", options, index=current_level, key=f"sel_{key}", label_visibility="collapsed")
-                new_idx = options.index(new_val)
+        # 3. Sélecteur
+        new_val = st.selectbox(f"lvl_{key}", options, index=current_level, key=f"sel_{key}", label_visibility="collapsed")
+        new_idx = options.index(new_val)
 
-                # Sauvegarde immédiate si changement
-                if new_idx != current_level:
-                    st.session_state['agent_data'][key] = new_idx
-                    save_agents_mastery(st.session_state['agent_data'])
-                    st.rerun()
-        st.divider()
+        if new_idx != current_level:
+            if 'agent_data' not in st.session_state: st.session_state['agent_data'] = {}
+            st.session_state['agent_data'][key] = new_idx
+            save_agents_mastery(st.session_state['agent_data'])
+            st.rerun()
+       st.divider()
 
 # --- 5. PLANNING ---
 def show_planning():
@@ -345,6 +348,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
