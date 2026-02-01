@@ -50,35 +50,38 @@ def apply_global_styles():
     """, unsafe_allow_html=True)
 
 def apply_immersive_mode():
-    """Version qui verrouille le défilement pour privilégier la carte"""
+    """Verrouillage total du scroll pour forcer l'usage de la molette dans l'iframe uniquement"""
     st.markdown("""
         <style>
-        /* Cache le header Streamlit */
+        /* 1. Cache les éléments parasites de Streamlit */
         header, [data-testid="stHeader"], footer { 
-            visibility: hidden !important;
-            height: 0px !important;
+            display: none !important;
         }
 
-        /* Supprime les marges pour que l'iframe prenne toute la place */
-        [data-testid="stAppViewBlockContainer"] {
-            padding-top: 0px !important;
-            padding-bottom: 0px !important;
-            max-width: 100% !important;
+        /* 2. Verrouille le conteneur principal à la taille de l'écran */
+        html, body, [data-testid="stAppViewBlockContainer"] {
+            overflow: hidden !important;
+            height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
-        /* FORCE LE BLOCAGE DU SCROLL GLOBAL : 
-           C'est ici que la magie opère pour la molette. 
-           On empêche la page Crimson de défiler.
-        */
+        /* 3. On s'assure que la zone de contenu ne peut pas scroller */
         .main {
             overflow: hidden !important;
-            position: fixed !important;
-            width: 100% !important;
+            height: 100vh !important;
         }
-        
-        /* Assure que l'iframe est bien cliquable */
-        iframe {
-            border: none !important;
+
+        /* 4. Ajustement des boutons de navigation pour qu'ils ne créent pas de scroll */
+        div.stButton > button {
+            margin-bottom: 10px !important;
+        }
+
+        /* 5. On retire les paddings de Streamlit qui poussent le contenu vers le bas */
+        [data-testid="stAppViewBlockContainer"] {
+            padding-top: 10px !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
         }
         </style>
     """, unsafe_allow_html=True)
