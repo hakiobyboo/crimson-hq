@@ -107,40 +107,40 @@ def show_tactical_pool():
 
     categories = {
         "🛡️ SENTINEL": {
-            "Chamber": "https://media.valorant-api.com/agents/22697a3d-45bf-8dd7-4f03-10a07d64f12f/fullportrait.png",
-            "Cypher": "https://media.valorant-api.com/agents/117ed9d3-4836-2473-3e7b-5d1073097510/fullportrait.png",
-            "Deadlock": "https://media.valorant-api.com/agents/cc8b6900-45c0-11ff-3136-32a2405c56b4/fullportrait.png",
-            "Killjoy": "https://media.valorant-api.com/agents/1e58de9d-4950-5125-93e9-a0aee9f97661/fullportrait.png",
-            "Sage": "https://media.valorant-api.com/agents/569fdd95-4d0f-5d54-963f-8b1167b43f92/fullportrait.png",
-            "Vyse": "https://media.valorant-api.com/agents/6c368297-4c4c-4740-4965-74892c9082fd/fullportrait.png",
-            "Veto": "https://media.valorant-api.com/agents/6a928e08-466d-55e1-807e-9786a5df9b6e/fullportrait.png"
+            "Chamber": "https://images.wallpapersden.com/image/wxl-chamber-valorant-hd-cool_91233.jpg",
+            "Cypher": "https://images.wallpapersden.com/image/wxl-cypher-background-valorant-art_82069.jpg",
+            "Deadlock": "https://images5.alphacoders.com/139/thumb-1920-1399745.jpg",
+            "Killjoy": "https://images8.alphacoders.com/114/thumb-1920-1149389.jpg",
+            "Sage": "https://img.uhdpaper.com/wallpaper/sage-valorant-391@5@c-thumb.jpg?dl",
+            "Vyse": "https://images6.alphacoders.com/137/thumb-1920-1373943.png",
+            "Veto": "https://i.ytimg.com/vi/I4T-7Kw6jKQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDkzKWLj2MKubuILXFmd6avfe_1PA"
         },
         "☁️ CONTROLEUR": {
-            "Astra": "https://media.valorant-api.com/agents/41fb69c1-4189-7b37-f117-bc3596b3a1c1/fullportrait.png",
-            "Brimstone": "https://media.valorant-api.com/agents/9ad6e251-4199-1392-8a0a-559b9bb1b13a/fullportrait.png",
-            "Clove": "https://media.valorant-api.com/agents/bb2a14ca-4614-4690-8805-776732644265/fullportrait.png",
-            "Harbor": "https://media.valorant-api.com/agents/95b5b8d0-4c7a-b64d-7603-9ce1f6d4ad48/fullportrait.png",
-            "Omen": "https://media.valorant-api.com/agents/8e253930-4c0d-4a5d-13a3-33318f73b981/fullportrait.png",
-            "Viper": "https://media.valorant-api.com/agents/707eab51-4836-f488-046a-cda6bf348ad8/fullportrait.png",
-            "Tejo": "https://media.valorant-api.com/agents/dad62021-4fec-586b-715a-b98a3330f69a/fullportrait.png"
+            "Astra": "https://img.uhdpaper.com/wallpaper/astra-valorant-374@5@c-thumb.jpg?dl",
+            "Brimstone": "https://img.uhdpaper.com/wallpaper/brimstone-valorant-376@5@c-thumb.jpg?dl",
+            "Clove": "https://img.uhdpaper.com/wallpaper/clove-valorant-game-362@3@a-thumb.jpg?dl",
+            "Harbor": "https://images8.alphacoders.com/128/thumb-1920-1282950.png",
+            "Omen": "https://www.uhdpaper.com/2024/08/4872a-omen-valorant-4k.html?m=0",
+            "Viper": "hhttps://img.uhdpaper.com/wallpaper/valorant-viper-485@2@a-thumb.jpg?dl",
+            "Tejo": "https://playvalorant.com/en-gb/news/game-updates/tejo-man-of-action/"
         },
         "👁️ INITIATEUR": {
-            "Breach": "https://media.valorant-api.com/agents/5f8d3a7f-467b-97f3-062c-13acf203c002/fullportrait.png",
-            "Fade": "https://media.valorant-api.com/agents/dade69b4-4354-453d-9152-87569175927c/fullportrait.png",
-            "Gekko": "https://media.valorant-api.com/agents/e370fa57-4757-3604-3644-49ba1543f2a8/fullportrait.png",
-            "KAY/O": "https://media.valorant-api.com/agents/601db300-4316-2969-808b-ce5ad40616a1/fullportrait.png",
-            "Skye": "https://media.valorant-api.com/agents/6f2a0491-44a3-42a3-274f-bc3596b3a1c1/fullportrait.png",
-            "Sova": "https://media.valorant-api.com/agents/320b2a48-4d9b-a075-3bca-14ac10b24036/fullportrait.png",
-            "Waylay": "https://media.valorant-api.com/agents/6a2b8e01-466a-55a1-807a-9786a5df9b6e/fullportrait.png"
+            "Breach": "https://images3.alphacoders.com/114/1149735.jpg",
+            "Fade": "https://img.uhdpaper.com/wallpaper/fade-valorant-782@5@k-thumb.jpg?dl",
+            "Gekko": "https://img.uhdpaper.com/wallpaper/gekko-valorant-390@5@c-thumb.jpg?dl",
+            "KAY/O": "https://www.uhdpaper.com/2021/05/kayo-valorant-game-4k-7091a.html?m=0",
+            "Skye": "https://www.uhdpaper.com/2020/09/skye-valorant-summon-4k-8219.html",
+            "Sova": "https://www.uhdpaper.com/2024/01/sova-valorant-reckoning-episode-4k-6441n.html?m=0"  
         },
         "🔥 DUELISTER": {
-            "Iso": "https://media.valorant-api.com/agents/0e314694-4c11-daa7-33d3-c99026774e44/fullportrait.png",
-            "Jett": "https://media.valorant-api.com/agents/ad3e3391-4351-b13e-f117-bc3596b3a1c1/fullportrait.png",
-            "Neon": "https://media.valorant-api.com/agents/bb2a14ca-4614-4690-8805-776732644265/fullportrait.png",
-            "Phoenix": "https://media.valorant-api.com/agents/eb93336a-449b-9c1b-ce31-2924316e6d78/fullportrait.png",
-            "Raze": "https://media.valorant-api.com/agents/f944b06d-4a4d-8170-9d11-bc3596b3a1c1/fullportrait.png",
-            "Reyna": "https://media.valorant-api.com/agents/a3bc0630-404a-b565-d5b7-bc3596b3a1c1/fullportrait.png",
-            "Yoru": "https://media.valorant-api.com/agents/7f94d92c-4234-8836-96ff-bc3596b3a1c1/fullportrait.png"
+            "Iso": "https://www.uhdpaper.com/2023/09/iso-valorant-gun-4k-4761m.html?m=0",
+            "Jett": "https://www.uhdpaper.com/2025/02/3755c-jett-knife-valorant-4k.html?m=0",
+            "Neon": "https://www.uhdpaper.com/2022/04/neon-valorant-episode-5-4k-7751g.html?m=0",
+            "Phoenix": "https://images2.alphacoders.com/132/thumb-1920-1328732.png",
+            "Raze": "https://www.uhdpaper.com/2025/02/3885c-raze-valorant-4k.html?m=0",
+            "Reyna": "https://www.uhdpaper.com/2025/02/3895c-reyna-valorant-4k.html?m=0",
+            "Yoru": "https://www.uhdpaper.com/2025/02/3925c-yoru-mask-valorant-8k.html?m=0",
+            "Waylay": "https://i.ytimg.com/vi/Mysl3rx6ttE/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLD_ddRKjb5bZ0m43pCB1aos9OHJ-w"
         }
     }
 
@@ -278,3 +278,4 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune stratégie enregistrée pour le côté {side}")
+
