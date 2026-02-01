@@ -203,41 +203,67 @@ def show_map_selection():
             if st.button(f"SÉLECTIONNER {m_name.upper()}", key=f"select_{m_name}"):
                 st.session_state['selected_strat_map'] = m_name
                 st.rerun()
-
+                
 def show_strategy_map(current_map):
-    if st.button("⬅ RETOUR"):
-        st.session_state['selected_strat_map'] = None
-        st.rerun()
-
-    view_mode = st.radio("INTERFACE", ["VALOPLANT LIVE", "ARCHIVES TACTIQUES"], horizontal=True, label_visibility="collapsed")
+    # --- BARRE DE NAVIGATION SUPÉRIEURE ---
+    col_nav1, col_nav2, col_nav3 = st.columns([1, 1, 1])
     
-    if view_mode == "VALOPLANT LIVE":
+    with col_nav1:
+        if st.button("⬅ RETOUR", use_container_width=True):
+            st.session_state['selected_strat_map'] = None
+            st.rerun()
+            
+    # Initialisation du mode si non présent
+    if 'strat_view_mode' not in st.session_state:
+        st.session_state['strat_view_mode'] = "DOSSIER"
+
+    with col_nav2:
+        if st.button("📂 DOSSIER", use_container_width=True):
+            st.session_state['strat_view_mode'] = "DOSSIER"
+            st.rerun()
+
+    with col_nav3:
+        if st.button("🌐 VALOPLANT", use_container_width=True):
+            st.session_state['strat_view_mode'] = "VALOPLANT"
+            st.rerun()
+
+    st.divider()
+
+    # --- AFFICHAGE DU CONTENU ---
+    if st.session_state['strat_view_mode'] == "VALOPLANT":
+        # MODE LIVE : L'iframe Valoplant
         st.markdown(f"""
             <div class="iframe-container">
                 <iframe src="https://valoplant.gg" 
                         allow="clipboard-read; clipboard-write" 
-                        scrolling="yes">
+                        scrolling="yes" style="width:100%; height:80vh; border:none;">
                 </iframe>
             </div>
         """, unsafe_allow_html=True)
+    
     else:
-        st.markdown(f"### MISSION ACTIVE : {current_map.upper()}")
-        st.markdown("<style>html, body, [data-testid='stAppViewContainer'] { overflow: auto !important; }</style>", unsafe_allow_html=True)
+        # MODE DOSSIER : Ton système de gestion de maps
+        st.markdown(f"### 📍 ARCHIVES : {current_map.upper()}")
         
         map_path = f"images_scrims/{current_map}"
+        # Création des dossiers si besoin
         for side in ["Attaque", "Defense"]:
-            if not os.path.exists(f"{map_path}/{side}"): os.makedirs(f"{map_path}/{side}")
+            if not os.path.exists(f"{map_path}/{side}"): 
+                os.makedirs(f"{map_path}/{side}")
         
-        with st.expander("📤 AJOUTER UN DOCUMENT TACTIQUE"):
+        # Formulaire d'upload
+        with st.expander("📤 AJOUTER UNE STRATÉGIE (IMAGE)"):
             col_u1, col_u2, col_u3 = st.columns([2, 1, 1])
-            up_file = col_u1.file_uploader("Image", type=['png', 'jpg'])
-            up_name = col_u2.text_input("Nom de la strat")
+            up_file = col_u1.file_uploader("Choisir l'image", type=['png', 'jpg'])
+            up_name = col_u2.text_input("Nom (ex: Split A)")
             up_side = col_u3.selectbox("Côté", ["Attaque", "Defense"])
-            if st.button("ENREGISTRER STRAT"):
+            if st.button("SAUVEGARDER"):
                 if up_file and up_name:
                     Image.open(up_file).save(f"{map_path}/{up_side}/{up_name}.png")
+                    st.success(f"Strat {up_name} enregistrée !")
                     st.rerun()
 
+        # Onglets Attaque / Défense
         t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
         for tab, side in zip([t1, t2], ["Attaque", "Defense"]):
             with tab:
@@ -251,4 +277,4 @@ def show_strategy_map(current_map):
                                 os.remove(f"{map_path}/{side}/{f}")
                                 st.rerun()
                 else: 
-                    st.info(f"Aucune archive pour {side}")
+                    st.info(f"Aucune stratégie enregistrée pour le côté {side}")
