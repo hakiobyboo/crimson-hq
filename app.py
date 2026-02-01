@@ -96,7 +96,7 @@ if is_strat_page and has_map_selected:
             st.rerun()
         
         st.divider()
-
+        
 # --- ROUTAGE VERS LES PAGES ---
         menu = st.session_state["current_page"]
         
@@ -109,8 +109,9 @@ if is_strat_page and has_map_selected:
         elif menu == "TACTICAL POOL":
             logic.show_tactical_pool()
         elif menu == "PLANNING":
-            logic.show_planning()
+            st.info("Page Planning en cours de développement.") # Message pour éviter le vide
         elif menu == "STRATÉGIE":
-            # On affiche la grille des maps uniquement si aucune n'est sélectionnée
+            # Si aucune map n'est sélectionnée, on affiche la grille
             if st.session_state['selected_strat_map'] is None:
                 logic.show_map_selection()
+
