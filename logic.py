@@ -107,40 +107,40 @@ def show_tactical_pool():
 
     categories = {
         "🛡️ SENTINEL": {
-            "Chamber": "https://images.wallpapersden.com/image/wxl-chamber-valorant-hd-cool_91233.jpg",
-            "Cypher": "https://images.wallpapersden.com/image/wxl-cypher-background-valorant-art_82069.jpg",
-            "Deadlock": "https://images5.alphacoders.com/139/thumb-1920-1399745.jpg",
-            "Killjoy": "https://images8.alphacoders.com/114/thumb-1920-1149389.jpg",
-            "Sage": "https://i.pinimg.com/1200x/fa/8d/6b/fa8d6b6cec9210cc126a947681b3077c.jpg",
-            "Vyse": "https://images6.alphacoders.com/137/thumb-1920-1373943.png",
-            "Veto": "https://i.ytimg.com/vi/I4T-7Kw6jKQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDkzKWLj2MKubuILXFmd6avfe_1PA"
+            "Chamber": "https://media.valorant-api.com/agents/22697a3d-45bf-8dd7-4f03-10a07d64f12f/fullportrait.png",
+            "Cypher": "https://media.valorant-api.com/agents/117ed9d3-4836-2473-3e7b-5d1073097510/fullportrait.png",
+            "Deadlock": "https://media.valorant-api.com/agents/cc8b6900-45c0-11ff-3136-32a2405c56b4/fullportrait.png",
+            "Killjoy": "https://media.valorant-api.com/agents/1e58de9d-4950-5125-93e9-a0aee9f97661/fullportrait.png",
+            "Sage": "https://media.valorant-api.com/agents/569fdd95-4d0f-5d54-963f-8b1167b43f92/fullportrait.png",
+            "Vyse": "https://media.valorant-api.com/agents/6c368297-4c4c-4740-4965-74892c9082fd/fullportrait.png",
+            "Veto": "https://media.valorant-api.com/agents/6a928e08-466d-55e1-807e-9786a5df9b6e/fullportrait.png"
         },
         "☁️ CONTROLEUR": {
-            "Astra": "https://i.pinimg.com/736x/52/96/d9/5296d9245052e767cedac9b5e100dd90.jpg",
-            "Brimstone": "https://images.wallpapersden.com/image/wxl-brimstone-new-valorant-poster_72344.jpg",
-            "Clove": "https://images.wallpapersden.com/image/wxl-cool-clove-4k-valorant_92740.jpg",
-            "Harbor": "https://images8.alphacoders.com/128/thumb-1920-1282950.png",
-            "Omen": "https://images.wallpapersden.com/image/wxl-cool-omen-valorant-2023_89545.jpg",
-            "Viper": "https://images.wallpapersden.com/image/wxl-viper-4k-valorant-2020_73350.jpg"
+            "Astra": "https://media.valorant-api.com/agents/41fb69c1-4189-7b37-f117-bc3596b3a1c1/fullportrait.png",
+            "Brimstone": "https://media.valorant-api.com/agents/9ad6e251-4199-1392-8a0a-559b9bb1b13a/fullportrait.png",
+            "Clove": "https://media.valorant-api.com/agents/bb2a14ca-4614-4690-8805-776732644265/fullportrait.png",
+            "Harbor": "https://media.valorant-api.com/agents/95b5b8d0-4c7a-b64d-7603-9ce1f6d4ad48/fullportrait.png",
+            "Omen": "https://media.valorant-api.com/agents/8e253930-4c0d-4a5d-13a3-33318f73b981/fullportrait.png",
+            "Viper": "https://media.valorant-api.com/agents/707eab51-4836-f488-046a-cda6bf348ad8/fullportrait.png",
+            "Tejo": "https://media.valorant-api.com/agents/dad62021-4fec-586b-715a-b98a3330f69a/fullportrait.png"
         },
         "👁️ INITIATEUR": {
-            "Breach": "https://images3.alphacoders.com/114/1149735.jpg",
-            "Fade": "https://images.wallpapersden.com/image/wxl-fade-valorant-gaming-character-digital-art_91742.jpg",
-            "Gekko": "https://i.pinimg.com/1200x/e8/ff/46/e8ff46efa78a7203b47f5976f72d31fb.jpg",
-            "KAY/O": "https://i.pinimg.com/1200x/ef/0f/b8/ef0fb88954b5176e3c05c4811a42604e.jpg",
-            "Skye": "https://images.wallpapersden.com/image/wxl-skye-art-cool-valorant_77564.jpg",
-            "Sova": "https://images.wallpapersden.com/image/wxl-sova-cool-art-valorant_81600.jpg",
-            "Tejo": "https://i.pinimg.com/736x/30/51/37/305137a6f4c69f7ed72d37d398fa2510.jpg"
+            "Breach": "https://media.valorant-api.com/agents/5f8d3a7f-467b-97f3-062c-13acf203c002/fullportrait.png",
+            "Fade": "https://media.valorant-api.com/agents/dade69b4-4354-453d-9152-87569175927c/fullportrait.png",
+            "Gekko": "https://media.valorant-api.com/agents/e370fa57-4757-3604-3644-49ba1543f2a8/fullportrait.png",
+            "KAY/O": "https://media.valorant-api.com/agents/601db300-4316-2969-808b-ce5ad40616a1/fullportrait.png",
+            "Skye": "https://media.valorant-api.com/agents/6f2a0491-44a3-42a3-274f-bc3596b3a1c1/fullportrait.png",
+            "Sova": "https://media.valorant-api.com/agents/320b2a48-4d9b-a075-3bca-14ac10b24036/fullportrait.png",
+            "Waylay": "https://media.valorant-api.com/agents/6a2b8e01-466a-55a1-807a-9786a5df9b6e/fullportrait.png"
         },
         "🔥 DUELISTER": {
-            "Iso": "https://images.wallpapersden.com/image/wxl-iso-valorant-x-overwatch-2-style_91783.jpg",
-            "Jett": "https://images.wallpapersden.com/image/wxl-hd-valorant-gaming-2022_85588.jpg",
-            "Neon": "https://images.wallpapersden.com/image/wxl-neon-hd-valorant-nightmare_84224.jpg",
-            "Phoenix": "https://images2.alphacoders.com/132/thumb-1920-1328732.png",
-            "Raze": "https://images.wallpapersden.com/image/wxl-raze-new-valorant_77567.jpg",
-            "Reyna": "https://i.pinimg.com/736x/c5/d1/4b/c5d14b3aa7f75ede4b527f7040556f84.jpg",
-            "Yoru": "https://images.wallpapersden.com/image/wxl-yoru-fan-art-valorant_83634.jpg",
-            "Waylay": "https://i.pinimg.com/736x/e0/36/37/e0363703adc24fc3b2e1dded3b563259.jpg"
+            "Iso": "https://media.valorant-api.com/agents/0e314694-4c11-daa7-33d3-c99026774e44/fullportrait.png",
+            "Jett": "https://media.valorant-api.com/agents/ad3e3391-4351-b13e-f117-bc3596b3a1c1/fullportrait.png",
+            "Neon": "https://media.valorant-api.com/agents/bb2a14ca-4614-4690-8805-776732644265/fullportrait.png",
+            "Phoenix": "https://media.valorant-api.com/agents/eb93336a-449b-9c1b-ce31-2924316e6d78/fullportrait.png",
+            "Raze": "https://media.valorant-api.com/agents/f944b06d-4a4d-8170-9d11-bc3596b3a1c1/fullportrait.png",
+            "Reyna": "https://media.valorant-api.com/agents/a3bc0630-404a-b565-d5b7-bc3596b3a1c1/fullportrait.png",
+            "Yoru": "https://media.valorant-api.com/agents/7f94d92c-4234-8836-96ff-bc3596b3a1c1/fullportrait.png"
         }
     }
 
@@ -203,150 +203,52 @@ def show_map_selection():
             if st.button(f"SÉLECTIONNER {m_name.upper()}", key=f"select_{m_name}"):
                 st.session_state['selected_strat_map'] = m_name
                 st.rerun()
-                
+
 def show_strategy_map(current_map):
-    # --- 1. NAVIGATION SUPÉRIEURE (Barre de menu principale) ---
-    col_nav1, col_nav2, col_nav3 = st.columns([1, 1, 1])
+    if st.button("⬅ RETOUR"):
+        st.session_state['selected_strat_map'] = None
+        st.rerun()
+
+    view_mode = st.radio("INTERFACE", ["VALOPLANT LIVE", "ARCHIVES TACTIQUES"], horizontal=True, label_visibility="collapsed")
     
-    # --- INITIALISATION ---
-    if 'strat_view_mode' not in st.session_state:
-        st.session_state['strat_view_mode'] = "VALOPLANT"
-
-    with col_nav1:
-        if st.button("🏠 ACCUEIL DES MAPS", use_container_width=True):
-            st.session_state['selected_strat_map'] = None
-            st.rerun()
-
-    with col_nav2:
-        if st.button("🌐 MODE VALOPLANT", use_container_width=True):
-            st.session_state['strat_view_mode'] = "VALOPLANT"
-            st.rerun()
-
-    with col_nav3:
-        if st.button("📂 MODE DOSSIER", use_container_width=True):
-            st.session_state['strat_view_mode'] = "DOSSIER"
-            st.rerun()
-
-    st.divider()
-
-    # --- 2. AFFICHAGE DU CONTENU ---
-    
-    # --- 1. MODE VALOPLANT LIVE ---
-    if st.session_state['strat_view_mode'] == "VALOPLANT":
-        st.markdown(f"### 📍 SITE TACTIQUE : {current_map.upper()}")
-        # Barre de navigation spécifique à Valoplant
-        col_v1, col_v2 = st.columns(2)
-        with col_v1:
-            if st.button("🏠 RETOUR AUX MAPS", use_container_width=True):
-                st.session_state['selected_strat_map'] = None
-                st.rerun()
-        with col_v2:
-            if st.button("📂 ALLER AU DOSSIER", use_container_width=True):
-                st.session_state['strat_view_mode'] = "DOSSIER"
-                st.rerun()
-
-        st.divider()
-        st.markdown(f"### 🌐 VALOPLANT LIVE : {current_map.upper()}")
+    if view_mode == "VALOPLANT LIVE":
         st.markdown(f"""
             <div class="iframe-container">
                 <iframe src="https://valoplant.gg" 
                         allow="clipboard-read; clipboard-write" 
-                        scrolling="yes" style="width:100%; height:80vh; border:none;">
-                        style="width:100%; height:80vh; border:none;">
+                        scrolling="yes">
                 </iframe>
             </div>
         """, unsafe_allow_html=True)
-    
-
-    # --- 2. MODE DOSSIER (ARCHIVES) ---
     else:
-        # --- MODE DOSSIER ---
-        st.markdown(f"### 📂 ARCHIVES LOCALES : {current_map.upper()}")
+        st.markdown(f"### MISSION ACTIVE : {current_map.upper()}")
+        st.markdown("<style>html, body, [data-testid='stAppViewContainer'] { overflow: auto !important; }</style>", unsafe_allow_html=True)
         
-        # --- LES 3 BOUTONS DISTINCTS DE NAVIGATION ---
-        # On crée 3 colonnes pour séparer les actions
-        c1, c2, c3 = st.columns(3)
-        
-        with c1:
-            if st.button("⬅ RETOUR ACCUEIL MAPS", use_container_width=True):
-        # Barre de navigation spécifique au Dossier
-        col_d1, col_d2 = st.columns(2)
-        with col_d1:
-            if st.button("🏠 RETOUR AUX MAPS", use_container_width=True):
-                st.session_state['selected_strat_map'] = None
-                st.rerun()
-        
-        with c2:
-            if st.button("🌐 ALLER SUR VALOPLANT", use_container_width=True):
-        with col_d2:
-            if st.button("🌐 REVENIR À VALOPLANT", use_container_width=True):
-                st.session_state['strat_view_mode'] = "VALOPLANT"
-                st.rerun()
-        
-        with c3:
-            # Un bouton informatif ou de rafraîchissement pour le dossier
-            if st.button("🔄 ACTUALISER DOSSIER", use_container_width=True):
-                st.rerun()
-        
-        st.write("---")
-
-        st.divider()
-        st.markdown(f"### 📂 DOSSIER TACTIQUE : {current_map.upper()}")
-
-        # Préparation des dossiers
         map_path = f"images_scrims/{current_map}"
         for side in ["Attaque", "Defense"]:
-            if not os.path.exists(f"{map_path}/{side}"): 
-                os.makedirs(f"{map_path}/{side}")
-        
-        # --- FORMULAIRE D'ENREGISTREMENT ---
-        with st.expander("📤 AJOUTER UNE NOUVELLE STRATÉGIE"):
-            c_u1, c_u2, c_u3 = st.columns([2, 1, 1])
-            up_file = c_u1.file_uploader("Image", type=['png', 'jpg', 'jpeg'])
-            up_name = c_u2.text_input("Nom de la strat")
-            up_side = c_u3.selectbox("Côté", ["Attaque", "Defense"])
             if not os.path.exists(f"{map_path}/{side}"): os.makedirs(f"{map_path}/{side}")
-
-        # Zone d'ajout de stratégie
-        with st.expander("➕ AJOUTER UNE NOUVELLE STRATÉGIE"):
-            c1, c2, c3 = st.columns([2, 1, 1])
-            up_file = c1.file_uploader("Image", type=['png', 'jpg', 'jpeg'])
-            up_name = c2.text_input("Nom")
-            up_side = c3.selectbox("Côté", ["Attaque", "Defense"])
-
-            # --- LE BOUTON DE VALIDATION (DISTINCT DES AUTRES) ---
-            # 'type="primary"' le rend rouge/bleu selon ton thème, donc très visible
-            if st.button("✅ VALIDER ET ENREGISTRER LA STRAT", use_container_width=True, type="primary"):
-            # LE BOUTON DE VALIDATION (Unique et séparé)
-            if st.button("✅ VALIDER LA STRATÉGIE", use_container_width=True, type="primary"):
+        
+        with st.expander("📤 AJOUTER UN DOCUMENT TACTIQUE"):
+            col_u1, col_u2, col_u3 = st.columns([2, 1, 1])
+            up_file = col_u1.file_uploader("Image", type=['png', 'jpg'])
+            up_name = col_u2.text_input("Nom de la strat")
+            up_side = col_u3.selectbox("Côté", ["Attaque", "Defense"])
+            if st.button("ENREGISTRER STRAT"):
                 if up_file and up_name:
                     Image.open(up_file).save(f"{map_path}/{up_side}/{up_name}.png")
-                    st.success(f"Stratégie '{up_name}' sauvegardée !")
-                    st.success(f"Stratégie '{up_name}' enregistrée !")
                     st.rerun()
-                else:
-                    st.error("Donne un nom et une image avant de valider !")
-                    st.error("Il manque le nom ou l'image.")
 
-        # --- SYSTÈME D'ONGLETS ---
-        # Affichage des archives
         t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
         for tab, side in zip([t1, t2], ["Attaque", "Defense"]):
             with tab:
-                files = [f for f in os.listdir(f"{map_path}/{side}") if f.endswith(('.png', '.jpg', '.jpeg'))]
-                files = [f for f in os.listdir(f"{map_path}/{side}") if f.endswith(('.png', '.jpg'))]
+                files = os.listdir(f"{map_path}/{side}")
                 if files:
                     cols_f = st.columns(3)
-                    cols = st.columns(3)
                     for idx, f in enumerate(files):
                         with cols_f[idx % 3]:
-                        with cols[idx % 3]:
                             st.image(f"{map_path}/{side}/{f}", caption=f.replace(".png", ""), use_container_width=True)
-                            if st.button("🗑️ SUPPRIMER", key=f"del_{side}_{idx}", use_container_width=True):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{map_path}/{side}/{f}")
                                 st.rerun()
                 else: 
-                    st.info(f"Le dossier {side} est vide.")
-                else:
-                    st.info(f"Aucune stratégie en {side}")
+                    st.info(f"Aucune archive pour {side}")
