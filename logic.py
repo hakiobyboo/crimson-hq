@@ -155,63 +155,103 @@ def show_dashboard():
         chart_data = pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance'])
         st.line_chart(chart_data)
 
+# Fichier pour sauvegarder les strats
+STRAT_DB = "data/strats.csv"
+
+def save_strat(map_name, title, link, desc):
+    new_data = {"Map": map_name, "Titre": title, "Lien": link, "Description": desc}
+    df = pd.DataFrame([new_data])
+    if os.path.exists(STRAT_DB):
+        df.to_csv(STRAT_DB, mode='a', header=False, index=False)
+    else:
+        df.to_csv(STRAT_DB, index=False)
+
 def show_intel():
-    st.markdown("<h2 class='valo-title'>INTEL MANAGEMENT</h2>", unsafe_allow_html=True)
-    players = ["Nef", "Boo ツ", "Kuraime", "turboS"]
-    with st.expander("🛠️ ADMINISTRATION"):
-        p_name = st.selectbox("Unité", players)
-        st.info(f"Paramètres pour {p_name} en attente de synchronisation API.")
+    st.markdown("<h1 style='text-align:center; color:#bd93f9; font-family:VALORANT;'>TACTICAL HUB</h1>", unsafe_allow_html=True)
+    
+    # --- STYLE CSS SPÉCIFIQUE ---
+    st.markdown("""
+        <style>
+        .map-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(189, 147, 249, 0.2);
+            padding: 15px; border-radius: 10px; margin-bottom: 10px;
+        }
+        .strat-card {
+            background: linear-gradient(90deg, rgba(189, 147, 249, 0.1) 0%, rgba(15, 25, 35, 0.8) 100%);
+            border-left: 4px solid #bd93f9;
+            padding: 15px; border-radius: 5px; margin-bottom: 10px;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
-# --- 2. INTEL TRACKER ---
-def show_intel():
-    with st.expander("🛠️ ADMINISTRATION : MISE À JOUR MANUELLE DES RANGS"):
-        col_m1, col_m2, col_m3 = st.columns(3)
-        with col_m1:
-            p_name = st.selectbox("Sélectionner l'unité", ["Boo ツ", "Kuraime"])
-        with col_m2:
-            new_curr = st.text_input("Rang Actuel (ex: Gold 2)")
-        with col_m3:
-            new_peak = st.text_input("Peak Rank (ex: Platinum 1)")
+    tab1, tab2, tab3 = st.tabs(["🗺️ MAP POOL", "📖 STRAT BOOK", "🛠️ GESTION"])
 
-        if st.button("FORCER LA MISE À JOUR"):
-            if new_curr and new_peak:
-                update_intel_manual(p_name, new_curr, new_peak)
-                st.success(f"Données de {p_name} synchronisées !")
-                st.rerun()
-            else:
-                st.error("Veuillez remplir les deux champs.")
+    # --- TAB 1 : MAP POOL ---
+    with tab1:
+        st.subheader("Maîtrise du Map Pool")
+        # On définit les maps actuelles
+        map_list = ["Abyss", "Ascent", "Bind", "Haven", "Lotus", "Sunset", "Split"]
+        
+        cols = st.columns(3)
+        for i, m in enumerate(map_list):
+            with cols[i % 3]:
+                # On simule un niveau de maîtrise (tu pourras le rendre dynamique plus tard)
+                mastery = 50 
+                st.markdown(f"""
+                    <div class="map-card">
+                        <h3 style="color:#bd93f9; margin:0;">{m}</h3>
+                        <small>MAÎTRISE TACTIQUE</small>
+                        <h2 style="color:white; margin:0;">{mastery}%</h2>
+                    </div>
+                """, unsafe_allow_html=True)
 
-# --- 2. INTEL TRACKER ---
-def show_intel():
-    # Définition de la liste des joueurs en haut pour qu'elle soit accessible partout
-    players = [
-        {"label": "Boo ツ", "n": "Boo ツ", "t": "1tpas"}, 
-        {"label": "Kuraime", "n": "kuraime", "t": "ezz"}, 
-        {"label": "turboS", "n": "turboS", "t": "SPEED"}, 
-        {"label": "Nef", "n": "Nef", "t": "SPK"},
-         {"label": "N2", "n": "N2", "t": "ego peeker#N2N2"},
-         
-    ]
+    # --- TAB 2 : STRAT BOOK ---
+    with tab2:
+        st.subheader("Bibliothèque de Stratégies")
+        if os.path.exists(STRAT_DB):
+            df_strats = pd.read_csv(STRAT_DB)
+            selected_map = st.selectbox("Filtrer par Map", ["Toutes"] + map_list)
+            
+            filtered_df = df_strats if selected_map == "Toutes" else df_strats[df_planning['Map'] == selected_map]
+            
+            for _, row in filtered_df.iterrows():
+                st.markdown(f"""
+                    <div class="strat-card">
+                        <span style="color:#bd93f9; font-size:0.8em;">{row['Map']}</span>
+                        <h4 style="margin:5px 0;">{row['Titre']}</h4>
+                        <p style="font-size:0.9em; color:#bbb;">{row['Description']}</p>
+                        <a href="{row['Lien']}" target="_blank" style="color:#00eeff; text-decoration:none;">Lien de la ressource ↗</a>
+                    </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.info("Aucune stratégie enregistrée pour le moment.")
 
-    with st.expander("🛠️ ADMINISTRATION : MISE À JOUR MANUELLE DES RANGS"):
-        col_m1, col_m2, col_m3 = st.columns(3)
-        with col_m1:
-            # On utilise la liste players pour remplir automatiquement le choix
-            p_name = st.selectbox("Sélectionner l'unité", [p['label'] for p in players])
-        with col_m2:
-            new_curr = st.text_input("Rang Actuel (ex: Gold 2)")
-        with col_m3:
-            new_peak = st.text_input("Peak Rank (ex: Platinum 1)")
+    # --- TAB 3 : GESTION (AJOUTER MANUELLEMENT) ---
+    with tab3:
+        st.subheader("Ajouter une nouvelle Stratégie")
+        with st.form("add_strat_form"):
+            col_a, col_b = st.columns(2)
+            map_name = col_a.selectbox("Map", map_list)
+            title = col_b.text_input("Nom de la Strat (ex: Execute A Fast)")
+            link = st.text_input("Lien (YouTube / TikTok / Image)")
+            desc = st.text_area("Description / Notes")
+            
+            submit = st.form_submit_button("Enregistrer la Stratégie")
+            
+            if submit:
+                if title and link:
+                    save_strat(map_name, title, link, desc)
+                    st.success(f"Stratégie pour {map_name} ajoutée !")
+                    st.rerun()
+                else:
+                    st.error("Veuillez remplir le titre et le lien.")
 
-        if st.button("FORCER LA MISE À JOUR"):
-            if new_curr and new_peak:
-                update_intel_manual(p_name, new_curr, new_peak)
-                st.success(f"Données de {p_name} synchronisées !")
-                st.rerun()
-            else:
-                st.error("Veuillez remplir les deux champs.")
-
-    st.divider()
+        st.divider()
+        st.subheader("Notes d'entraînement")
+        notes = st.text_area("Notes libres (Débrief de prack, rappels...)", "Ex: Travailler les timings de smoke sur Sunset.")
+        if st.button("Sauvegarder les notes"):
+            st.success("Notes mises à jour !")
 
     # Affichage des cartes
     cols = st.columns(2)
@@ -656,6 +696,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
