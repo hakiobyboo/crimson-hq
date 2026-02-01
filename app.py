@@ -65,12 +65,14 @@ else:
     is_strat_page = st.session_state["current_page"] == "STRATÉGIE"
     has_map_selected = st.session_state['selected_strat_map'] is not None
     
-    # --- CAS A : NAVIGATION DANS UNE MAP (MODE IMMERSIF) ---
-    if is_strat_page and has_map_selected:
-        # On applique le mode immersif (bloque le scroll/molette)
-        apply_immersive_mode()
-        # On lance la vue détaillée (avec boutons Retour et Dossier à l'intérieur)
-        logic.show_strategy_map(st.session_state['selected_strat_map'])
+   # --- CAS A : NAVIGATION DANS UNE MAP (MODE IMMERSIF) ---
+if is_strat_page and has_map_selected:
+    # On n'applique le mode immersif QUE si on est sur Valoplant
+    if st.session_state.get('strat_view_mode') == "VALOPLANT":
+        apply_immersive_mode() 
+    
+    # On lance la vue (qui contient ses propres boutons maintenant)
+    logic.show_strategy_map(st.session_state['selected_strat_map'])
 
     # --- CAS B : INTERFACE HQ NORMALE ---
     else:
@@ -111,3 +113,4 @@ else:
         elif menu == "STRATÉGIE":
             # On montre la grille des maps si aucune n'est choisie
             logic.show_map_selection()
+
