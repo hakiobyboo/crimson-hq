@@ -226,56 +226,36 @@ def show_strategy_map(current_map):
 
     # --- 2. LOGIQUE D'AFFICHAGE ---
     if st.session_state.get('strat_view_mode') == "VALOPLANT":
-        # --- 1. CSS POUR LE MODE "GÉANT" ---
+        # --- 1. LE STYLE "ZERO MARGE" ---
         st.markdown("""
             <style>
-                /* On cache tout Streamlit */
-                header, [data-testid="stHeader"], footer { display: none !important; }
-                
-                /* On force le conteneur à prendre 100% de la largeur et hauteur */
-                [data-testid="stAppViewBlockContainer"] {
-                    padding: 0px !important;
-                    max-width: 100% !important;
-                }
-
-                /* On bloque le scroll de la page principale */
-                .main, html, body {
+                /* On supprime le scroll au niveau le plus haut possible (le navigateur) */
+                html, body, [data-testid="stAppViewBlockContainer"] {
                     overflow: hidden !important;
-                    height: 100vh !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
                 }
-
-                /* On crée une barre de boutons flottante en haut */
-                .floating-nav {
-                    position: fixed;
-                    top: 10px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    z-index: 9999;
-                    display: flex;
-                    gap: 10px;
-                    background: rgba(15, 25, 35, 0.8);
-                    padding: 10px;
-                    border: 1px solid #ff4655;
-                    border-radius: 5px;
-                }
+                /* On cache le header Streamlit qui décale tout vers le bas */
+                header { visibility: hidden; }
             </style>
         """, unsafe_allow_html=True)
 
-        # --- 2. LES BOUTONS (Version simplifiée pour éviter le décalage) ---
-        # Note : On utilise les colonnes Streamlit normalement, elles vont se placer en haut
+        # --- 2. TES BOUTONS ---
+        # On les garde, mais on réduit l'espace qu'ils prennent
         nav_c1, nav_c2 = st.columns(2)
         with nav_c1:
-            if st.button("⬅ QUITTER", use_container_width=True):
+            if st.button("⬅ QUITTER (MENU MAPS)", use_container_width=True):
                 st.session_state['selected_strat_map'] = None
                 st.rerun()
         with nav_c2:
-            if st.button("📂 DOSSIER", use_container_width=True):
+            if st.button("📂 VOIR LE DOSSIER", use_container_width=True):
                 st.session_state['strat_view_mode'] = "DOSSIER"
                 st.rerun()
         
-        # --- 3. L'IFRAME EN TAILLE MAXIMUM ---
-        # On met 90vh (90% de la hauteur de l'écran) pour que ce soit le plus gros possible
-        st.components.v1.iframe("https://valoplant.gg", height=900, scrolling=False)
+        # --- 3. L'IFRAME GÉANTE ---
+        # scrolling=False est CRUCIAL ici pour ne pas avoir de double barre
+        # On utilise une hauteur calculée (90% de la fenêtre)
+        st.components.v1.iframe("https://valoplant.gg", height=880, scrolling=False)
         # 4. Le script de blocage "Anti-Scroll" injecté directement
         st.markdown("""
             <style>
@@ -337,6 +317,7 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else:
                     st.info(f"Aucune stratégie en {side} pour le moment.")
+
 
 
 
