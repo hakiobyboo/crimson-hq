@@ -109,7 +109,7 @@ def show_tactical_pool():
     # Dictionnaire des agents avec leurs IDs officiels pour les images
     # J'ai inclus tous les persos de tes captures d'écran
     agents_list = {
-        "Astra": "https://playvalorant.com/fr-fr/agents/astra/",
+        "Astra": "https://immortalboost.com/blog/valorant/astra-valorant-agent-guide/",
         "Breach": "5f8d3a7f-467b-97f3-062c-13acf203c002",
         "Brimstone": "9ad6e251-4199-1392-8a0a-559b9bb1b13a",
         "Chamber": "22697a3d-45bf-8dd7-4f03-10a07d64f12f",
@@ -264,6 +264,7 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
 
 
 
