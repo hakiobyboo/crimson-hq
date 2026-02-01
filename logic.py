@@ -155,9 +155,8 @@ def save_strat(map_name, title, link, desc):
         df.to_csv(STRAT_DB, mode='a', header=False, index=False)
     else:
         df.to_csv(STRAT_DB, index=False)
-
-# --- 1. DASHBOARD AVEC WIN RATE AUTO ---
 def show_dashboard():
+    # --- 1. CALCULS DYNAMIQUES ---
     planning_data = load_data(PLANNING_DB)
     df_planning = pd.DataFrame(planning_data)
     
@@ -171,7 +170,7 @@ def show_dashboard():
             wins = len(finished_matches[finished_matches['Resultat'] == 'Win'])
             win_rate_display = f"{(wins / total_finished) * 100:.0f}%"
 
-    # Style CSS (Glow Crimson)
+    # --- 2. STYLE CSS UNIQUE (AVEC ANIMATIONS) ---
     st.markdown("""
         <style>
         .stat-box {
@@ -181,44 +180,69 @@ def show_dashboard():
         }
         .stat-val { font-family: monospace; font-size: 1.8em; color: #00ff00; text-shadow: 0 0 10px rgba(0,255,0,0.5); }
         .stat-label { color: white; font-size: 0.7em; text-transform: uppercase; letter-spacing: 1px; }
+
         .player-card-dash {
             background: rgba(15, 25, 35, 0.9);
             border: 2px solid rgba(189, 147, 249, 0.3);
-            border-radius: 20px; padding: 20px; text-align: center; margin-bottom: 15px;
+            border-radius: 20px; padding: 20px; text-align: center; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 15px rgba(189, 147, 249, 0.1); margin-bottom: 15px;
         }
-        .img-profile { width: 100px; height: 100px; border-radius: 50%; border: 2px solid #bd93f9; object-fit: cover; }
-        .tracker-link { display: block; background: #ff4655; color: white !important; padding: 8px; border-radius: 5px; text-decoration: none; font-size: 0.7em; }
+
+        /* L'ANIMATION HOVER */
+        .player-card-dash:hover {
+            border-color: #bd93f9;
+            box-shadow: 0 0 30px rgba(189, 147, 249, 0.5);
+            transform: translateY(-10px);
+        }
+
+        .img-profile {
+            width: 110px; height: 110px; border-radius: 50%;
+            border: 3px solid #bd93f9; object-fit: cover;
+            box-shadow: 0 0 15px rgba(189, 147, 249, 0.6); margin-bottom: 10px;
+            transition: transform 0.4s;
+        }
+        
+        .player-card-dash:hover .img-profile { transform: scale(1.1) rotate(3deg); }
+        .name-tag { font-family: 'VALORANT', sans-serif; color: white; font-size: 1.1em; margin-bottom: 5px; }
+        .role-tag { color: #bd93f9; font-size: 0.6em; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; }
+        
+        .tracker-link {
+            display: block; background: linear-gradient(90deg, #ff4655 0%, #ff758c 100%);
+            color: white !important; text-decoration: none !important;
+            padding: 10px; border-radius: 5px; font-family: 'VALORANT', sans-serif; font-size: 0.7em;
+            transition: 0.3s;
+        }
+        .tracker-link:hover { filter: brightness(1.2); transform: scale(1.05); }
         </style>
     """, unsafe_allow_html=True)
 
     st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON COMMAND CENTER</h1>", unsafe_allow_html=True)
 
-    # Stats Row
-    c1, c2, c3, c4 = st.columns(4)
-    c1.markdown(f'<div class="stat-box"><div class="stat-val">{win_rate_display}</div><div class="stat-label">Win Rate</div></div>', unsafe_allow_html=True)
-    c2.markdown('<div class="stat-box"><div class="stat-val">1.24</div><div class="stat-label">K/D Team</div></div>', unsafe_allow_html=True)
-    c3.markdown(f'<div class="stat-box" style="border-left-color:#00eeff;"><div class="stat-val" style="color:#00eeff;">{total_finished}</div><div class="stat-label">Pracks</div></div>', unsafe_allow_html=True)
-    c4.markdown('<div class="stat-box" style="border-left-color:#bd93f9;"><div class="stat-val" style="color:#bd93f9;">62%</div><div class="stat-label">Clutch</div></div>', unsafe_allow_html=True)
+    # --- 3. AFFICHAGE DES CARTES ---
+    roster = [
+        {"nom": "NEF", "role": "DUELIST", "img": "https://i.pinimg.com/736x/e2/79/d9/e279d990748c8a4d650f01eeb7daff82.jpg", "kd": "1.07", "hs": "26%", "url": "https://tracker.gg/valorant/profile/riot/Nef%23SPK/overview"},
+        {"nom": "BOO ツ", "role": "IGL / SENTINEL", "img": "https://i.pinimg.com/736x/f4/30/16/f43016461f09a37ac9d721b043439873.jpg", "kd": "1.04", "hs": "35.4%", "url": "https://tracker.gg/valorant/profile/riot/Boo%20ツ%231tpas/overview"},
+        {"nom": "KURAIME", "role": "DUELIST", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Kuraime", "kd": "0.99", "hs": "39.3%", "url": "https://tracker.gg/valorant/profile/riot/kuraime%23ezz/overview"},
+        {"nom": "TURBOS", "role": "INITIATOR", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Turbos", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/turboS%23SPEED/overview"},
+        {"nom": "N2", "role": "CONTROLEUR", "img": "https://i.pinimg.com/736x/f7/7d/b5/f77db5e6c5948aec49c1dfe5a8c37885.jpg", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/ego%20peeker%23N2N2/overview"}
+    ]
 
-   # --- ROSTER ET ALERTES ---
-    col_left, col_right = st.columns([1.2, 0.8])
-
-    with col_left:
-        st.markdown("### 👥 ACTIVE ROSTER")
-        # Ajout du crochet [ juste après roster =
-        roster = [
-            {"nom": "NEF", "role": "DUELIST", "img": "https://i.pinimg.com/736x/e2/79/d9/e279d990748c8a4d650f01eeb7daff82.jpg", "kd": "1.07", "hs": "26%", "url": "https://tracker.gg/valorant/profile/riot/Nef%23SPK/overview"},
-            {"nom": "BOO ツ", "role": "IGL / SENTINEL", "img": "https://i.pinimg.com/736x/f4/30/16/f43016461f09a37ac9d721b043439873.jpg", "kd": "1.04", "hs": "35.4%", "url": "https://tracker.gg/valorant/profile/riot/Boo%20ツ%231tpas/overview"},
-            {"nom": "KURAIME", "role": "DUELIST", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Kuraime", "kd": "0.99", "hs": "39.3%", "url": "https://tracker.gg/valorant/profile/riot/kuraime%23ezz/overview"},
-            {"nom": "TURBOS", "role": "INITIATOR", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Turbos", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/turboS%23SPEED/overview"},
-            {"nom": "N2", "role": "CONTROLEUR", "img": "https://i.pinimg.com/736x/f7/7d/b5/f77db5e6c5948aec49c1dfe5a8c37885.jpg", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/ego%20peeker%23N2N2/overview"}
-        ]
-        
-        r_cols = st.columns(2)
-        for i, p in enumerate(roster):
-            with r_cols[i%2]:
-                st.markdown(f'<div class="player-card-dash"><img src="{p["img"]}" class="img-profile"><h4>{p["nom"]}</h4><p style="color:#bd93f9; font-size:0.8em;">{p["role"]}</p><a href="{p["url"]}" target="_blank" class="tracker-link">TRACKER</a></div>', unsafe_allow_html=True)
-
+    r_cols = st.columns(2)
+    for i, p in enumerate(roster):
+        with r_cols[i % 2]:
+            st.markdown(f"""
+                <div class="player-card-dash">
+                    <img src="{p['img']}" class="img-profile">
+                    <div class="name-tag">{p['nom']}</div>
+                    <div class="role-tag">{p['role']}</div>
+                    <div style="display:flex; justify-content:space-around; margin:15px 0; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px;">
+                        <div><small style="color:#888;">K/D</small><br><b style="color:#00ff00;">{p['kd']}</b></div>
+                        <div><small style="color:#888;">HS%</small><br><b style="color:#00ff00;">{p['hs']}</b></div>
+                    </div>
+                    <a href="{p['url']}" target="_blank" class="tracker-link">VIEW TRACKER</a>
+                </div>
+            """, unsafe_allow_html=True)
 # --- 2. TACTICAL HUB (Remplaçant de l'Intel Tracker) ---
 def show_intel():
     st.markdown("<h1 style='text-align:center; color:#bd93f9; font-family:VALORANT;'>TACTICAL HUB</h1>", unsafe_allow_html=True)
@@ -680,6 +704,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
