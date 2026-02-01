@@ -79,7 +79,7 @@ def show_dashboard():
     with c_left:
         st.markdown("### 👥 ACTIVE ROSTER")
         roster_data = [
-            {"nom": "NEF", "role": "SENTINEL / FLEX", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Nef", "kd": "1.07", "hs": "26%", "url": "https://tracker.gg/valorant/profile/riot/Nef%23SPK/overview"},
+            {"nom": "NEF", "role": "SENTINEL / FLEX", "img": "https://discord.com/channels/@me/1465403458260697151/1467599536573907127", "kd": "1.07", "hs": "26%", "url": "https://tracker.gg/valorant/profile/riot/Nef%23SPK/overview"},
             {"nom": "BOO ツ", "role": "IGL / SMOKER", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Boo", "kd": "1.04", "hs": "35.4%", "url": "https://tracker.gg/valorant/profile/riot/Boo%20ツ%231tpas/overview"},
             {"nom": "KURAIME", "role": "DUELIST", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Kuraime", "kd": "0.99", "hs": "39.3%", "url": "https://tracker.gg/valorant/profile/riot/kuraime%23ezz/overview"},
             {"nom": "TURBOS", "role": "INITIATOR", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Turbos", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/turboS%23SPEED/overview"}
@@ -629,6 +629,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
