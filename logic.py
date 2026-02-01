@@ -3,7 +3,7 @@ import pandas as pd
 import os
 from PIL import Image
 from datetime import datetime
-from database import get_intel, load_csv, save_agents_mastery, save_scrim_db, SCRIMS_DB, AGENTS_DB
+from database import get_intel, load_csv, save_agents_mastery, save_scrim_db, SCRIMS_DB, AGENTS_DB, update_intel_manual
 
 # --- 1. DASHBOARD ---
 def show_dashboard():
@@ -18,10 +18,8 @@ def show_dashboard():
     with c3: st.markdown(f"<div class='stat-card'><h4>STATUS</h4><h2 style='color:#00ff00;'>● ONLINE</h2></div>", unsafe_allow_html=True)
 
 # --- 2. INTEL TRACKER ---
-from database import get_intel, update_intel_manual # Assure-toi d'ajouter l'import
-
 def show_intel():
-    # --- NOUVEAU : AJOUT MANUEL ---
+    # --- AJOUT MANUEL DES RANGS ---
     with st.expander("🛠️ ADMINISTRATION : MISE À JOUR MANUELLE DES RANGS"):
         col_m1, col_m2, col_m3 = st.columns(3)
         with col_m1:
@@ -41,7 +39,7 @@ def show_intel():
 
     st.divider()
 
-    # --- AFFICHAGE DES CARTES (CODE ORIGINAL) ---
+    # --- AFFICHAGE DES CARTES ---
     players = [
         {"label": "Boo ツ", "n": "Boo%20%E3%83%84", "t": "1tpas"}, 
         {"label": "Kuraime", "n": "kuraime", "t": "ezz"}
@@ -60,6 +58,7 @@ def show_intel():
                 </div>
             """, unsafe_allow_html=True)
             if icon: st.image(icon, width=80)
+
 # --- 3. MATCH ARCHIVE ---
 def show_archive():
     with st.expander("➕ ENREGISTRER UN NOUVEAU SCRIM"):
@@ -156,12 +155,12 @@ def show_map_selection():
                 st.rerun()
 
 def show_strategy_map(current_map):
-    # Sélecteur de mode interne (Placé tout en haut)
+    # Sélecteur de mode interne
     st.markdown(f"### MISSION ACTIVE : {current_map.upper()}")
     view_mode = st.radio("INTERFACE", ["VALOPLANT LIVE", "ARCHIVES TACTIQUES"], horizontal=True)
     
     if view_mode == "VALOPLANT LIVE":
-        # --- AFFICHAGE VALOPLANT CENTRÉ ---
+        # --- VALOPLANT EN PLEIN ÉCRAN ---
         st.markdown(f"""
             <div class="iframe-container">
                 <iframe src="https://valoplant.gg" 
@@ -171,7 +170,9 @@ def show_strategy_map(current_map):
             </div>
         """, unsafe_allow_html=True)
     else:
-        # --- GESTION DES ARCHIVES IMAGES ---
+        # --- RÉTABLIR LE SCROLL POUR LES ARCHIVES ---
+        st.markdown("<style>html, body, [data-testid='stAppViewContainer'] { overflow: auto !important; }</style>", unsafe_allow_html=True)
+        
         map_path = f"images_scrims/{current_map}"
         for side in ["Attaque", "Defense"]:
             if not os.path.exists(f"{map_path}/{side}"): 
@@ -201,4 +202,3 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
-
