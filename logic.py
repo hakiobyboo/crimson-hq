@@ -249,7 +249,7 @@ def show_tactical_pool():
         st.divider()
 
 def show_planning():
-    # --- STYLE CSS (Commun aux deux onglets) ---
+    # --- STYLE CSS AMÉLIORÉ ---
     st.markdown("""
         <style>
         .valo-card {
@@ -281,69 +281,85 @@ def show_planning():
             margin-bottom: 10px;
             border-radius: 0 10px 10px 0;
         }
+        .day-badge {
+            background: #ff4655;
+            color: white;
+            padding: 2px 8px;
+            font-size: 0.7em;
+            font-weight: bold;
+            border-radius: 3px;
+            margin-right: 10px;
+        }
         </style>
     """, unsafe_allow_html=True)
 
-    # Création des onglets
     tab1, tab2 = st.tabs(["📅 OPÉRATIONS (PLANNING)", "👥 DISPONIBILITÉS SQUAD"])
 
     # --- ONGLET 1 : PLANNING ---
     with tab1:
         st.markdown("<h3 style='color:white; text-align:center;'>MISSION LOG</h3>", unsafe_allow_html=True)
         
-        # Initialisation data
         if 'planning_data' not in st.session_state: st.session_state['planning_data'] = []
 
-        # Formulaire d'ajout
         with st.expander("➕ PLANIFIER UNE OPÉRATION"):
             with st.form("new_mission_form", clear_on_submit=True):
-                c1, c2 = st.columns(2)
+                c1, c2, c3 = st.columns(3)
                 with c1:
-                    d_in = st.date_input("DATE")
-                    t_in = st.text_input("HEURE", "21:00")
+                    # AJOUT DU JOUR DE LA SEMAINE
+                    jour_semaine = st.selectbox("JOUR", ["LUNDI", "MARDI", "MERCREDI", "JEUDI", "VENDREDI", "SAMEDI", "DIMANCHE"])
+                    date_in = st.date_input("DATE")
                 with c2:
+                    time_in = st.text_input("HEURE", "21:00")
                     opp = st.text_input("ADVERSAIRE")
-                    m_in = st.selectbox("MAP", ["ASCENT", "BIND", "HAVEN", "SPLIT", "ICEBOX", "BREEZE", "FRACTURE", "PEARL", "LOTUS", "SUNSET", "ABYSS", "TBD"])
+                with c3:
+                    map_in = st.selectbox("MAP", ["ASCENT", "BIND", "HAVEN", "SPLIT", "ICEBOX", "BREEZE", "FRACTURE", "PEARL", "LOTUS", "SUNSET", "ABYSS", "TBD"])
+                    m_type = st.selectbox("TYPE", ["SCRIM", "MATCH", "STRAT", "PRACTICE"])
                 
-                m_type = st.radio("TYPE", ["SCRIM", "MATCH", "STRAT"], horizontal=True)
-                if st.form_submit_button("DÉPLOYER"):
+                if st.form_submit_button("DÉPLOYER L'OPÉRATION"):
                     st.session_state['planning_data'].append({
-                        "date": d_in.strftime("%d/%m/%Y"), "time": t_in, 
-                        "opp": opp if opp else "TBD", "map": m_in, "type": m_type
+                        "jour": jour_semaine,
+                        "date": date_in.strftime("%d/%m"), 
+                        "time": time_in, 
+                        "opp": opp if opp else "TBD", 
+                        "map": map_in, 
+                        "type": m_type
                     })
                     st.rerun()
 
-        # Affichage
-        for idx, m in enumerate(st.session_state['planning_data']):
-            col_m, col_d = st.columns([0.9, 0.1])
-            color = "#ff4655" if m['type'] != "STRAT" else "#00eeff"
-            with col_m:
-                st.markdown(f"""
-                    <div class="mission-entry" style="border-left-color: {color}">
-                        <div style="color:{color}; font-size:0.7em; font-weight:bold;">{m['type']}</div>
-                        <div style="color:white; font-weight:bold;">{m['date']} - {m['time']}</div>
-                        <div style="color:#00ff00; font-family:monospace;">VS {m['opp']} | MAP: {m['map']}</div>
-                    </div>
-                """, unsafe_allow_html=True)
-            with col_d:
-                if st.button("🗑️", key=f"del_{idx}"):
-                    st.session_state['planning_data'].pop(idx)
-                    st.rerun()
+        # Affichage du planning
+        if not st.session_state['planning_data']:
+            st.info("Aucune mission programmée.")
+        else:
+            for idx, m in enumerate(st.session_state['planning_data']):
+                col_m, col_d = st.columns([0.9, 0.1])
+                color = "#ff4655" if m['type'] in ["MATCH", "SCRIM"] else "#00eeff"
+                
+                with col_m:
+                    st.markdown(f"""
+                        <div class="mission-entry" style="border-left-color: {color}">
+                            <div style="display:flex; align-items:center; margin-bottom:5px;">
+                                <span class="day-badge">{m['jour']}</span>
+                                <span style="color:white; font-size:0.9em; opacity:0.8;">{m['date']} — {m['time']}</span>
+                            </div>
+                            <div style="color:white; font-weight:bold; font-size:1.1em;">VS {m['opp']}</div>
+                            <div style="color:{color}; font-family:monospace; font-size:0.9em;">TYPE: {m['type']} | MAP: {m['map']}</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                with col_d:
+                    st.write("##") # Calage vertical
+                    if st.button("🗑️", key=f"del_{idx}"):
+                        st.session_state['planning_data'].pop(idx)
+                        st.rerun()
 
     # --- ONGLET 2 : DISPONIBILITÉS ---
     with tab2:
         st.markdown("<h3 style='color:white; text-align:center;'>SQUAD AVAILABILITY</h3>", unsafe_allow_html=True)
         
-        # On définit les joueurs
         players = ["BOO ツ", "KURAIME", "TURBOS", "NEF"]
         
-        # Initialisation des dispos dans le session_state si vide
         if 'dispos' not in st.session_state:
             st.session_state['dispos'] = {p: "Non renseigné" for p in players}
 
-        st.info("Chaque joueur peut modifier ses horaires manuellement ci-dessous.")
-
-        # Affichage des cartes de joueurs
         cols = st.columns(2)
         for i, p in enumerate(players):
             with cols[i % 2]:
@@ -354,17 +370,16 @@ def show_planning():
                     </div>
                 """, unsafe_allow_html=True)
                 
-                # Petit champ de modification rapide
-                new_val = st.text_input(f"Modifier pour {p}", key=f"input_{p}", label_visibility="collapsed", placeholder="Ex: 18h - 00h")
-                if st.button(f"Update {p}"):
+                new_val = st.text_input(f"Update {p}", key=f"in_{p}", label_visibility="collapsed", placeholder="Ex: Dispo 21h...")
+                if st.button(f"Confirmer {p}", key=f"btn_{p}"):
                     if new_val:
-                        st.session_state['dispos'][p] = new_val
+                        st.session_state['dispos'][p] = new_val.upper()
                         st.rerun()
 
-        if st.button("RESET TOUTES LES DISPOS"):
+        st.divider()
+        if st.button("EFFACER TOUTES LES DISPOS", use_container_width=True):
             st.session_state['dispos'] = {p: "Non renseigné" for p in players}
             st.rerun()
-
 def show_map_selection():
     """Affiche la grille des maps"""
     st.markdown("<h2 class='valo-title' style='text-align:center;'>SÉLECTION DE LA ZONE D'OPÉRATION</h2>", unsafe_allow_html=True)
@@ -458,6 +473,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
