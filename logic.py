@@ -214,17 +214,21 @@ def show_strategy_map(current_map):
     # Barre de navigation avec 2 colonnes pour les boutons
     nav_c1, nav_c2 = st.columns(2)
     
-   if st.session_state.get('strat_view_mode') == "VALOPLANT":
-       
+  if st.session_state.get('strat_view_mode') == "VALOPLANT":
+        # Barre de navigation flottante
         nav_c1, nav_c2 = st.columns(2)
         with nav_c1:
-            if st.button("⬅ QUITTER (MENU MAPS)", use_container_width=True):
-                st.session_state['selected_strat_map'] = False 
+            if st.button("⬅ QUITTER", use_container_width=True):
+                st.session_state['selected_strat_map'] = None
                 st.rerun()
         with nav_c2:
-            if st.button("📂 VOIR LE DOSSIER", use_container_width=True):
+            if st.button("📂 DOSSIER", use_container_width=True):
                 st.session_state['strat_view_mode'] = "DOSSIER"
                 st.rerun()
+        
+        # L'iframe prend TOUTE la hauteur de l'écran restante
+        # On utilise une hauteur de 95vh pour laisser un peu de place aux boutons
+        st.components.v1.iframe("https://valoplant.gg", height=1000)
         
         # --- IFRAME PLEIN ÉCRAN ---
         # On utilise une hauteur légèrement réduite (92vh) pour laisser la place aux boutons en haut
@@ -276,6 +280,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
