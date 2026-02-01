@@ -209,30 +209,38 @@ def show_map_selection():
                 st.rerun()
 
 def show_strategy_map(current_map):
-    """Vue détaillée avec Valoplant ou Dossier - Navigation Fixe"""
+    """Vue Plein Écran pour Valoplant avec navigation fluide"""
 
-    # --- CSS : BLOQUER LE SCROLL POUR LE MODE VALOPLANT ---
-    if st.session_state.get('strat_view_mode') == "VALOPLANT":
-        st.markdown("""
-            <style>
-                .main { overflow: hidden !important; }
-                div[data-testid="stAppViewBlockContainer"] {
-                    padding-top: 1rem !important;
-                    padding-bottom: 0rem !important;
-                }
-            </style>
-        """, unsafe_allow_html=True)
+    # --- 1. CSS POUR LE MODE PLEIN ÉCRAN ---
+    # On réduit les marges de Streamlit au maximum pour coller au bord
+    st.markdown("""
+        <style>
+            .main { overflow: hidden !important; }
+            div[data-testid="stAppViewBlockContainer"] {
+                padding-top: 0.5rem !important; 
+                padding-bottom: 0rem !important;
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+            iframe {
+                border: none;
+                border-radius: 5px;
+            }
+        </style>
+    """, unsafe_allow_html=True)
 
-    # --- BARRE DE NAVIGATION (3 COLONNES) ---
+    # --- 2. BARRE DE NAVIGATION ULTRA-COMPACTE ---
+    # Cette barre reste visible pour te permettre de revenir en arrière
     nav_col1, nav_col2, nav_col3 = st.columns([1, 2, 1])
 
     with nav_col1:
-        if st.button("⬅ RETOUR MAPS", use_container_width=True):
+        if st.button("⬅ QUITTER LA MAP", use_container_width=True):
             st.session_state['selected_strat_map'] = None
             st.rerun()
 
     with nav_col2:
-        st.markdown(f"<h3 style='text-align:center; color:#ff4655; margin:0;'>{current_map.upper()}</h3>", unsafe_allow_html=True)
+        # Titre discret pour laisser de la place
+        st.markdown(f"<h4 style='text-align:center; color:#ff4655; margin:0;'>PROJET : {current_map.upper()}</h4>", unsafe_allow_html=True)
 
     with nav_col3:
         if st.session_state.get('strat_view_mode') == "VALOPLANT":
@@ -240,38 +248,39 @@ def show_strategy_map(current_map):
                 st.session_state['strat_view_mode'] = "DOSSIER"
                 st.rerun()
         else:
-            if st.button("🌐 VALOPLANT LIVE", use_container_width=True):
+            if st.button("🌐 RETOUR VALOPLANT", use_container_width=True):
                 st.session_state['strat_view_mode'] = "VALOPLANT"
                 st.rerun()
 
-    st.divider()
-
-    # --- AFFICHAGE DU CONTENU ---
+    # --- 3. AFFICHAGE DYNAMIQUE ---
     if st.session_state.get('strat_view_mode') == "VALOPLANT":
-        # Mode Valoplant : Iframe plein écran
+        # On utilise une hauteur de 88vh (88% de la hauteur de la fenêtre) pour un effet plein écran
         st.components.v1.iframe("https://valoplant.gg", height=850, scrolling=True)
+    
     else:
-        # Mode Dossier : Archives locales
-        st.markdown(f"#### 📂 ARCHIVES LOCALES : {current_map}")
-        map_path = f"images_scrims/{current_map}"
+        # On réactive le scroll uniquement pour le mode Dossier
+        st.markdown("<style>.main { overflow: auto !important; }</style>", unsafe_allow_html=True)
         
-        # S'assurer que les dossiers existent
+        st.divider()
+        st.markdown(f"### 📁 ARCHIVES TACTIQUES : {current_map}")
+        
+        map_path = f"images_scrims/{current_map}"
         for side in ["Attaque", "Defense"]:
             if not os.path.exists(f"{map_path}/{side}"): os.makedirs(f"{map_path}/{side}")
 
-        with st.expander("📤 AJOUTER UNE STRATÉGIE"):
+        # Zone d'upload
+        with st.expander("➕ AJOUTER UNE CAPTURE D'ÉCRAN"):
             c1, c2, c3 = st.columns([2, 1, 1])
             up_f = c1.file_uploader("Image", type=['png', 'jpg'])
             up_n = c2.text_input("Nom de la strat")
             up_s = c3.selectbox("Côté", ["Attaque", "Defense"])
-            if st.button("✅ VALIDER ET ENREGISTRER", use_container_width=True, type="primary"):
+            if st.button("💾 ENREGISTRER DANS LE DOSSIER", use_container_width=True, type="primary"):
                 if up_f and up_n:
-                    # Création du chemin si besoin
-                    if not os.path.exists(f"{map_path}/{up_s}"): os.makedirs(f"{map_path}/{up_s}")
                     Image.open(up_f).save(f"{map_path}/{up_s}/{up_n}.png")
-                    st.success("Stratégie enregistrée !")
+                    st.success("Stratégie archivée !")
                     st.rerun()
 
+        # Tabs
         t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
         for tab, side in zip([t1, t2], ["Attaque", "Defense"]):
             with tab:
@@ -286,5 +295,5 @@ def show_strategy_map(current_map):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
                 else:
-                    st.info(f"Aucune stratégie enregistrée pour {side}.")
+                    st.info(f"Aucune donnée pour {side}.")
 
