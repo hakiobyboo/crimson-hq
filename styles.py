@@ -50,24 +50,36 @@ def apply_global_styles():
     """, unsafe_allow_html=True)
 
 def apply_immersive_mode():
-    """Version propre : cache l'interface Streamlit mais laisse les boutons libres"""
+    """Version qui verrouille le défilement pour privilégier la carte"""
     st.markdown("""
         <style>
+        /* Cache le header Streamlit */
         header, [data-testid="stHeader"], footer { 
             visibility: hidden !important;
             height: 0px !important;
         }
+
+        /* Supprime les marges pour que l'iframe prenne toute la place */
         [data-testid="stAppViewBlockContainer"] {
-            padding-top: 1rem !important;
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
+            max-width: 100% !important;
         }
-        /* Bloque le scroll du site principal pour que la molette aille dans l'iframe */
-        .main { overflow: hidden !important; }
+
+        /* FORCE LE BLOCAGE DU SCROLL GLOBAL : 
+           C'est ici que la magie opère pour la molette. 
+           On empêche la page Crimson de défiler.
+        */
+        .main {
+            overflow: hidden !important;
+            position: fixed !important;
+            width: 100% !important;
+        }
         
-        /* Annule le mode fixe qui cassait tout */
-        div.stButton > button {
-            position: static !important;
+        /* Assure que l'iframe est bien cliquable */
+        iframe {
+            border: none !important;
         }
         </style>
     """, unsafe_allow_html=True)
-
 
