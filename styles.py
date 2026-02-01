@@ -81,41 +81,49 @@ def apply_global_styles():
     """, unsafe_allow_html=True)
 
 def apply_immersive_mode():
-    """Mode spécial pour Valoplant : Full screen, centré et gestion molette"""
+    """Mode spécial pour Valoplant : Full screen total, centrage forcé et molette"""
     st.markdown("""
         <style>
-        /* Supprime absolument tout l'en-tête Streamlit */
+        /* 1. Suppression totale des éléments d'interface */
         header, [data-testid="stHeader"], .valo-title, hr, .stDivider { 
             display: none !important; 
         }
         
-        /* Force le conteneur à prendre 100% de la largeur sans marges */
+        /* 2. Éclatement des marges Streamlit pour le mode Full Width */
+        [data-testid="stAppViewBlockContainer"] {
+            padding: 0px !important;
+            max-width: 100% !important;
+            width: 100% !important;
+        }
+        
         .main .block-container { 
             padding: 0rem !important; 
-            max-width: 100% !important; 
+            max-width: 100% !important;
+            margin-left: 0px !important;
+            margin-right: 0px !important;
         }
 
-        /* Centre l'iframe et définit une hauteur géante */
+        /* 3. Conteneur Iframe pour occuper tout l'écran */
         .iframe-container {
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             width: 100vw;
-            height: 95vh; /* 95% de la hauteur de l'écran */
+            height: 98vh;
             background-color: #0f1923;
-            overflow: hidden;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
         iframe {
-            width: 98% !important; /* Presque toute la largeur */
+            width: 100% !important;
             height: 100% !important;
-            border: 2px solid #ff4655 !important;
-            border-radius: 5px;
+            border: none !important;
         }
         </style>
         
         <script>
-        // Désactive le scroll du site principal quand on survole l'iframe
+        // Gestion de la molette pour Valoplant
         const mapFrame = document.querySelector('iframe');
         if (mapFrame) {
             mapFrame.addEventListener('mouseenter', () => {
