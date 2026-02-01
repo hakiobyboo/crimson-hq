@@ -70,3 +70,11 @@ def save_agents_mastery(agent_dict):
 def save_scrim_db(df):
     """Sauvegarde l'historique des matchs"""
     df.to_csv(SCRIMS_DB, index=False)
+
+def update_intel_manual(label, current_rank, peak_rank):
+    """Force la mise à jour manuelle des rangs dans le CSV"""
+    new_data = pd.DataFrame([{"Player": label, "Current": current_rank, "Peak": peak_rank}])
+    old_df = load_csv(RANKS_DB, ["Player", "Current", "Peak"])
+    # On retire l'ancienne entrée et on ajoute la nouvelle
+    updated_df = pd.concat([old_df[old_df['Player'] != label], new_data], ignore_index=True)
+    updated_df.to_csv(RANKS_DB, index=False)
