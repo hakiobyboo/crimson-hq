@@ -211,28 +211,27 @@ def show_strategy_map(current_map):
 
     # --- 1. MODE VALOPLANT LIVE ---
     if st.session_state['strat_view_mode'] == "VALOPLANT":
-        # Barre de navigation spécifique à Valoplant
-        col_v1, col_v2 = st.columns(2)
-        with col_v1:
-            if st.button("🏠 RETOUR AUX MAPS", use_container_width=True):
+        # On crée deux colonnes pour que les boutons soient petits et côte à côte
+        col_nav1, col_nav2 = st.columns([1, 1])
+        
+        with col_nav1:
+            # Bouton 1 : Retour à la liste des maps
+            if st.button("🏠 MENU MAPS", use_container_width=True):
                 st.session_state['selected_strat_map'] = None
                 st.rerun()
-        with col_v2:
-            if st.button("📂 ALLER AU DOSSIER", use_container_width=True):
+        
+        with col_nav2:
+            # Bouton 2 : Aller au dossier de la map
+            if st.button("📂 DOSSIER", use_container_width=True):
                 st.session_state['strat_view_mode'] = "DOSSIER"
                 st.rerun()
 
         st.divider()
-        st.markdown(f"### 🌐 VALOPLANT LIVE : {current_map.upper()}")
-        st.markdown(f"""
-            <div class="iframe-container">
-                <iframe src="https://valoplant.gg" 
-                        allow="clipboard-read; clipboard-write" 
-                        style="width:100%; height:80vh; border:none;">
-                </iframe>
-            </div>
-        """, unsafe_allow_html=True)
-
+        
+        # Titre et Iframe
+        st.markdown(f"### 🌐 VALOPLANT : {current_map.upper()}")
+        st.components.v1.iframe("https://valoplant.gg", height=800, scrolling=True)
+        
     # --- 2. MODE DOSSIER (ARCHIVES) ---
     else:
         # Barre de navigation spécifique au Dossier
@@ -285,5 +284,6 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else:
                     st.info(f"Aucune stratégie en {side}")
+
 
 
