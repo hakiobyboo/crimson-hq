@@ -157,8 +157,8 @@ def save_strat(map_name, title, link, desc):
         df.to_csv(STRAT_DB, index=False)
 def show_dashboard():
     # --- 1. CALCULS DYNAMIQUES ---
-    planning_data = load_data(PLANNING_DB)
-    df_planning = pd.DataFrame(planning_data)
+    # On utilise load_csv de database.py car PLANNING_DB y est défini ou géré
+    df_planning = load_csv("data/planning.csv", ["Date", "Adversaire", "Resultat"])
     
     win_rate_display = "0%"
     total_finished = 0
@@ -170,7 +170,7 @@ def show_dashboard():
             wins = len(finished_matches[finished_matches['Resultat'] == 'Win'])
             win_rate_display = f"{(wins / total_finished) * 100:.0f}%"
 
-    # --- 2. STYLE CSS UNIQUE (AVEC ANIMATIONS) ---
+    # --- 2. STYLE CSS AVEC ANIMATIONS ---
     st.markdown("""
         <style>
         .stat-box {
@@ -186,26 +186,22 @@ def show_dashboard():
             border: 2px solid rgba(189, 147, 249, 0.3);
             border-radius: 20px; padding: 20px; text-align: center; 
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 0 15px rgba(189, 147, 249, 0.1); margin-bottom: 15px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5); margin-bottom: 15px;
         }
 
-        /* L'ANIMATION HOVER */
         .player-card-dash:hover {
             border-color: #bd93f9;
-            box-shadow: 0 0 30px rgba(189, 147, 249, 0.5);
+            box-shadow: 0 0 30px rgba(189, 147, 249, 0.6);
             transform: translateY(-10px);
         }
 
         .img-profile {
             width: 110px; height: 110px; border-radius: 50%;
             border: 3px solid #bd93f9; object-fit: cover;
-            box-shadow: 0 0 15px rgba(189, 147, 249, 0.6); margin-bottom: 10px;
             transition: transform 0.4s;
         }
         
         .player-card-dash:hover .img-profile { transform: scale(1.1) rotate(3deg); }
-        .name-tag { font-family: 'VALORANT', sans-serif; color: white; font-size: 1.1em; margin-bottom: 5px; }
-        .role-tag { color: #bd93f9; font-size: 0.6em; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; }
         
         .tracker-link {
             display: block; background: linear-gradient(90deg, #ff4655 0%, #ff758c 100%);
@@ -219,7 +215,14 @@ def show_dashboard():
 
     st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON COMMAND CENTER</h1>", unsafe_allow_html=True)
 
-    # --- 3. AFFICHAGE DES CARTES ---
+    # --- 3. STATS GLOBALES ---
+    c1, c2, c3, c4 = st.columns(4)
+    c1.markdown(f'<div class="stat-box"><div class="stat-val">{win_rate_display}</div><div class="stat-label">Win Rate</div></div>', unsafe_allow_html=True)
+    c2.markdown('<div class="stat-box"><div class="stat-val">1.24</div><div class="stat-label">K/D Team</div></div>', unsafe_allow_html=True)
+    c3.markdown(f'<div class="stat-box" style="border-left-color:#00eeff;"><div class="stat-val" style="color:#00eeff;">{total_finished}</div><div class="stat-label">Scrims</div></div>', unsafe_allow_html=True)
+    c4.markdown('<div class="stat-box" style="border-left-color:#bd93f9;"><div class="stat-val" style="color:#bd93f9;">62%</div><div class="stat-label">Clutch</div></div>', unsafe_allow_html=True)
+
+    # --- 4. ROSTER ---
     roster = [
         {"nom": "NEF", "role": "DUELIST", "img": "https://i.pinimg.com/736x/e2/79/d9/e279d990748c8a4d650f01eeb7daff82.jpg", "kd": "1.07", "hs": "26%", "url": "https://tracker.gg/valorant/profile/riot/Nef%23SPK/overview"},
         {"nom": "BOO ツ", "role": "IGL / SENTINEL", "img": "https://i.pinimg.com/736x/f4/30/16/f43016461f09a37ac9d721b043439873.jpg", "kd": "1.04", "hs": "35.4%", "url": "https://tracker.gg/valorant/profile/riot/Boo%20ツ%231tpas/overview"},
@@ -231,6 +234,18 @@ def show_dashboard():
     r_cols = st.columns(2)
     for i, p in enumerate(roster):
         with r_cols[i % 2]:
+            st.markdown(f"""
+                <div class="player-card-dash">
+                    <img src="{p['img']}" class="img-profile">
+                    <div style="font-family:'VALORANT'; color:white; font-size:1.2em; margin-top:10px;">{p['nom']}</div>
+                    <div style="color:#bd93f9; font-size:0.7em; font-weight:bold;">{p['role']}</div>
+                    <div style="display:flex; justify-content:space-around; margin:15px 0; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px;">
+                        <div><small>K/D</small><br><b style="color:#00ff00;">{p['kd']}</b></div>
+                        <div><small>HS%</small><br><b style="color:#00ff00;">{p['hs']}</b></div>
+                    </div>
+                    <a href="{p['url']}" target="_blank" class="tracker-link">VIEW TRACKER</a>
+                </div>
+            """, unsafe_allow_html=True)
             
 # --- 2. TACTICAL HUB (Remplaçant de l'Intel Tracker) ---
 def show_intel():
@@ -693,6 +708,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
