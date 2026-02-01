@@ -106,7 +106,7 @@ def show_tactical_pool():
     
     p_sel = st.selectbox("UNIT ID", ["BOO ツ", "KURAIME"])
 
-    # Organisation des agents par catégories
+    # 1. Organisation des agents par catégories avec leurs images
     categories = {
         "🛡️ SENTINEL": {
             "Chamber": "https://media.valorant-api.com/agents/22697a3d-45bf-8dd7-4f03-10a07d64f12f/fullportrait.png",
@@ -146,6 +146,36 @@ def show_tactical_pool():
         }
     }
 
+    # 2. Affichage par catégorie
+    for cat_name, agents in categories.items():
+        st.markdown(f"#### {cat_name}")
+        cols = st.columns(4)
+        
+        for i, (name, img_url) in enumerate(agents.items()):
+            with cols[i % 4]:
+                key = f"{p_sel}_{name}"
+                is_mastered = st.session_state['agent_data'].get(key, False)
+                
+                # Design de la carte (Bordure rouge si MASTERED)
+                border = "2px solid #ff4655" if is_mastered else "1px solid #333"
+                bg_color = "rgba(255, 70, 85, 0.15)" if is_mastered else "rgba(0,0,0,0.2)"
+                
+                st.markdown(f"""
+                    <div style="border: {border}; background-color: {bg_color}; padding: 8px; border-radius: 5px; text-align: center; margin-bottom: 5px;">
+                        <p style="margin: 0; font-weight: bold; font-family: 'VALORANT'; font-size: 0.8em; color: white;">{name.upper()}</p>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                # Affichage de l'image
+                st.image(img_url, use_container_width=True)
+                
+                # Bouton de sélection
+                if st.button("MASTER" if not is_mastered else "UNMARK", key=f"btn_{key}", use_container_width=True):
+                    st.session_state['agent_data'][key] = not is_mastered
+                    save_agents_mastery(st.session_state['agent_data'])
+                    st.rerun()
+        st.divider()
+        
     # On boucle sur chaque catégorie pour créer des sections
     for cat_name, agents in categories.items():
         st.markdown(f"#### {cat_name}")
@@ -302,8 +332,3 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
-
-
-
-
-
