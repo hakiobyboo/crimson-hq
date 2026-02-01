@@ -209,132 +209,55 @@ def show_map_selection():
                 st.rerun()
 
 def show_strategy_map(current_map):
-    """Vue Valoplant sans scroll et navigation à boutons multiples"""
-
-    # --- 1. CSS POUR VERROUILLER LE SCROLL GLOBAL ---
-    # On force la page à rester fixe pour que seule l'iframe utilise la molette
-    st.markdown("""
-        <style>
-            .main { overflow: hidden !important; }
-            div[data-testid="stAppViewBlockContainer"] {
-                padding-top: 0.5rem !important;
-                padding-bottom: 0rem !important;
-            }
-            iframe { border: 2px solid #ff4655; border-radius: 8px; }
-        </style>
-    """, unsafe_allow_html=True)
-
-    # --- 2. LOGIQUE D'AFFICHAGE ---
+    """Vue avec navigation propre et Iframe plein écran"""
+    
+    # Barre de navigation avec 2 colonnes pour les boutons
+    nav_c1, nav_c2 = st.columns(2)
     
     if st.session_state.get('strat_view_mode') == "VALOPLANT":
-        # 1. On crée une barre de navigation fixe en haut de l'écran
-        # --- 1. CSS POUR LE MODE "GÉANT" ---
-        st.markdown("""
-            <div style="position: fixed; top: 0; left: 0; width: 100%; height: 60px; 
-                        background-color: #0f1923; z-index: 9999; display: flex; 
-                        align-items: center; padding: 0 20px; border-bottom: 2px solid #ff4655;">
-                <p style="color: #ff4655; font-family: 'VALORANT', sans-serif; margin: 0;">CRIMSON STRAT VIEW</p>
-            </div>
-            <div style="height: 60px;"></div>
-            <style>
-                /* On cache tout Streamlit */
-                header, [data-testid="stHeader"], footer { display: none !important; }
-                
-                /* On force le conteneur à prendre 100% de la largeur et hauteur */
-                [data-testid="stAppViewBlockContainer"] {
-                    padding: 0px !important;
-                    max-width: 100% !important;
-                }
-
-                /* On bloque le scroll de la page principale */
-                .main, html, body {
-                    overflow: hidden !important;
-                    height: 100vh !important;
-                }
-
-                /* On crée une barre de boutons flottante en haut */
-                .floating-nav {
-                    position: fixed;
-                    top: 10px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    z-index: 9999;
-                    display: flex;
-                    gap: 10px;
-                    background: rgba(15, 25, 35, 0.8);
-                    padding: 10px;
-                    border: 1px solid #ff4655;
-                    border-radius: 5px;
-                }
-            </style>
-        """, unsafe_allow_html=True)
-
-        # 2. Tes boutons habituels
-        # --- 2. LES BOUTONS (Version simplifiée pour éviter le décalage) ---
-        # Note : On utilise les colonnes Streamlit normalement, elles vont se placer en haut
-        nav_c1, nav_c2 = st.columns(2)
+        # --- MODE VALOPLANT ---
         with nav_c1:
             if st.button("⬅ QUITTER (MENU MAPS)", use_container_width=True):
-            if st.button("⬅ QUITTER", use_container_width=True):
                 st.session_state['selected_strat_map'] = None
                 st.rerun()
         with nav_c2:
             if st.button("📂 VOIR LE DOSSIER", use_container_width=True):
-            if st.button("📂 DOSSIER", use_container_width=True):
                 st.session_state['strat_view_mode'] = "DOSSIER"
                 st.rerun()
-
-        # 3. L'astuce : On force l'Iframe à NE PAS avoir de scroll et à prendre toute la place
-        # On désactive le scrolling de Streamlit et on fixe la hauteur
-        st.components.v1.iframe("https://valoplant.gg", height=600, scrolling=False)
-
-        # --- 3. L'IFRAME EN TAILLE MAXIMUM ---
-        # On met 90vh (90% de la hauteur de l'écran) pour que ce soit le plus gros possible
-        st.components.v1.iframe("https://valoplant.gg", height=900, scrolling=False)
-        # 4. Le script de blocage "Anti-Scroll" injecté directement
-        st.markdown("""
-            <style>
-                /* Bloque le défilement de la page parente */
-                .main { overflow: hidden !important; }
-                /* Supprime les espaces blancs de Streamlit */
-                [data-testid="stAppViewBlockContainer"] { padding: 10px !important; }
-            </style>
-        """, unsafe_allow_html=True)
-
+        
+        # L'iframe Valoplant (la molette fonctionnera ici car le scroll global est bloqué par styles.py)
+        st.components.v1.iframe("https://valoplant.gg", height=850, scrolling=True)
+    
     else:
-        # --- INTERFACE DOSSIER LOCAL ---
-        # Ici on réactive le scroll pour pouvoir descendre voir les images
+        # --- MODE DOSSIER ---
+        # On débloque le scroll pour voir les images du dossier
         st.markdown("<style>.main { overflow: auto !important; }</style>", unsafe_allow_html=True)
-
-        st.markdown(f"<h3 style='text-align:center; color:#ff4655;'>📁 DOSSIER : {current_map.upper()}</h3>", unsafe_allow_html=True)
-
-        # Boutons de navigation du dossier
-        back_c1, back_c2 = st.columns(2)
-        with back_c1:
-            if st.button("⬅ MENU PRINCIPAL (MAPS)", use_container_width=True):
+        
+        with nav_c1:
+            if st.button("⬅ RETOUR MENU MAPS", use_container_width=True):
                 st.session_state['selected_strat_map'] = None
                 st.rerun()
-        with back_c2:
-            if st.button("🌐 REVENIR À VALOPLANT", use_container_width=True):
+        with nav_c2:
+            if st.button("🌐 RETOUR VALOPLANT", use_container_width=True):
                 st.session_state['strat_view_mode'] = "VALOPLANT"
                 st.rerun()
-
+        
         st.divider()
-
-        # Gestion des fichiers (Ton code existant pour le dossier)
+        st.markdown(f"### 📁 DOSSIER TACTIQUE : {current_map.upper()}")
+        
         map_path = f"images_scrims/{current_map}"
         for side in ["Attaque", "Defense"]:
-            if not os.path.exists(f"{map_path}/{side}"): os.makedirs(f"{map_path}/{side}")
+            if not os.path.exists(f"{map_path}/{side}"): 
+                os.makedirs(f"{map_path}/{side}")
 
-        with st.expander("📤 ARCHIVER UNE NOUVELLE STRATÉGIE"):
+        with st.expander("📤 AJOUTER UNE STRATÉGIE"):
             c1, c2, c3 = st.columns([2, 1, 1])
-            up_f = c1.file_uploader("Capture", type=['png', 'jpg'])
-            up_n = c2.text_input("Nom de la strat")
+            up_f = c1.file_uploader("Image", type=['png', 'jpg'])
+            up_n = c2.text_input("Nom")
             up_s = c3.selectbox("Côté", ["Attaque", "Defense"])
-            if st.button("💾 SAUVEGARDER DANS LE DOSSIER", use_container_width=True):
+            if st.button("💾 ENREGISTRER"):
                 if up_f and up_n:
                     Image.open(up_f).save(f"{map_path}/{up_s}/{up_n}.png")
-                    st.success("Image ajoutée !")
                     st.rerun()
 
         t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
@@ -350,5 +273,3 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
-                else:
-                    st.info(f"Aucune stratégie en {side} pour le moment.")
