@@ -225,40 +225,37 @@ def show_strategy_map(current_map):
     """, unsafe_allow_html=True)
 
     # --- 2. LOGIQUE D'AFFICHAGE ---
-   if st.session_state.get('strat_view_mode') == "VALOPLANT":
-        # Ce bloc CSS est surpuissant : il cible TOUS les conteneurs possibles de Streamlit
+  if st.session_state.get('strat_view_mode') == "VALOPLANT":
+        # --- 1. LE STYLE "ZERO MARGE" ---
         st.markdown("""
             <style>
-                /* Force la disparition de la barre de scroll sur tous les navigateurs */
-                ::-webkit-scrollbar { display: none !important; } /* Chrome/Safari */
-                * { overflow: hidden !important; -ms-overflow-style: none; scrollbar-width: none; } 
-                
-                /* Débloque uniquement l'intérieur de l'iframe pour que tu puisses cliquer */
-                iframe { overflow: auto !important; }
-
-                /* Supprime absolument toutes les marges Streamlit */
-                [data-testid="stAppViewBlockContainer"] {
-                    padding: 0 !important;
+                /* On supprime le scroll au niveau le plus haut possible (le navigateur) */
+                html, body, [data-testid="stAppViewBlockContainer"] {
+                    overflow: hidden !important;
                     margin: 0 !important;
+                    padding: 0 !important;
                 }
-                header, footer { display: none !important; }
+                /* On cache le header Streamlit qui décale tout vers le bas */
+                header { visibility: hidden; }
             </style>
         """, unsafe_allow_html=True)
 
-        # Barre de navigation très fine
-        c1, c2 = st.columns(2)
-        with c1:
-            if st.button("⬅ QUITTER", use_container_width=True):
+        # --- 2. TES BOUTONS ---
+        # On les garde, mais on réduit l'espace qu'ils prennent
+        nav_c1, nav_c2 = st.columns(2)
+        with nav_c1:
+            if st.button("⬅ QUITTER (MENU MAPS)", use_container_width=True):
                 st.session_state['selected_strat_map'] = None
                 st.rerun()
-        with c2:
-            if st.button("📂 DOSSIER", use_container_width=True):
+        with nav_c2:
+            if st.button("📂 VOIR LE DOSSIER", use_container_width=True):
                 st.session_state['strat_view_mode'] = "DOSSIER"
                 st.rerun()
         
-        # On met une hauteur de 98vh (98% de la vue) pour être sûr que ça ne dépasse pas
-        # scrolling=False empêche l'iframe de créer sa propre barre
-        st.components.v1.iframe("https://valoplant.gg", height=900, scrolling=False)
+        # --- 3. L'IFRAME GÉANTE ---
+        # scrolling=False est CRUCIAL ici pour ne pas avoir de double barre
+        # On utilise une hauteur calculée (90% de la fenêtre)
+        st.components.v1.iframe("https://valoplant.gg", height=880, scrolling=False)
         # 4. Le script de blocage "Anti-Scroll" injecté directement
         st.markdown("""
             <style>
@@ -320,6 +317,7 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else:
                     st.info(f"Aucune stratégie en {side} pour le moment.")
+
 
 
 
