@@ -107,22 +107,6 @@ def show_dashboard():
             {"nom": "TURBOS", "role": "INITIATOR", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Turbos", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/turboS%23SPEED/overview"},
             {"nom": "N2", "role": "CONTROLEUR", "img": "https://i.pinimg.com/736x/f7/7d/b5/f77db5e6c5948aec49c1dfe5a8c37885.jpg", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/ego%20peeker%23N2N2/overview"}
         ]
-        
-        r_cols = st.columns(2)
-        for i, p in enumerate(roster_data):
-            with r_cols[i % 2]:
-                st.markdown(f"""
-                    <div class="player-card-dash">
-                        <img src="{p['img']}" class="img-profile">
-                        <div class="name-tag">{p['nom']}</div>
-                        <div class="role-tag">{p['role']}</div>
-                        <div class="mini-stats-container">
-                            <div><small style="color:#888;">K/D</small><br><b style="color:#00ff00;">{p['kd']}</b></div>
-                            <div><small style="color:#888;">HS%</small><br><b style="color:#00ff00;">{p['hs']}</b></div>
-                        </div>
-                        <a href="{p['url']}" target="_blank" class="tracker-link">VIEW TRACKER</a>
-                    </div>
-                """, unsafe_allow_html=True)
 
     with c_right:
         st.markdown("### 🚨 SYSTEM ALERTS")
@@ -724,6 +708,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
