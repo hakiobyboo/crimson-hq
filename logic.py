@@ -219,7 +219,7 @@ def show_strategy_map(current_map):
         nav_c1, nav_c2 = st.columns(2)
         with nav_c1:
             if st.button("⬅ QUITTER (MENU MAPS)", use_container_width=True):
-                st.session_state['selected_strat_map'] = None
+                st.session_state['selected_strat_map'] = False 
                 st.rerun()
         with nav_c2:
             if st.button("📂 VOIR LE DOSSIER", use_container_width=True):
@@ -276,6 +276,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
