@@ -113,7 +113,7 @@ def show_tactical_pool():
             "Killjoy": "https://images8.alphacoders.com/114/thumb-1920-1149389.jpg",
             "Sage": "https://img.uhdpaper.com/wallpaper/sage-valorant-391@5@c-thumb.jpg?dl",
             "Vyse": "https://images6.alphacoders.com/137/thumb-1920-1373943.png",
-            "Veto": ""
+            "Veto": "https://i.ytimg.com/vi/I4T-7Kw6jKQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDkzKWLj2MKubuILXFmd6avfe_1PA"
         },
         "☁️ CONTROLEUR": {
             "Astra": "",
@@ -252,6 +252,7 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
 
 
 
