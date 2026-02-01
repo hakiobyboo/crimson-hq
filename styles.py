@@ -48,34 +48,37 @@ def apply_global_styles():
         }
         </style>
     """, unsafe_allow_html=True)
-
+    
 def apply_immersive_mode():
-    """Version Plein Écran : Verrouille tout et empêche le scroll"""
+    """Force le mode plein écran absolu sans aucun scroll possible"""
     st.markdown("""
         <style>
-        /* 1. Cache tout le superflu de Streamlit */
+        /* 1. Supprime le header, le footer et les menus */
         header, [data-testid="stHeader"], footer { 
             display: none !important; 
         }
 
-        /* 2. Bloque la page entière (le fond) */
-        .main, html, body {
+        /* 2. Bloque la page au niveau du navigateur */
+        html, body, .main {
             overflow: hidden !important;
             height: 100vh !important;
             width: 100vw !important;
             position: fixed !important;
+            top: 0; left: 0;
         }
 
-        /* 3. Supprime les marges de Streamlit pour coller aux bords */
+        /* 3. Supprime les marges de Streamlit qui créent le scroll */
         [data-testid="stAppViewBlockContainer"] {
             padding: 0 !important;
             max-width: 100% !important;
         }
-        
-        /* 4. Style pour la barre de boutons en haut */
-        .stElementContainer:has(div.stButton) {
-            z-index: 999;
+
+        /* 4. On s'assure que les boutons flottent au-dessus de l'iframe */
+        .stColumn {
+            padding: 5px !important;
         }
         </style>
     """, unsafe_allow_html=True)
+
+
 
