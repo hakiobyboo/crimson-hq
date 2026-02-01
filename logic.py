@@ -111,7 +111,7 @@ def show_tactical_pool():
             "Cypher": "https://images.wallpapersden.com/image/wxl-cypher-background-valorant-art_82069.jpg",
             "Deadlock": "https://images5.alphacoders.com/139/thumb-1920-1399745.jpg",
             "Killjoy": "https://images8.alphacoders.com/114/thumb-1920-1149389.jpg",
-            "Sage": "",
+            "Sage": "https://i.pinimg.com/1200x/fa/8d/6b/fa8d6b6cec9210cc126a947681b3077c.jpg",
             "Vyse": "https://images6.alphacoders.com/137/thumb-1920-1373943.png",
             "Veto": "https://i.ytimg.com/vi/I4T-7Kw6jKQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDkzKWLj2MKubuILXFmd6avfe_1PA"
         },
@@ -252,6 +252,7 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
 
 
 
