@@ -139,10 +139,6 @@ def show_dashboard():
         chart_data = pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance'])
         st.line_chart(chart_data)
 
-import streamlit as st
-import pandas as pd
-import os
-
 # --- CONFIGURATION DES FICHIERS ---
 PLANNING_DB = "data/planning.csv"
 DISPOS_DB = "data/dispos.csv"
@@ -708,6 +704,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
