@@ -253,11 +253,9 @@ PLANNING_DB = "data/planning.csv"
 DISPOS_DB = "data/dispos.csv"
 
 def save_data(data, path):
-    # --- AJOUT SÉCURITÉ : Crée le dossier 'data' s'il n'existe pas ---
     directory = os.path.dirname(path)
     if directory and not os.path.exists(directory):
         os.makedirs(directory)
-    
     pd.DataFrame(data).to_csv(path, index=False)
 
 def load_data(path):
@@ -266,7 +264,7 @@ def load_data(path):
     return []
 
 def show_planning():
-    # --- STYLE CSS AMÉLIORÉ ---
+    # --- STYLE CSS AVEC GLOW ---
     st.markdown("""
         <style>
         .valo-card {
@@ -284,10 +282,26 @@ def show_planning():
         .dispo-row {
             display: flex; justify-content: space-between;
             background: rgba(0, 0, 0, 0.2);
-            margin: 5px 0; padding: 5px 10px; border-radius: 5px;
+            margin: 5px 0; padding: 5px 10px; border-radius: 5px; align-items: center;
         }
         .day-label { color: #888; font-weight: bold; font-size: 0.8em; width: 80px; }
-        .time-value { color: #00ff00; font-family: monospace; }
+        
+        /* STYLE ROUGE GLOW pour Non Renseigné */
+        .status-none { 
+            color: #ff4655 !important; 
+            text-shadow: 0 0 10px rgba(255, 70, 85, 0.8);
+            font-weight: bold;
+            font-family: monospace;
+        }
+        
+        /* STYLE VIOLET pour les Heures */
+        .status-set { 
+            color: #bd93f9 !important; 
+            text-shadow: 0 0 8px rgba(189, 147, 249, 0.6);
+            font-weight: bold;
+            font-family: monospace;
+        }
+
         .mission-entry {
             background: linear-gradient(90deg, rgba(255,70,85,0.05) 0%, rgba(15,25,35,0.9) 100%);
             border-left: 4px solid #ff4655;
@@ -349,14 +363,13 @@ def show_planning():
                     save_data(st.session_state['planning_data'], PLANNING_DB)
                     st.rerun()
 
-    # --- ONGLET 2 : DISPOS SQUAD (AVEC LES JOURS) ---
+    # --- ONGLET 2 : DISPOS SQUAD (MODIFIÉ AVEC COULEURS) ---
     with tab2:
         st.markdown("<h3 style='text-align:center;'>SQUAD WEEKLY AVAILABILITY</h3>", unsafe_allow_html=True)
         
         players = ["BOO ツ", "KURAIME", "TURBOS", "NEF"]
         jours = ["LUNDI", "MARDI", "MERCREDI", "JEUDI", "VENDREDI", "SAMEDI", "DIMANCHE"]
         
-        # Initialisation des dispos si vide
         if 'dispos_dict' not in st.session_state:
             saved_dispos = load_data(DISPOS_DB)
             if saved_dispos:
@@ -368,29 +381,31 @@ def show_planning():
         cols = st.columns(2)
         for i, p in enumerate(players):
             with cols[i % 2]:
-                with st.container():
+                st.markdown(f"""<div class="valo-card"><div class="player-header">{p}</div>""", unsafe_allow_html=True)
+                
+                for j in jours:
+                    val = st.session_state['dispos_dict'][p][j]
+                    
+                    # LOGIQUE DE COULEUR
+                    if val == "NON RENSEIGNÉ":
+                        status_class = "status-none"
+                    else:
+                        status_class = "status-set"
+
                     st.markdown(f"""
-                        <div class="valo-card">
-                            <div class="player-header">{p}</div>
+                        <div class="dispo-row">
+                            <span class="day-label">{j}</span>
+                            <span class="{status_class}">{val}</span>
+                        </div>
                     """, unsafe_allow_html=True)
-                    
-                    # Affichage de chaque jour pour le joueur
-                    for j in jours:
-                        val = st.session_state['dispos_dict'][p][j]
-                        st.markdown(f"""
-                            <div class="dispo-row">
-                                <span class="day-label">{j}</span>
-                                <span class="time-value">{val}</span>
-                            </div>
-                        """, unsafe_allow_html=True)
-                    
-                    st.markdown("</div>", unsafe_allow_html=True)
-                    
-                    # Formulaire de modification pour ce joueur
-                    with st.expander(f"Modifier dispos de {p}"):
-                        day_to_mod = st.selectbox("Choisir jour", jours, key=f"sel_{p}")
-                        new_time = st.text_input("Horaire / Statut", placeholder="Ex: 21h - 00h", key=f"text_{p}")
-                        if st.button(f"Mettre à jour {p}", key=f"btn_{p}"):
+                
+                st.markdown("</div>", unsafe_allow_html=True)
+                
+                with st.expander(f"Modifier {p}"):
+                    day_to_mod = st.selectbox("Jour", jours, key=f"sel_{p}")
+                    new_time = st.text_input("Heure", placeholder="Ex: 21h - 23h", key=f"text_{p}")
+                    if st.button(f"Update {p}", key=f"btn_{p}"):
+                        if new_time:
                             st.session_state['dispos_dict'][p][day_to_mod] = new_time.upper()
                             save_data(list(st.session_state['dispos_dict'].values()), DISPOS_DB)
                             st.rerun()
@@ -494,6 +509,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
