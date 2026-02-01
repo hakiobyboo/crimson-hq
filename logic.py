@@ -112,7 +112,7 @@ def show_tactical_pool():
             "Deadlock": "https://images5.alphacoders.com/139/thumb-1920-1399745.jpg",
             "Killjoy": "https://images8.alphacoders.com/114/thumb-1920-1149389.jpg",
             "Sage": "https://img.uhdpaper.com/wallpaper/sage-valorant-391@5@c-thumb.jpg?dl",
-            "Vyse": "",
+            "Vyse": "https://images6.alphacoders.com/137/thumb-1920-1373943.png",
             "Veto": ""
         },
         "☁️ CONTROLEUR": {
@@ -252,5 +252,6 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
 
 
