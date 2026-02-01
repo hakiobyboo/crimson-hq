@@ -65,15 +65,10 @@ else:
     has_map_selected = st.session_state['selected_strat_map'] is not None
     
     if is_strat_page and has_map_selected:
-        # --- MODE PLEIN ÉCRAN (On sort des colonnes pour centrer) ---
+        # --- MODE PLEIN ÉCRAN (Modifié pour utiliser le bouton retour de logic.py) ---
         apply_immersive_mode()
         
-        # Bouton de sortie
-        if st.button("⬅ EXIT IMMERSIVE MODE"):
-            st.session_state['selected_strat_map'] = None
-            st.rerun()
-            
-        # Affichage Valoplant (Prendra 100% de la largeur grâce au CSS)
+        # On affiche la map (le bouton retour est maintenant géré à l'intérieur de cette fonction)
         logic.show_strategy_map(st.session_state['selected_strat_map'])
 
     else:
