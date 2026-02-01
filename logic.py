@@ -7,15 +7,134 @@ from database import get_intel, load_csv, save_agents_mastery, save_scrim_db, SC
 
 # --- 1. DASHBOARD ---
 def show_dashboard():
-    df = st.session_state['scrims_df']
-    total = len(df)
-    wins = len(df[df['Resultat'] == "WIN"])
-    wr = f"{(wins/total)*100:.1f}%" if total > 0 else "0.0%"
+    # --- STYLE CSS DASHBOARD FUTURISTE ---
+    st.markdown("""
+        <style>
+        /* Carte Identité Joueur */
+        .player-card {
+            background: rgba(15, 25, 35, 0.9);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 70, 85, 0.4);
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(255, 70, 85, 0.1);
+        }
+        .player-card:hover {
+            border-color: #ff4655;
+            box-shadow: 0 0 25px rgba(255, 70, 85, 0.4);
+            transform: translateY(-5px);
+        }
+        .player-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid #ff4655;
+            object-fit: cover;
+            margin-bottom: 10px;
+            box-shadow: 0 0 10px #ff4655;
+        }
+        .player-name-dash {
+            font-family: 'VALORANT', sans-serif;
+            color: white;
+            font-size: 1.2em;
+            letter-spacing: 2px;
+        }
+        .player-role {
+            color: #888;
+            font-size: 0.8em;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
 
-    c1, c2, c3 = st.columns(3)
-    with c1: st.markdown(f"<div class='stat-card'><h4>WINRATE</h4><h2 style='color:#ff4655;'>{wr}</h2></div>", unsafe_allow_html=True)
-    with c2: st.markdown(f"<div class='stat-card'><h4>TOTAL SCRIMS</h4><h2 style='color:#ff4655;'>{total}</h2></div>", unsafe_allow_html=True)
-    with c3: st.markdown(f"<div class='stat-card'><h4>STATUS</h4><h2 style='color:#00ff00;'>● ONLINE</h2></div>", unsafe_allow_html=True)
+        /* Stats Globales */
+        .stat-box {
+            background: linear-gradient(135deg, rgba(255,70,85,0.1) 0%, rgba(15,25,35,0.8) 100%);
+            border-left: 4px solid #ff4655;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .stat-val {
+            font-family: monospace;
+            font-size: 2em;
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0,255,0,0.5);
+        }
+        .stat-label {
+            color: white;
+            font-size: 0.7em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<h2 class='valo-title' style='text-align:center;'>CRIMSON COMMAND CENTER</h2>", unsafe_allow_html=True)
+
+    # --- SECTION 1 : STATS GLOBALES (Le haut du Dash) ---
+    col_s1, col_s2, col_s3, col_s4 = st.columns(4)
+    with col_s1:
+        st.markdown('<div class="stat-box"><div class="stat-val">78%</div><div class="stat-label">Win Rate Global</div></div>', unsafe_allow_html=True)
+    with col_s2:
+        st.markdown('<div class="stat-box"><div class="stat-val">1.24</div><div class="stat-label">K/D Moyen</div></div>', unsafe_allow_html=True)
+    with col_s3:
+        st.markdown('<div class="stat-box" style="border-left-color:#00eeff;"><div class="stat-val" style="color:#00eeff; text-shadow: 0 0 10px rgba(0,238,255,0.5);">12</div><div class="stat-label">Scrims Gagnés</div></div>', unsafe_allow_html=True)
+    with col_s4:
+        st.markdown('<div class="stat-box" style="border-left-color:#bd93f9;"><div class="stat-val" style="color:#bd93f9; text-shadow: 0 0 10px rgba(189,147,249,0.5);">62%</div><div class="stat-label">Clutch Rate</div></div>', unsafe_allow_html=True)
+
+    st.markdown("<div style='margin-top:30px;'></div>", unsafe_allow_html=True)
+
+    # --- SECTION 2 : ACTIVE ROSTER (Les Joueurs) ---
+    st.markdown("### 👥 ACTIVE ROSTER")
+    
+    # Tu peux remplacer les liens par les vraies photos plus tard
+    roster = {
+        "BOO ツ": {"role": "IGL / SMOKER", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Boo"},
+        "KURAIME": {"role": "DUELIST", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Kuraime"},
+        "TURBOS": {"role": "INITIATOR", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Turbos"},
+        "NEF": {"role": "SENTINEL / FLEX", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Nef"}
+    }
+
+    p_cols = st.columns(4)
+    for i, (name, info) in enumerate(roster.items()):
+        with p_cols[i]:
+            st.markdown(f"""
+                <div class="player-card">
+                    <img src="{info['img']}" class="player-img">
+                    <div class="player-name-dash">{name}</div>
+                    <div class="player-role">{info['role']}</div>
+                    <div style="font-family:monospace; color:#00ff00; font-size:0.8em;">STATUS: ONLINE</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown("<div style='margin-top:30px;'></div>", unsafe_allow_html=True)
+
+    # --- SECTION 3 : DERNIÈRES ACTIVITÉS & ALERTES ---
+    c_left, c_right = st.columns([1.2, 0.8])
+    
+    with c_left:
+        st.markdown("### 📊 PERFORMANCE TRENDS")
+        # Ici un petit graphique simple pour le look
+        chart_data = pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance'])
+        st.line_chart(chart_data)
+
+    with c_right:
+        st.markdown("### 🚨 SYSTEM ALERTS")
+        st.markdown("""
+            <div style="background:rgba(255,70,85,0.1); padding:10px; border-radius:5px; border:1px solid #ff4655; margin-bottom:10px;">
+                <b style="color:#ff4655;">UPCOMING SCRIM:</b><br>
+                <small>Ce soir 21h00 vs Team Alpha</small>
+            </div>
+            <div style="background:rgba(0,238,255,0.1); padding:10px; border-radius:5px; border:1px solid #00eeff; margin-bottom:10px;">
+                <b style="color:#00eeff;">STRAT UPDATE:</b><br>
+                <small>Nouvelle exécution A sur Abyss ajoutée.</small>
+            </div>
+            <div style="background:rgba(189,147,249,0.1); padding:10px; border-radius:5px; border:1px solid #bd93f9;">
+                <b style="color:#bd93f9;">DATABASE:</b><br>
+                <small>Agent Pool mis à jour par Kuraime.</small>
+            </div>
+        """, unsafe_allow_html=True)
 
 # --- 2. INTEL TRACKER ---
 def show_intel():
@@ -509,6 +628,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
