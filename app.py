@@ -96,8 +96,7 @@ if is_strat_page and has_map_selected:
             st.rerun()
         
         st.divider()
-
-     # --- ROUTAGE VERS LES PAGES ---
+# --- ROUTAGE VERS LES PAGES ---
         menu = st.session_state["current_page"]
         
         if menu == "DASHBOARD":
@@ -111,8 +110,7 @@ if is_strat_page and has_map_selected:
         elif menu == "PLANNING":
             logic.show_planning()
         elif menu == "STRATÉGIE":
-            # Si une map est déjà choisie, app.py l'a déjà traitée plus haut.
-            # Sinon, on affiche la sélection.
+            # Si aucune map n'est sélectionnée, on affiche la grille
             if st.session_state['selected_strat_map'] is None:
                 logic.show_map_selection()
 
