@@ -101,26 +101,78 @@ def show_archive():
             save_scrim_db(st.session_state['scrims_df'])
             st.rerun()
 
-# --- 4. TACTICAL POOL ---
 def show_tactical_pool():
-    p_sel = st.selectbox("AGENT OPÉRATIONNEL", ["BOO ツ", "KURAIME"])
-    cats = {
-        "SENTINEL": ["Chamber", "Cypher", "Killjoy", "Sage", "Vyse", "Deadlock", "Veto"], 
-        "DUELIST": ["Iso", "Jett", "Neon", "Phoenix", "Raze", "Reyna", "Yoru" , "Waylay"], 
-        "INITIATOR": ["Breach", "Fade", "Gekko", "KAY/O", "Skye", "Sova"], 
-        "CONTROLLER": ["Astra", "Brimstone", "Clove", "Omen", "Harbor", "Viper"]
-    }
-    cols = st.columns(4)
-    for i, (role, agents) in enumerate(cats.items()):
-        with cols[i]:
-            st.markdown(f"<p style='color:#ff4655; font-weight:bold; border-bottom:1px solid #ff4655;'>{role}</p>", unsafe_allow_html=True)
-            for a in agents:
-                k = f"{p_sel}_{a}"
-                checked = st.checkbox(a, value=st.session_state['agent_data'].get(k, False), key=k)
-                if checked != st.session_state['agent_data'].get(k, False):
-                    st.session_state['agent_data'][k] = checked
-                    save_agents_mastery(st.session_state['agent_data'])
+    st.markdown("<h2 class='valo-title' style='font-size:2em;'>AGENT POOL</h2>", unsafe_allow_html=True)
+    
+    p_sel = st.selectbox("UNIT ID", ["BOO ツ", "KURAIME"])
 
+    # Dictionnaire des agents avec leurs IDs officiels pour les images
+    # J'ai inclus tous les persos de tes captures d'écran
+    agents_list = {
+        "Astra": "https://playvalorant.com/fr-fr/agents/astra",
+        "Breach": "5f8d3a7f-467b-97f3-062c-13acf203c002",
+        "Brimstone": "9ad6e251-4199-1392-8a0a-559b9bb1b13a",
+        "Chamber": "22697a3d-45bf-8dd7-4f03-10a07d64f12f",
+        "Clove": "bb2a14ca-4614-4690-8805-776732644265",
+        "Cypher": "117ed9d3-4836-2473-3e7b-5d1073097510",
+        "Deadlock": "cc8b6900-45c0-11ff-3136-32a2405c56b4",
+        "Fade": "dade69b4-4354-453d-9152-87569175927c",
+        "Gekko": "e370fa57-4757-3604-3644-49ba1543f2a8",
+        "Harbor": "95b5b8d0-4c7a-b64d-7603-9ce1f6d4ad48",
+        "Iso": "0e314694-4c11-daa7-33d3-c99026774e44",
+        "Jett": "ad3e3391-4351-b13e-f117-bc3596b3a1c1",
+        "KAY/O": "601db300-4316-2969-808b-ce5ad40616a1",
+        "Killjoy": "1e58de9d-4950-5125-93e9-a0aee9f97661",
+        "Neon": "bb2a14ca-4614-4690-8805-776732644265",
+        "Omen": "8e253930-4c0d-4a5d-13a3-33318f73b981",
+        "Phoenix": "eb93336a-449b-9c1b-ce31-2924316e6d78",
+        "Raze": "f944b06d-4a4d-8170-9d11-bc3596b3a1c1",
+        "Reyna": "a3bc0630-404a-b565-d5b7-bc3596b3a1c1",
+        "Sage": "569fdd95-4d0f-5d54-963f-8b1167b43f92",
+        "Skye": "6f2a0491-44a3-42a3-274f-bc3596b3a1c1",
+        "Sova": "320b2a48-4d9b-a075-3bca-14ac10b24036",
+        "Viper": "707eab51-4836-f488-046a-cda6bf348ad8",
+        "Vyse": "6c368297-4c4c-4740-4965-74892c9082fd",
+        "Yoru": "7f94d92c-4234-8836-96ff-bc3596b3a1c1"
+    }
+
+    # On crée une grille de 4 colonnes comme sur ton image
+    cols = st.columns(4)
+    
+    for i, (name, uid) in enumerate(agents_list.items()):
+        with cols[i % 4]:
+            # URL de l'image officielle (portrait vertical)
+            img_url = f"https://media.valorant-api.com/agents/{uid}/fullportrait.png"
+            
+            # Gestion de l'état dans la session
+            key = f"{p_sel}_{name}"
+            is_mastered = st.session_state['agent_data'].get(key, False)
+            
+            # Design de la carte
+            # On change la bordure si c'est sélectionné
+            border_color = "#ff4655" if is_mastered else "#333"
+            bg_color = "rgba(255, 70, 85, 0.2)" if is_mastered else "rgba(0,0,0,0.3)"
+            
+            st.markdown(f"""
+                <div style="
+                    border: 2px solid {border_color};
+                    background-color: {bg_color};
+                    border-radius: 5px;
+                    padding: 10px;
+                    text-align: center;
+                    margin-bottom: 10px;
+                    transition: 0.3s;
+                ">
+                    <img src="{img_url}" style="width: 100%; border-radius: 3px;">
+                    <p style="margin-top: 5px; font-weight: bold; font-family: 'VALORANT'; color: white;">{name.upper()}</p>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # Le bouton de validation
+            if st.button("MASTERED" if not is_mastered else "UNMARK", key=f"btn_{key}", use_container_width=True):
+                st.session_state['agent_data'][key] = not is_mastered
+                save_agents_mastery(st.session_state['agent_data'])
+                st.rerun()
 # --- 5. PLANNING ---
 def show_planning():
     st.markdown("### DISPONIBILITÉS DE L'UNITÉ")
@@ -212,4 +264,5 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
 
