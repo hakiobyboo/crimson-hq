@@ -250,7 +250,7 @@ def show_strategy_map(current_map):
         
         # 3. L'astuce : On force l'Iframe à NE PAS avoir de scroll et à prendre toute la place
         # On désactive le scrolling de Streamlit et on fixe la hauteur
-        st.components.v1.iframe("https://valoplant.gg", height=700, scrolling=False)
+        st.components.v1.iframe("https://valoplant.gg", height=650, scrolling=False)
 
         # 4. Le script de blocage "Anti-Scroll" injecté directement
         st.markdown("""
@@ -313,6 +313,7 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else:
                     st.info(f"Aucune stratégie en {side} pour le moment.")
+
 
 
 
