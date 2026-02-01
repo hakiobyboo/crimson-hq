@@ -6,94 +6,165 @@ from datetime import datetime
 from database import get_intel, load_csv, save_agents_mastery, save_scrim_db, SCRIMS_DB, AGENTS_DB, update_intel_manual
 
 # --- 1. DASHBOARD ---
+# Chemins des fichiers (Assure-toi qu'ils correspondent à ton projet)
+PLANNING_DB = "data/planning.csv"
+DISPOS_DB = "data/dispos.csv"
+
+def load_data(path):
+    if os.path.exists(path):
+        return pd.read_csv(path).to_dict('records')
+    return []
+
 def show_dashboard():
-    # --- STYLE CSS AVANCE ---
+    # --- STYLE CSS COMPLET (CORRIGÉ ET AVANCÉ) ---
     st.markdown("""
         <style>
-        /* Grille des joueurs */
-        .dashboard-grid {
-            display: flex;
-            justify-content: space-around;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        
-        /* Carte de joueur style Crimson */
+        /* Grille et Cartes Joueurs */
         .player-card-dash {
             background: rgba(15, 25, 35, 0.9);
-            border: 2px solid rgba(189, 147, 249, 0.3); /* Bordure Violette */
+            border: 2px solid rgba(189, 147, 249, 0.3);
             border-radius: 20px;
-            padding: 25px;
+            padding: 20px;
             text-align: center;
-            width: 280px;
             transition: 0.4s;
             box-shadow: 0 0 15px rgba(189, 147, 249, 0.1);
+            margin-bottom: 10px;
         }
-        
         .player-card-dash:hover {
-            border-color: #bd93f9; /* Violet Glow au survol */
+            border-color: #bd93f9;
             box-shadow: 0 0 30px rgba(189, 147, 249, 0.4);
-            transform: translateY(-10px);
+            transform: translateY(-5px);
         }
-
         .img-profile {
-            width: 130px;
-            height: 130px;
+            width: 110px; height: 110px;
             border-radius: 50%;
             border: 3px solid #bd93f9;
             object-fit: cover;
             box-shadow: 0 0 15px rgba(189, 147, 249, 0.6);
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+        }
+        .name-tag { font-family: 'VALORANT', sans-serif; color: white; font-size: 1.3em; letter-spacing: 1px; }
+        .role-tag { color: #bd93f9; font-size: 0.7em; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; }
+        
+        /* Stats dans les cartes */
+        .mini-stats-container {
+            display: flex; justify-content: space-around;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px; border-radius: 10px; margin-bottom: 10px;
         }
 
-        .name-tag {
-            font-family: 'VALORANT', sans-serif;
-            color: white;
-            font-size: 1.5em;
-            letter-spacing: 2px;
-            margin-bottom: 5px;
+        /* Stats Globales (Haut) */
+        .stat-box {
+            background: linear-gradient(135deg, rgba(255,70,85,0.1) 0%, rgba(15,25,35,0.8) 100%);
+            border-left: 4px solid #ff4655;
+            padding: 15px; border-radius: 5px; text-align: center;
         }
+        .stat-val { font-family: monospace; font-size: 1.8em; color: #00ff00; text-shadow: 0 0 10px rgba(0,255,0,0.5); }
+        .stat-label { color: white; font-size: 0.7em; text-transform: uppercase; letter-spacing: 1px; }
 
-        .role-tag {
-            color: #bd93f9;
-            font-size: 0.8em;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 20px;
-        }
-
-        /* Bouton Tracker.gg */
+        /* Bouton Tracker */
         .tracker-link {
             display: block;
             background: linear-gradient(90deg, #ff4655 0%, #ff758c 100%);
             color: white !important;
             text-decoration: none !important;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-family: 'VALORANT', sans-serif;
-            font-size: 0.8em;
-            transition: 0.3s;
-            margin-top: 15px;
-            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+            padding: 8px; border-radius: 5px;
+            font-family: 'VALORANT', sans-serif; font-size: 0.7em; transition: 0.3s;
         }
+        .tracker-link:hover { box-shadow: 0 0 15px rgba(255, 70, 85, 0.6); filter: brightness(1.2); }
 
-        .tracker-link:hover {
-            filter: brightness(1.2);
-            box-shadow: 0 0 15px rgba(255, 70, 85, 0.6);
-        }
-
-        .mini-stats-container {
-            display: flex;
-            justify-content: space-between;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px;
+        /* Alertes Dynamiques */
+        .alert-card {
+            background: rgba(255, 255, 255, 0.03);
             border-radius: 10px;
+            padding: 15px;
+            border-left: 5px solid #ff4655;
+            margin-bottom: 15px;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    st.markdown("<h1 class='valo-title' style='text-align:center;'>CRIMSON COMMAND CENTER</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON COMMAND CENTER</h1>", unsafe_allow_html=True)
+
+    # --- CHARGEMENT DES DONNÉES ---
+    planning_data = load_data(PLANNING_DB)
+    dispos_data = load_data(DISPOS_DB)
+
+    # --- SECTION 1 : STATS GLOBALES ---
+    col_s1, col_s2, col_s3, col_s4 = st.columns(4)
+    with col_s1: st.markdown('<div class="stat-box"><div class="stat-val">78%</div><div class="stat-label">Win Rate Global</div></div>', unsafe_allow_html=True)
+    with col_s2: st.markdown('<div class="stat-box"><div class="stat-val">1.24</div><div class="stat-label">K/D Moyen</div></div>', unsafe_allow_html=True)
+    with col_s3: st.markdown('<div class="stat-box" style="border-left-color:#00eeff;"><div class="stat-val" style="color:#00eeff; text-shadow: 0 0 8px #00eeff;">12</div><div class="stat-label">Scrims Gagnés</div></div>', unsafe_allow_html=True)
+    with col_s4: st.markdown('<div class="stat-box" style="border-left-color:#bd93f9;"><div class="stat-val" style="color:#bd93f9; text-shadow: 0 0 8px #bd93f9;">62%</div><div class="stat-label">Clutch Rate</div></div>', unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- SECTION 2 : ALERTES SYSTÈME (DYNAMIQUE) ---
+    c_left, c_right = st.columns([1.2, 0.8])
+
+    with c_right:
+        st.markdown("### 🚨 SYSTEM ALERTS")
+        
+        # Alerte 1 : Prochain Match basé sur le planning
+        if planning_data:
+            next_match = planning_data[0] # On prend le premier
+            st.markdown(f"""
+                <div class="alert-card">
+                    <b style="color:#ff4655;">MATCH DÉPLOYÉ</b><br>
+                    <small>{next_match['jour']} vs {next_match['opp']}</small><br>
+                    <span style="color:#00eeff; font-family:monospace;">HEURE: {next_match['time']} | MAP: {next_match['map']}</span>
+                </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown('<div class="alert-card" style="border-left-color:#888;"><b>AUCUNE MISSION</b><br><small>Planning vide.</small></div>', unsafe_allow_html=True)
+
+        # Alerte 2 : Dispos manquantes
+        missing_players = []
+        for p in dispos_data:
+            if any(val == "NON RENSEIGNÉ" for key, val in p.items() if key != 'player'):
+                missing_players.append(p['player'])
+        
+        if missing_players:
+            st.markdown(f"""
+                <div class="alert-card" style="border-left-color:#bd93f9;">
+                    <b style="color:#bd93f9;">UNITÉS HORS-LIGNE</b><br>
+                    <small>Dispos incomplètes : {", ".join(missing_players)}</small>
+                </div>
+            """, unsafe_allow_html=True)
+
+    with c_left:
+        st.markdown("### 📈 PERFORMANCE TRENDS")
+        chart_data = pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance'])
+        st.line_chart(chart_data)
+
+    st.markdown("### 👥 ACTIVE ROSTER")
+    
+    # --- SECTION 3 : CARTES JOUEURS ---
+    roster_data = [
+        {"nom": "NEF", "role": "SENTINEL / FLEX", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Nef", "url": "https://tracker.gg/valorant/profile/riot/Nef%23SPK/overview", "kd": "1.07", "hs": "26%"},
+        {"nom": "BOO ツ", "role": "IGL / SMOKER", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Boo", "url": "https://tracker.gg/valorant/profile/riot/Boo%20ツ%231tpas/overview", "kd": "1.04", "hs": "35.4%"},
+        {"nom": "KURAIME", "role": "DUELIST", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Kuraime", "url": "https://tracker.gg/valorant/profile/riot/kuraime%23ezz/overview", "kd": "0.99", "hs": "39.3%"},
+        {"nom": "TURBOS", "role": "INITIATOR", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Turbos", "url": "https://tracker.gg/valorant/profile/riot/turboS%23SPEED/overview", "kd": "0.99", "hs": "23.4%"}
+    ]
+
+    cols = st.columns(4)
+    for i, p in enumerate(roster_data):
+        with cols[i]:
+            st.markdown(f"""
+                <div class="player-card-dash">
+                    <img src="{p['img']}" class="img-profile">
+                    <div class="name-tag">{p['nom']}</div>
+                    <div class="role-tag">{p['role']}</div>
+                    <div class="mini-stats-container">
+                        <div><small style="color:#888;">K/D</small><br><b style="color:#00ff00;">{p['kd']}</b></div>
+                        <div><small style="color:#888;">HS%</small><br><b style="color:#00ff00;">{p['hs']}</b></div>
+                    </div>
+                    <a href="{p['url']}" target="_blank" class="tracker-link">VIEW TRACKER</a>
+                </div>
+            """, unsafe_allow_html=True)
+
+    st.divider()
+    st.info("💡 Les alertes se mettent à jour automatiquement selon le planning et les disponibilités.")
 
     # --- DONNÉES DU ROSTER ---
     # Remplace les URLs des images par les vraies photos (ex: assets/nef.png)
@@ -708,6 +779,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
