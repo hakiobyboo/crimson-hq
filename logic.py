@@ -206,27 +206,23 @@ def show_map_selection():
                 
 def show_strategy_map(current_map):
     # --- 1. NAVIGATION SUPÉRIEURE ---
-    # On crée 3 colonnes pour bien espacer les boutons de contrôle
     col_nav1, col_nav2, col_nav3 = st.columns([1, 1, 1])
     
-    # Initialisation du mode par défaut (VALOPLANT d'abord comme tu l'as demandé)
     if 'strat_view_mode' not in st.session_state:
         st.session_state['strat_view_mode'] = "VALOPLANT"
 
     with col_nav1:
-        # Bouton pour quitter la map et revenir à la liste complète
-        if st.button("🏠 ACCUEIL DES MAPS", use_container_width=True):
+        # Ce bouton renvoie à la liste des maps peu importe où on est
+        if st.button("🏠 ACCUEIL MAPS", use_container_width=True):
             st.session_state['selected_strat_map'] = None
             st.rerun()
 
     with col_nav2:
-        # Bouton pour switcher vers Valoplant
         if st.button("🌐 VALOPLANT", use_container_width=True):
             st.session_state['strat_view_mode'] = "VALOPLANT"
             st.rerun()
 
     with col_nav3:
-        # Bouton pour switcher vers ton dossier local
         if st.button("📂 DOSSIER STRATS", use_container_width=True):
             st.session_state['strat_view_mode'] = "DOSSIER"
             st.rerun()
@@ -236,7 +232,6 @@ def show_strategy_map(current_map):
     # --- 2. AFFICHAGE DU CONTENU ---
     
     if st.session_state['strat_view_mode'] == "VALOPLANT":
-        # --- MODE VALOPLANT ---
         st.markdown(f"### 📍 SITE TACTIQUE : {current_map.upper()}")
         st.markdown(f"""
             <div class="iframe-container">
@@ -248,21 +243,19 @@ def show_strategy_map(current_map):
         """, unsafe_allow_html=True)
     
     else:
-        # --- MODE DOSSIER (Tes archives) ---
+        # --- MODE DOSSIER ---
         st.markdown(f"### 📂 ARCHIVES LOCALES : {current_map.upper()}")
         
-        # Petit bouton de retour rapide vers Valoplant à l'intérieur du dossier
-        if st.button("⬅ Revenir à Valoplant"):
-            st.session_state['strat_view_mode'] = "VALOPLANT"
+        # Le bouton que tu as demandé : Retour direct à l'accueil des maps
+        if st.button("⬅ RETOUR À LA SÉLECTION DES MAPS"):
+            st.session_state['selected_strat_map'] = None
             st.rerun()
             
         map_path = f"images_scrims/{current_map}"
-        # Création auto des dossiers si inexistants
         for side in ["Attaque", "Defense"]:
             if not os.path.exists(f"{map_path}/{side}"): 
                 os.makedirs(f"{map_path}/{side}")
         
-        # Zone d'upload
         with st.expander("📤 ENREGISTRER UNE NOUVELLE IMAGE"):
             c_u1, c_u2, c_u3 = st.columns([2, 1, 1])
             up_file = c_u1.file_uploader("Image", type=['png', 'jpg'])
@@ -274,7 +267,6 @@ def show_strategy_map(current_map):
                     st.success("Enregistré !")
                     st.rerun()
 
-        # Affichage des strats enregistrées
         t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
         for tab, side in zip([t1, t2], ["Attaque", "Defense"]):
             with tab:
@@ -289,3 +281,4 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
