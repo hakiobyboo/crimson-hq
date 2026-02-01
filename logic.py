@@ -155,9 +155,17 @@ def show_map_selection():
                 st.rerun()
 
 def show_strategy_map(current_map):
-    # Sélecteur de mode interne
-    st.markdown(f"### MISSION ACTIVE : {current_map.upper()}")
-    view_mode = st.radio("INTERFACE", ["VALOPLANT LIVE", "ARCHIVES TACTIQUES"], horizontal=True)
+    # --- BARRE DE NAVIGATION (Bouton Retour ajouté ici) ---
+    col_nav1, col_nav2 = st.columns([1, 4])
+    with col_nav1:
+        if st.button("⬅ RETOUR"):
+            st.session_state['selected_strat_map'] = None
+            st.rerun()
+    with col_nav2:
+        st.markdown(f"### MISSION ACTIVE : {current_map.upper()}")
+
+    # Sélecteur de mode
+    view_mode = st.radio("INTERFACE", ["VALOPLANT LIVE", "ARCHIVES TACTIQUES"], horizontal=True, label_visibility="collapsed")
     
     if view_mode == "VALOPLANT LIVE":
         # --- VALOPLANT EN PLEIN ÉCRAN ---
