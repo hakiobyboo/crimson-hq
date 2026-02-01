@@ -180,16 +180,11 @@ def show_planning():
     })
     st.data_editor(df_plan, use_container_width=True)
 
-# --- 6. STRATÉGIE (VERSION FIXÉE) ---
 # --- 6. STRATÉGIE ---
 
 def show_map_selection():
-    """Grille de sélection des maps"""
-    st.markdown("<h2 class='valo-title' style='text-align:center;'>CHOISIR UNE MAP</h2>", unsafe_allow_html=True)
-    maps = {
-    """Affiche la grille des maps pour la sélection initiale"""
     st.markdown("<h2 class='valo-title' style='text-align:center;'>SÉLECTION DE LA ZONE D'OPÉRATION</h2>", unsafe_allow_html=True)
-    
+
     map_list = {
         "Abyss": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/53698d442a14b5a6be643d53eb970ac16442cb38-930x522.png",
         "Ascent": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/5cb7e65c04a489eccd725ce693fdc11e99982e10-3840x2160.png",
@@ -198,25 +193,20 @@ def show_map_selection():
         "Fracture": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/aecf502b1eea8824fd1fa9f8a2450bc5c13f6910-915x515.webp",
         "Haven": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/bccc7b5f8647a4f654d4bb359247bce6e82c77ab-3840x2160.png",
         "Icebox": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/72853f583a0f6b25aed54870531756483a7b61de-3840x2160.png",
-        "Sunset": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/5101e4ee241fbfca261bf8150230236c46c8b991-3840x2160.png"
         "Lotus": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/cad0b406c5924614083a8dc9846b0a8746a20bda-703x396.webp",
         "Pearl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/34ba319c99d3d20ef8c6f7b6a61439e207b39247-915x515.webp",
         "Split": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/878d51688c0f9dd0de827162e80c40811668e0c6-3840x2160.png",
         "Sunset": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/5101e4ee241fbfca261bf8150230236c46c8b991-3840x2160.png",
         "Corrode": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/6e3e66577519c8290d874aa94d82e28aec2ccc3e-915x515.jpg"
     }
-    
+
     cols = st.columns(3)
-    for i, (m_name, m_url) in enumerate(maps.items()):
-        with cols[i%3]:
     for i, (m_name, m_url) in enumerate(map_list.items()):
         with cols[i % 3]:
             st.image(m_url, use_container_width=True)
-            if st.button(f"SÉLECTIONNER {m_name.upper()}", key=f"btn_{m_name}", use_container_width=True):
             if st.button(f"SÉLECTIONNER {m_name.upper()}", key=f"select_{m_name}", use_container_width=True):
                 st.session_state['selected_strat_map'] = m_name
                 st.session_state['strat_view_mode'] = "VALOPLANT"
-                st.session_state['strat_view_mode'] = "VALOPLANT" # Par défaut on arrive sur Valoplant
                 st.rerun()
 
 def show_strategy_map(current_map):
@@ -340,4 +330,5 @@ def show_strategy_map(current_map):
                 files = [f for f in os.listdir(f"{map_path}/{side}") if f.endswith(('.png', '.jpg', '.jpeg'))]
         
 st.info(f"Aucune stratégie enregistrée pour le côté {side}.")
+
 
