@@ -209,26 +209,28 @@ def show_map_selection():
                 st.rerun()
 
 def show_strategy_map(current_map):
-    """Vue avec boutons séparés et Iframe plein écran"""
+    """Vue avec navigation propre et Iframe plein écran"""
     
-    # Barre de navigation personnalisée
+    # Barre de navigation personnalisée (2 colonnes de boutons)
     nav_c1, nav_c2 = st.columns(2)
     
     if st.session_state.get('strat_view_mode') == "VALOPLANT":
+        # --- MODE VALOPLANT ---
         with nav_c1:
-            if st.button("⬅ RETOUR AU MENU DES MAPS", use_container_width=True):
+            if st.button("⬅ QUITTER ET RETOUR AUX MAPS", use_container_width=True):
                 st.session_state['selected_strat_map'] = None
                 st.rerun()
         with nav_c2:
-            if st.button("📂 OUVRIR LE DOSSIER TACTIQUE", use_container_width=True):
+            if st.button("📂 ALLER AU DOSSIER TACTIQUE", use_container_width=True):
                 st.session_state['strat_view_mode'] = "DOSSIER"
                 st.rerun()
         
-        # Affichage de Valoplant
+        # Affichage de Valoplant sans scroll sur la page principale
         st.components.v1.iframe("https://valoplant.gg", height=850, scrolling=True)
     
     else:
-        # Mode Dossier : On réactive le scroll pour voir les images
+        # --- MODE DOSSIER ---
+        # On réactive le scroll uniquement pour voir les images du dossier
         st.markdown("<style>.main { overflow: auto !important; }</style>", unsafe_allow_html=True)
         
         with nav_c1:
@@ -241,52 +243,14 @@ def show_strategy_map(current_map):
                 st.rerun()
         
         st.divider()
-
-    # --- 2. LOGIQUE D'AFFICHAGE ---
-    
-    if st.session_state.get('strat_view_mode') == "VALOPLANT":
-        # --- INTERFACE VALOPLANT LIVE ---
-        st.markdown(f"<h3 style='text-align:center; color:#ff4655; margin-bottom:10px;'>🌐 SESSION LIVE : {current_map.upper()}</h3>", unsafe_allow_html=True)
+        st.markdown(f"### 📁 ARCHIVES TACTIQUES : {current_map.upper()}")
         
-        # Deux boutons distincts pour plus de clarté
-        nav_c1, nav_c2 = st.columns(2)
-        with nav_c1:
-            if st.button("⬅ RETOUR AU MENU DES MAPS", use_container_width=True):
-                st.session_state['selected_strat_map'] = None
-                st.rerun()
-        with nav_c2:
-            if st.button("📂 OUVRIR LE DOSSIER TACTIQUE", use_container_width=True):
-                st.session_state['strat_view_mode'] = "DOSSIER"
-                st.rerun()
-
-        # Iframe Valoplant (La molette ne fera plus bouger ton site Crimson)
-        st.components.v1.iframe("https://valoplant.gg", height=800, scrolling=True)
-
-    else:
-        # --- INTERFACE DOSSIER LOCAL ---
-        # Ici on réactive le scroll pour pouvoir descendre voir les images
-        st.markdown("<style>.main { overflow: auto !important; }</style>", unsafe_allow_html=True)
-        
-        st.markdown(f"<h3 style='text-align:center; color:#ff4655;'>📁 DOSSIER : {current_map.upper()}</h3>", unsafe_allow_html=True)
-        
-        # Boutons de navigation du dossier
-        back_c1, back_c2 = st.columns(2)
-        with back_c1:
-            if st.button("⬅ MENU PRINCIPAL (MAPS)", use_container_width=True):
-                st.session_state['selected_strat_map'] = None
-                st.rerun()
-        with back_c2:
-            if st.button("🌐 REVENIR À VALOPLANT", use_container_width=True):
-                st.session_state['strat_view_mode'] = "VALOPLANT"
-                st.rerun()
-
-        st.divider()
-        
-        # Gestion des fichiers (Ton code existant pour le dossier)
         map_path = f"images_scrims/{current_map}"
         for side in ["Attaque", "Defense"]:
-            if not os.path.exists(f"{map_path}/{side}"): os.makedirs(f"{map_path}/{side}")
+            if not os.path.exists(f"{map_path}/{side}"): 
+                os.makedirs(f"{map_path}/{side}")
 
+        # Zone d'upload
         with st.expander("📤 ARCHIVER UNE NOUVELLE STRATÉGIE"):
             c1, c2, c3 = st.columns([2, 1, 1])
             up_f = c1.file_uploader("Capture", type=['png', 'jpg'])
@@ -298,6 +262,7 @@ def show_strategy_map(current_map):
                     st.success("Image ajoutée !")
                     st.rerun()
 
+        # Onglets Attaque/Défense
         t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
         for tab, side in zip([t1, t2], ["Attaque", "Defense"]):
             with tab:
@@ -312,7 +277,6 @@ def show_strategy_map(current_map):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
                 else:
-                    st.info(f"Aucune stratégie en {side} pour le moment.")
-
+                    st.info(f"Aucune donnée pour {side}.")
 
 
