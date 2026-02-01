@@ -19,6 +19,54 @@ def load_data(path):
     return []
 
 def show_dashboard():
+
+    # --- STYLE CSS AVEC ANIMATIONS ET GLOW ---
+    st.markdown("""
+        <style>
+        .stat-box {
+            background: linear-gradient(135deg, rgba(255,70,85,0.1) 0%, rgba(15,25,35,0.8) 100%);
+            border-left: 4px solid #ff4655;
+            padding: 15px; border-radius: 5px; text-align: center; margin-bottom: 20px;
+        }
+        .stat-val { font-family: monospace; font-size: 1.8em; color: #00ff00; text-shadow: 0 0 10px rgba(0,255,0,0.5); }
+        
+        /* --- CARTES JOUEURS AVEC ANIMATION --- */
+        .player-card-dash {
+            background: rgba(15, 25, 35, 0.9);
+            border: 2px solid rgba(189, 147, 249, 0.2);
+            border-radius: 20px; padding: 20px; text-align: center; 
+            transition: all 0.4s ease-in-out; /* Animation fluide */
+            box-shadow: 0 0 10px rgba(0,0,0,0.5); 
+            margin-bottom: 15px;
+        }
+
+        /* Effet au passage de la souris */
+        .player-card-dash:hover {
+            border-color: #bd93f9;
+            box-shadow: 0 0 25px rgba(189, 147, 249, 0.4); /* Le Glow */
+            transform: translateY(-8px); /* Soulèvement */
+        }
+
+        .img-profile {
+            width: 100px; height: 100px; border-radius: 50%;
+            border: 3px solid #bd93f9; object-fit: cover;
+            transition: transform 0.4s;
+        }
+        
+        .player-card-dash:hover .img-profile {
+            transform: scale(1.1); /* Zoom léger sur la photo au hover */
+        }
+
+        .tracker-link {
+            display: block; background: linear-gradient(90deg, #ff4655 0%, #ff758c 100%);
+            color: white !important; text-decoration: none !important;
+            padding: 10px; border-radius: 5px; font-family: 'VALORANT', sans-serif; font-size: 0.7em;
+            transition: 0.3s;
+        }
+        .tracker-link:hover { opacity: 0.8; transform: scale(1.05); }
+        </style>
+    """, unsafe_allow_html=True)
+    
     # --- 1. CALCULS DYNAMIQUES (Win Rate & Scrims) ---
     planning_data = load_data(PLANNING_DB)
     df_planning = pd.DataFrame(planning_data)
@@ -681,6 +729,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
