@@ -204,10 +204,6 @@ def show_map_selection():
                 st.session_state['selected_strat_map'] = m_name
                 st.rerun()
                 
-import streamlit as st
-import os
-from PIL import Image
-
 def show_strategy_map(current_map):
     # Initialisation du mode par défaut
     if 'strat_view_mode' not in st.session_state:
@@ -292,3 +288,4 @@ def show_tactical_pool():
         for i, agent in enumerate(members):
             with cols[i]:
                 st.info(agent)
+
