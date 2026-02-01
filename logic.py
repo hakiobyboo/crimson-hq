@@ -227,22 +227,40 @@ def show_strategy_map(current_map):
     # --- 2. LOGIQUE D'AFFICHAGE ---
     
     if st.session_state.get('strat_view_mode') == "VALOPLANT":
-        # --- INTERFACE VALOPLANT LIVE ---
-        st.markdown(f"<h3 style='text-align:center; color:#ff4655; margin-bottom:10px;'>🌐 SESSION LIVE : {current_map.upper()}</h3>", unsafe_allow_html=True)
-        
-        # Deux boutons distincts pour plus de clarté
+        # 1. On crée une barre de navigation fixe en haut de l'écran
+        st.markdown("""
+            <div style="position: fixed; top: 0; left: 0; width: 100%; height: 60px; 
+                        background-color: #0f1923; z-index: 9999; display: flex; 
+                        align-items: center; padding: 0 20px; border-bottom: 2px solid #ff4655;">
+                <p style="color: #ff4655; font-family: 'VALORANT', sans-serif; margin: 0;">CRIMSON STRAT VIEW</p>
+            </div>
+            <div style="height: 60px;"></div>
+        """, unsafe_allow_html=True)
+
+        # 2. Tes boutons habituels
         nav_c1, nav_c2 = st.columns(2)
         with nav_c1:
-            if st.button("⬅ RETOUR AU MENU DES MAPS", use_container_width=True):
+            if st.button("⬅ QUITTER (MENU MAPS)", use_container_width=True):
                 st.session_state['selected_strat_map'] = None
                 st.rerun()
         with nav_c2:
-            if st.button("📂 OUVRIR LE DOSSIER TACTIQUE", use_container_width=True):
+            if st.button("📂 VOIR LE DOSSIER", use_container_width=True):
                 st.session_state['strat_view_mode'] = "DOSSIER"
                 st.rerun()
+        
+        # 3. L'astuce : On force l'Iframe à NE PAS avoir de scroll et à prendre toute la place
+        # On désactive le scrolling de Streamlit et on fixe la hauteur
+        st.components.v1.iframe("https://valoplant.gg", height=800, scrolling=False)
 
-        # Iframe Valoplant (La molette ne fera plus bouger ton site Crimson)
-        st.components.v1.iframe("https://valoplant.gg", height=800, scrolling=True)
+        # 4. Le script de blocage "Anti-Scroll" injecté directement
+        st.markdown("""
+            <style>
+                /* Bloque le défilement de la page parente */
+                .main { overflow: hidden !important; }
+                /* Supprime les espaces blancs de Streamlit */
+                [data-testid="stAppViewBlockContainer"] { padding: 10px !important; }
+            </style>
+        """, unsafe_allow_html=True)
 
     else:
         # --- INTERFACE DOSSIER LOCAL ---
@@ -295,5 +313,6 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else:
                     st.info(f"Aucune stratégie en {side} pour le moment.")
+
 
 
