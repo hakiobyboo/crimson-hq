@@ -136,80 +136,102 @@ def show_tactical_pool():
     # Sélection du joueur
     p_sel = st.selectbox("UNIT ID", ["BOO ツ", "KURAIME", "TURBOS", "NEF"])
 
-    # Définition des catégories et images
-    categories = {
+    # --- STYLE CSS UNIQUE ---
+    st.markdown("""
+        <style>
+        .agent-card {
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background-color: rgba(15, 25, 35, 0.7);
+            margin-bottom: 15px;
+        }
+        /* Glow Blanc - JAMAIS */
+        .g-never { border: 2px solid #ffffff !important; box-shadow: 0 0 10px #ffffff; opacity: 0.5; }
+        /* Glow Rouge - À TESTER */
+        .g-test { border: 2px solid #ff4655 !important; box-shadow: 0 0 15px #ff4655; }
+        /* Glow Vert - OK */
+        .g-ok { border: 2px solid #00ff00 !important; box-shadow: 0 0 15px #00ff00; }
+        /* Glow Jaune - MAIN */
+        .g-star { border: 2px solid #ffb000 !important; box-shadow: 0 0 20px #ffb000; }
+
+        .agent-name-label {
+            font-family: 'VALORANT', sans-serif;
+            font-size: 0.85em;
+            margin-bottom: 8px;
+            color: white;
+        }
+        .agent-card img { border-radius: 5px; width: 100%; height: auto; display: block; }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Définition des catégories
+     categories = {
         "🛡️ SENTINEL": {
             "Chamber": "https://images.wallpapersden.com/image/wxl-chamber-valorant-hd-cool_91233.jpg",
             "Cypher": "https://images.wallpapersden.com/image/wxl-cypher-background-valorant-art_82069.jpg",
             "Deadlock": "https://images5.alphacoders.com/139/thumb-1920-1399745.jpg",
             "Killjoy": "https://images8.alphacoders.com/114/thumb-1920-1149389.jpg",
             "Sage": "https://i.pinimg.com/1200x/fa/8d/6b/fa8d6b6cec9210cc126a947681b3077c.jpg",
-            "Vyse": "https://images6.alphacoders.com/137/thumb-1920-1373943.png"
+            "Vyse": "https://images6.alphacoders.com/137/thumb-1920-1373943.png",
+            "Veto": "https://i.ytimg.com/vi/I4T-7Kw6jKQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDkzKWLj2MKubuILXFmd6avfe_1PA"
         },
         "☁️ CONTROLEUR": {
             "Astra": "https://i.pinimg.com/736x/52/96/d9/5296d9245052e767cedac9b5e100dd90.jpg",
             "Brimstone": "https://images.wallpapersden.com/image/wxl-brimstone-new-valorant-poster_72344.jpg",
             "Clove": "https://images.wallpapersden.com/image/wxl-cool-clove-4k-valorant_92740.jpg",
+            "Harbor": "https://images8.alphacoders.com/128/thumb-1920-1282950.png",
             "Omen": "https://images.wallpapersden.com/image/wxl-cool-omen-valorant-2023_89545.jpg",
             "Viper": "https://images.wallpapersden.com/image/wxl-viper-4k-valorant-2020_73350.jpg"
         },
         "👁️ INITIATEUR": {
+            "Breach": "https://images3.alphacoders.com/114/1149735.jpg",
             "Fade": "https://images.wallpapersden.com/image/wxl-fade-valorant-gaming-character-digital-art_91742.jpg",
             "Gekko": "https://i.pinimg.com/1200x/e8/ff/46/e8ff46efa78a7203b47f5976f72d31fb.jpg",
             "KAY/O": "https://i.pinimg.com/1200x/ef/0f/b8/ef0fb88954b5176e3c05c4811a42604e.jpg",
-            "Sova": "https://images.wallpapersden.com/image/wxl-sova-cool-art-valorant_81600.jpg"
+            "Skye": "https://images.wallpapersden.com/image/wxl-skye-art-cool-valorant_77564.jpg",
+            "Sova": "https://images.wallpapersden.com/image/wxl-sova-cool-art-valorant_81600.jpg",
+            "Tejo": "https://i.pinimg.com/736x/30/51/37/305137a6f4c69f7ed72d37d398fa2510.jpg"
         },
         "🔥 DUELISTER": {
             "Iso": "https://images.wallpapersden.com/image/wxl-iso-valorant-x-overwatch-2-style_91783.jpg",
             "Jett": "https://images.wallpapersden.com/image/wxl-hd-valorant-gaming-2022_85588.jpg",
+            "Neon": "https://images.wallpapersden.com/image/wxl-neon-hd-valorant-nightmare_84224.jpg",
+            "Phoenix": "https://images2.alphacoders.com/132/thumb-1920-1328732.png",
             "Raze": "https://images.wallpapersden.com/image/wxl-raze-new-valorant_77567.jpg",
-            "Reyna": "https://i.pinimg.com/736x/c5/d1/4b/c5d14b3aa7f75ede4b527f7040556f84.jpg"
+            "Reyna": "https://i.pinimg.com/736x/c5/d1/4b/c5d14b3aa7f75ede4b527f7040556f84.jpg",
+            "Yoru": "https://images.wallpapersden.com/image/wxl-yoru-fan-art-valorant_83634.jpg",
+            "Waylay": "https://i.pinimg.com/736x/e0/36/37/e0363703adc24fc3b2e1dded3b563259.jpg"
         }
     }
-
-    # Style CSS personnalisé
-    st.markdown("""
-        <style>
-        .m-never { border: 2px solid #ff4655 !important; opacity: 0.4; }
-        .m-test { border: 2px solid #ffb000 !important; }
-        .m-ok { border: 2px solid #00ff00 !important; }
-        .m-star { border: 2px solid #00eeee !important; box-shadow: 0 0 15px #00eeee; }
-        .agent-label { font-size: 0.8em; font-weight: bold; margin-bottom: 5px; }
-        </style>
-    """, unsafe_allow_html=True)
-
-    # Logique d'affichage
     for cat_name, agents in categories.items():
         st.markdown(f"#### {cat_name}")
         cols = st.columns(4)
         
         for i, (name, img_url) in enumerate(agents.items()):
             with cols[i % 4]:
-                # On récupère le niveau actuel
                 key = f"{p_sel}_{name}"
                 current_level = st.session_state.get('agent_data', {}).get(key, 0)
                 
-                # Mapping des styles
-                options = ["✖ JAMAIS", "❓ À TESTER", "✅ OK", "⭐ MAIN"]
-                classes = ["m-never", "m-test", "m-ok", "m-star"]
+                options = ["⚪ JAMAIS", "🔴 À TESTER", "🟢 OK", "🟡 MAIN"]
+                classes = ["g-never", "g-test", "g-ok", "g-star"]
 
-                # Rendu de la carte
+                # RENDU UNIQUE (Cadre qui englobe TOUT)
                 st.markdown(f"""
-                    <div class='{classes[current_level]}' style='padding:5px; border-radius:5px; text-align:center;'>
-                        <div class='agent-label'>{name.upper()}</div>
+                    <div class='agent-card {classes[current_level]}'>
+                        <div class='agent-name-label'>{name.upper()}</div>
+                        <img src="{img_url}">
                     </div>
                 """, unsafe_allow_html=True)
-                
-                st.image(img_url, use_container_width=True)
 
-                # Sélecteur de niveau
-                new_level_name = st.selectbox(f"lvl_{key}", options, index=current_level, key=f"sel_{key}", label_visibility="collapsed")
-                new_level_idx = options.index(new_level_name)
+                # Sélecteur
+                new_val = st.selectbox(f"lvl_{key}", options, index=current_level, key=f"sel_{key}", label_visibility="collapsed")
+                new_idx = options.index(new_val)
 
-                # Si le niveau change, on sauvegarde
-                if new_level_idx != current_level:
+                if new_idx != current_level:
                     if 'agent_data' not in st.session_state: st.session_state['agent_data'] = {}
-                    st.session_state['agent_data'][key] = new_level_idx
+                    st.session_state['agent_data'][key] = new_idx
                     save_agents_mastery(st.session_state['agent_data'])
                     st.rerun()
         st.divider()
@@ -317,6 +339,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
