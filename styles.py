@@ -81,45 +81,49 @@ def apply_global_styles():
     """, unsafe_allow_html=True)
 
 def apply_immersive_mode():
-    """Mode spécial pour Valoplant : Cache l'interface Streamlit et optimise l'espace"""
+    """Mode spécial pour Valoplant : Full screen, centré et gestion molette"""
     st.markdown("""
         <style>
-        /* Disparition des éléments encombrants */
+        /* Supprime absolument tout l'en-tête Streamlit */
         header, [data-testid="stHeader"], .valo-title, hr, .stDivider { 
             display: none !important; 
         }
         
-        /* Expansion maximale du conteneur de contenu */
+        /* Force le conteneur à prendre 100% de la largeur sans marges */
         .main .block-container { 
-            padding-top: 0rem !important; 
-            padding-bottom: 0rem !important; 
+            padding: 0rem !important; 
             max-width: 100% !important; 
         }
 
-        /* Style de l'Iframe Valoplant */
+        /* Centre l'iframe et définit une hauteur géante */
         .iframe-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 100%;
-            height: 92vh; /* Prend presque toute la hauteur de l'écran */
-            background: #0f1923;
+            width: 100vw;
+            height: 95vh; /* 95% de la hauteur de l'écran */
+            background-color: #0f1923;
+            overflow: hidden;
         }
 
         iframe {
+            width: 98% !important; /* Presque toute la largeur */
+            height: 100% !important;
             border: 2px solid #ff4655 !important;
-            border-radius: 10px;
-            box-shadow: 0px 0px 30px rgba(255, 70, 85, 0.2);
+            border-radius: 5px;
         }
         </style>
         
         <script>
-        /* Script pour empêcher Streamlit de bloquer le scroll dans l'iframe */
-        const iframe = document.querySelector('iframe');
-        if (iframe) {
-            iframe.addEventListener('wheel', function(e) {
-                e.stopPropagation();
-            }, { passive: false });
+        // Désactive le scroll du site principal quand on survole l'iframe
+        const mapFrame = document.querySelector('iframe');
+        if (mapFrame) {
+            mapFrame.addEventListener('mouseenter', () => {
+                document.body.style.overflow = 'hidden';
+            });
+            mapFrame.addEventListener('mouseleave', () => {
+                document.body.style.overflow = 'auto';
+            });
         }
         </script>
     """, unsafe_allow_html=True)
