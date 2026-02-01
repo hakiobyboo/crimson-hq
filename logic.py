@@ -6,19 +6,6 @@ from datetime import datetime
 from database import get_intel, load_csv, save_agents_mastery, save_scrim_db, SCRIMS_DB, AGENTS_DB, update_intel_manual
 
 # --- 1. DASHBOARD ---
-# Chemins des fichiers (Assure-toi qu'ils correspondent à ton projet)
-PLANNING_DB = "data/planning.csv"
-DISPOS_DB = "data/dispos.csv"
-
-def load_data(path):
-    if os.path.exists(path):
-        return pd.read_csv(path).to_dict('records')
-    return []
-
-def show_dashboard():
-  import streamlit as st
-import pandas as pd
-import os
 
 # --- CONFIGURATION DES FICHIERS ---
 PLANNING_DB = "data/planning.csv"
@@ -30,7 +17,7 @@ def load_data(path):
     return []
 
 def show_dashboard():
-    # --- 1. STYLE CSS (GLOW & COMMAND CENTER) ---
+    # --- 1. STYLE CSS UNIQUE ---
     st.markdown("""
         <style>
         .stat-box {
@@ -57,61 +44,49 @@ def show_dashboard():
             border: 3px solid #bd93f9; object-fit: cover;
             box-shadow: 0 0 15px rgba(189, 147, 249, 0.6); margin-bottom: 10px;
         }
-        .name-tag { font-family: 'VALORANT', sans-serif; color: white; font-size: 1.3em; }
-        .role-tag { color: #bd93f9; font-size: 0.7em; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; }
+        .name-tag { font-family: 'VALORANT', sans-serif; color: white; font-size: 1.3em; margin-bottom: 5px; }
+        .role-tag { color: #bd93f9; font-size: 0.7em; font-weight: bold; text-transform: uppercase; margin-bottom: 15px; }
         
         .mini-stats-container {
             display: flex; justify-content: space-around;
             background: rgba(255, 255, 255, 0.05);
-            padding: 8px; border-radius: 10px; margin-bottom: 15px;
+            padding: 10px; border-radius: 10px; margin-bottom: 15px;
         }
         .tracker-link {
             display: block; background: linear-gradient(90deg, #ff4655 0%, #ff758c 100%);
             color: white !important; text-decoration: none !important;
-            padding: 8px; border-radius: 5px; font-family: 'VALORANT', sans-serif; font-size: 0.7em;
+            padding: 10px; border-radius: 5px; font-family: 'VALORANT', sans-serif; font-size: 0.8em;
         }
         .alert-card {
             background: rgba(255, 255, 255, 0.03); border-radius: 10px;
-            padding: 15px; border-left: 5px solid #ff4655; margin-bottom: 15px;
+            padding: 15px; border-left: 5px solid #ff4655; margin-bottom: 10px;
         }
         </style>
     """, unsafe_allow_html=True)
 
     st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON COMMAND CENTER</h1>", unsafe_allow_html=True)
 
-    # --- 2. DONNÉES ET ALERTES ---
-    planning = load_data(PLANNING_DB)
-    dispos = load_data(DISPOS_DB)
-
+    # --- 2. STATS GLOBALES ---
     col_s1, col_s2, col_s3, col_s4 = st.columns(4)
     with col_s1: st.markdown('<div class="stat-box"><div class="stat-val">78%</div><div class="stat-label">Win Rate</div></div>', unsafe_allow_html=True)
     with col_s2: st.markdown('<div class="stat-box"><div class="stat-val">1.24</div><div class="stat-label">K/D Team</div></div>', unsafe_allow_html=True)
     with col_s3: st.markdown('<div class="stat-box" style="border-left-color:#00eeff;"><div class="stat-val" style="color:#00eeff;">12</div><div class="stat-label">Scrims</div></div>', unsafe_allow_html=True)
     with col_s4: st.markdown('<div class="stat-box" style="border-left-color:#bd93f9;"><div class="stat-val" style="color:#bd93f9;">62%</div><div class="stat-label">Clutch</div></div>', unsafe_allow_html=True)
 
+    # --- 3. ROSTER ET ALERTES ---
     c_left, c_right = st.columns([1.2, 0.8])
-
-    with c_right:
-        st.markdown("### 🚨 SYSTEM ALERTS")
-        if planning:
-            m = planning[0]
-            st.markdown(f'<div class="alert-card"><b style="color:#ff4655;">MATCH DÉPLOYÉ</b><br><small>{m["jour"]} vs {m["opp"]} @ {m["time"]}</small></div>', unsafe_allow_html=True)
-        
-        missing = [d['player'] for d in dispos if any(v == "NON RENSEIGNÉ" for k, v in d.items() if k != 'player')]
-        if missing:
-            st.markdown(f'<div class="alert-card" style="border-left-color:#bd93f9;"><b style="color:#bd93f9;">HORS-LIGNE</b><br><small>Dispos : {", ".join(missing)}</small></div>', unsafe_allow_html=True)
 
     with c_left:
         st.markdown("### 👥 ACTIVE ROSTER")
-        roster = [
-            {"nom": "NEF", "role": "SENTINEL", "kd": "1.07", "hs": "26%", "url": "https://tracker.gg/valorant/profile/riot/Nef%23SPK/overview", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Nef"},
-            {"nom": "BOO ツ", "role": "IGL", "kd": "1.04", "hs": "35%", "url": "https://tracker.gg/valorant/profile/riot/Boo%20ツ%231tpas/overview", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Boo"},
-            {"nom": "KURAIME", "role": "DUELIST", "kd": "0.99", "hs": "39%", "url": "https://tracker.gg/valorant/profile/riot/kuraime%23ezz/overview", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Kuraime"},
-            {"nom": "TURBOS", "role": "INITIATOR", "kd": "0.99", "hs": "23%", "url": "https://tracker.gg/valorant/profile/riot/turboS%23SPEED/overview", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Turbos"}
+        roster_data = [
+            {"nom": "NEF", "role": "SENTINEL / FLEX", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Nef", "kd": "1.07", "hs": "26%", "url": "https://tracker.gg/valorant/profile/riot/Nef%23SPK/overview"},
+            {"nom": "BOO ツ", "role": "IGL / SMOKER", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Boo", "kd": "1.04", "hs": "35.4%", "url": "https://tracker.gg/valorant/profile/riot/Boo%20ツ%231tpas/overview"},
+            {"nom": "KURAIME", "role": "DUELIST", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Kuraime", "kd": "0.99", "hs": "39.3%", "url": "https://tracker.gg/valorant/profile/riot/kuraime%23ezz/overview"},
+            {"nom": "TURBOS", "role": "INITIATOR", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Turbos", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/turboS%23SPEED/overview"}
         ]
         
         r_cols = st.columns(2)
-        for i, p in enumerate(roster):
+        for i, p in enumerate(roster_data):
             with r_cols[i % 2]:
                 st.markdown(f"""
                     <div class="player-card-dash">
@@ -119,141 +94,48 @@ def show_dashboard():
                         <div class="name-tag">{p['nom']}</div>
                         <div class="role-tag">{p['role']}</div>
                         <div class="mini-stats-container">
-                            <div><small>K/D</small><br><b style="color:#00ff00;">{p['kd']}</b></div>
-                            <div><small>HS%</small><br><b style="color:#00ff00;">{p['hs']}</b></div>
+                            <div><small style="color:#888;">K/D</small><br><b style="color:#00ff00;">{p['kd']}</b></div>
+                            <div><small style="color:#888;">HS%</small><br><b style="color:#00ff00;">{p['hs']}</b></div>
                         </div>
                         <a href="{p['url']}" target="_blank" class="tracker-link">VIEW TRACKER</a>
                     </div>
                 """, unsafe_allow_html=True)
 
+    with c_right:
+        st.markdown("### 🚨 SYSTEM ALERTS")
+        
+        # Alerte Planning (Dynamique)
+        planning = load_data(PLANNING_DB)
+        if planning:
+            m = planning[0]
+            st.markdown(f"""
+                <div class="alert-card">
+                    <b style="color:#ff4655;">NEXT SCRIM:</b><br>
+                    <small>{m['jour']} vs {m['opp']} @ {m['time']}</small>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        # Alerte Dispos (Dynamique)
+        dispos = load_data(DISPOS_DB)
+        missing = [d['player'] for d in dispos if any(v == "NON RENSEIGNÉ" for k, v in d.items() if k != 'player')]
+        if missing:
+            st.markdown(f"""
+                <div class="alert-card" style="border-left-color:#bd93f9;">
+                    <b style="color:#bd93f9;">UNITÉS HORS-LIGNE:</b><br>
+                    <small>{", ".join(missing)} n'ont pas rempli leurs dispos.</small>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        st.markdown("### 📊 PERFORMANCE")
+        chart_data = pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance'])
+        st.line_chart(chart_data)
+
 def show_intel():
     st.markdown("<h2 class='valo-title'>INTEL MANAGEMENT</h2>", unsafe_allow_html=True)
-    # Ton code pour show_intel ici, bien aligné sous la définition
     players = ["Nef", "Boo ツ", "Kuraime", "turboS"]
     with st.expander("🛠️ ADMINISTRATION"):
         p_name = st.selectbox("Unité", players)
         st.info(f"Paramètres pour {p_name} en attente de synchronisation API.")
-
-    # --- DONNÉES DU ROSTER ---
-    # Remplace les URLs des images par les vraies photos (ex: assets/nef.png)
-    # Remplace les URLs tracker par les vrais liens
-    roster_data = [
-        {
-            "nom": "NEF",
-            "role": "SENTINEL / FLEX",
-            "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Nef", 
-            "url": "https://tracker.gg/valorant/profile/riot/Nef%23SPK/overview?playlist=competitive&platform=pc&season=3ea2b318-423b-cf86-25da-7cbb0eefbe2d",
-            "kd": "1.07", "hs": "26%"
-        },
-        {
-            "nom": "BOO ツ",
-            "role": "IGL / SMOKER",
-            "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Boo",
-            "url": "https://tracker.gg/valorant/profile/riot/Boo%20ツ%231tpas/overview?platform=pc&playlist=competitive&season=3ea2b318-423b-cf86-25da-7cbb0eefbe2d",
-            "kd": "1.04", "hs": "35.4%"
-        },
-        {
-            "nom": "KURAIME",
-            "role": "DUELIST",
-            "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Kuraime",
-            "url": "https://tracker.gg/valorant/profile/riot/kuraime%23ezz/overview?playlist=competitive&platform=pc&season=3ea2b318-423b-cf86-25da-7cbb0eefbe2d",
-            "kd": "0.99", "hs": "39.3%"
-        },
-        {
-            "nom": "TURBOS",
-            "role": "INITIATOR",
-            "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Turbos",
-            "url": "https://tracker.gg/valorant/profile/riot/turboS%23SPEED/overview?playlist=competitive&platform=pc&season=3ea2b318-423b-cf86-25da-7cbb0eefbe2d",
-            "kd": "0.99", "hs": "23.4%"
-        }
-    ]
-
-    # --- AFFICHAGE DES CARTES ---
-    cols = st.columns(4)
-    for i, player in enumerate(roster_data):
-        with cols[i]:
-            st.markdown(f"""
-                <div class="player-card-dash">
-                    <img src="{player['img']}" class="img-profile">
-                    <div class="name-tag">{player['nom']}</div>
-                    <div class="role-tag">{player['role']}</div>
-                    
-                    <div class="mini-stats-container">
-                        <div><small style="color:#888;">K/D</small><br><b style="color:#00ff00;">{player['kd']}</b></div>
-                        <div><small style="color:#888;">HS%</small><br><b style="color:#00ff00;">{player['hs']}</b></div>
-                    </div>
-                    
-                    <a href="{player['url']}" target="_blank" class="tracker-link">VIEW TRACKER</a>
-                </div>
-            """, unsafe_allow_html=True)
-
-    st.divider()
-    st.info("💡 Cliquez sur 'VIEW TRACKER' pour ouvrir les statistiques détaillées sur Tracker.gg")
-
-    # --- SECTION 1 : STATS GLOBALES (Le haut du Dash) ---
-    col_s1, col_s2, col_s3, col_s4 = st.columns(4)
-    with col_s1:
-        st.markdown('<div class="stat-box"><div class="stat-val">78%</div><div class="stat-label">Win Rate Global</div></div>', unsafe_allow_html=True)
-    with col_s2:
-        st.markdown('<div class="stat-box"><div class="stat-val">1.24</div><div class="stat-label">K/D Moyen</div></div>', unsafe_allow_html=True)
-    with col_s3:
-        st.markdown('<div class="stat-box" style="border-left-color:#00eeff;"><div class="stat-val" style="color:#00eeff; text-shadow: 0 0 10px rgba(0,238,255,0.5);">12</div><div class="stat-label">Scrims Gagnés</div></div>', unsafe_allow_html=True)
-    with col_s4:
-        st.markdown('<div class="stat-box" style="border-left-color:#bd93f9;"><div class="stat-val" style="color:#bd93f9; text-shadow: 0 0 10px rgba(189,147,249,0.5);">62%</div><div class="stat-label">Clutch Rate</div></div>', unsafe_allow_html=True)
-
-    st.markdown("<div style='margin-top:30px;'></div>", unsafe_allow_html=True)
-
-    # --- SECTION 2 : ACTIVE ROSTER (Les Joueurs) ---
-    st.markdown("### 👥 ACTIVE ROSTER")
-    
-    # Tu peux remplacer les liens par les vraies photos plus tard
-    roster = {
-        "BOO ツ": {"role": "IGL / SMOKER", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Boo"},
-        "KURAIME": {"role": "DUELIST", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Kuraime"},
-        "TURBOS": {"role": "INITIATOR", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Turbos"},
-        "NEF": {"role": "SENTINEL / FLEX", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Nef"}
-    }
-
-    p_cols = st.columns(4)
-    for i, (name, info) in enumerate(roster.items()):
-        with p_cols[i]:
-           # Utilise un f-string (le 'f' avant les guillemets) pour intégrer tes variables si besoin
-st.markdown(f"""
-    <div class="mini-stats-container">
-        <div><small style="color:#888;">K/D</small><br><b style="color:#00ff00;">{player['kd']}</b></div>
-        <div><small style="color:#888;">HS%</small><br><b style="color:#00ff00;">{player['hs']}</b></div>
-    </div>
-    
-    <a href="{player['url']}" target="_blank" class="tracker-link">VIEW TRACKER</a>
-""", unsafe_allow_html=True)
-
-    st.markdown("<div style='margin-top:30px;'></div>", unsafe_allow_html=True)
-
-    # --- SECTION 3 : DERNIÈRES ACTIVITÉS & ALERTES ---
-    c_left, c_right = st.columns([1.2, 0.8])
-    
-    with c_left:
-        st.markdown("### 📊 PERFORMANCE TRENDS")
-        # Ici un petit graphique simple pour le look
-        chart_data = pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance'])
-        st.line_chart(chart_data)
-
-    with c_right:
-        st.markdown("### 🚨 SYSTEM ALERTS")
-        st.markdown("""
-            <div style="background:rgba(255,70,85,0.1); padding:10px; border-radius:5px; border:1px solid #ff4655; margin-bottom:10px;">
-                <b style="color:#ff4655;">UPCOMING SCRIM:</b><br>
-                <small>Ce soir 21h00 vs Team Alpha</small>
-            </div>
-            <div style="background:rgba(0,238,255,0.1); padding:10px; border-radius:5px; border:1px solid #00eeff; margin-bottom:10px;">
-                <b style="color:#00eeff;">STRAT UPDATE:</b><br>
-                <small>Nouvelle exécution A sur Abyss ajoutée.</small>
-            </div>
-            <div style="background:rgba(189,147,249,0.1); padding:10px; border-radius:5px; border:1px solid #bd93f9;">
-                <b style="color:#bd93f9;">DATABASE:</b><br>
-                <small>Agent Pool mis à jour par Kuraime.</small>
-            </div>
-        """, unsafe_allow_html=True)
 
 # --- 2. INTEL TRACKER ---
 def show_intel():
@@ -747,6 +629,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
