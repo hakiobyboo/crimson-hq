@@ -36,8 +36,9 @@ def show_intel():
             else:
                 st.error("Veuillez remplir les deux champs.")
 
-st.divider()
-
+# --- 2. INTEL TRACKER ---
+def show_intel():
+    # Définition de la liste des joueurs en haut pour qu'elle soit accessible partout
     players = [
         {"label": "Boo ツ", "n": "Boo ツ", "t": "1tpas"}, 
         {"label": "Kuraime", "n": "kuraime", "t": "ezz"}, 
@@ -45,11 +46,31 @@ st.divider()
         {"label": "Nef", "n": "Nef", "t": "SPK"},
     ]
 
-    # Création des colonnes
+    with st.expander("🛠️ ADMINISTRATION : MISE À JOUR MANUELLE DES RANGS"):
+        col_m1, col_m2, col_m3 = st.columns(3)
+        with col_m1:
+            # On utilise la liste players pour remplir automatiquement le choix
+            p_name = st.selectbox("Sélectionner l'unité", [p['label'] for p in players])
+        with col_m2:
+            new_curr = st.text_input("Rang Actuel (ex: Gold 2)")
+        with col_m3:
+            new_peak = st.text_input("Peak Rank (ex: Platinum 1)")
+
+        if st.button("FORCER LA MISE À JOUR"):
+            if new_curr and new_peak:
+                update_intel_manual(p_name, new_curr, new_peak)
+                st.success(f"Données de {p_name} synchronisées !")
+                st.rerun()
+            else:
+                st.error("Veuillez remplir les deux champs.")
+
+    st.divider()
+
+    # Affichage des cartes
     cols = st.columns(2)
     
     for i, pl in enumerate(players):
-        # L'astuce : on utilise le modulo (%) pour alterner entre la colonne 0 et 1
+        # Utilisation du modulo % 2 pour répartir sur les 2 colonnes
         with cols[i % 2]:
             curr, peak, icon, status = get_intel(pl['n'], pl['t'], pl['label'])
             color = "#00ff00" if "LIVE" in status else "#ff4655"
@@ -282,6 +303,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
