@@ -156,21 +156,26 @@ def show_map_selection():
                 st.rerun()
 
 def show_strategy_map(current_map):
-    # Sélecteur de mode interne
+    # Sélecteur de mode interne (Placé tout en haut)
     st.markdown(f"### MISSION ACTIVE : {current_map.upper()}")
     view_mode = st.radio("INTERFACE", ["VALOPLANT LIVE", "ARCHIVES TACTIQUES"], horizontal=True)
     
     if view_mode == "VALOPLANT LIVE":
+        # --- AFFICHAGE VALOPLANT CENTRÉ ---
         st.markdown(f"""
             <div class="iframe-container">
-                <iframe src="https://valoplant.gg" width="100%" height="100%"></iframe>
+                <iframe src="https://valoplant.gg" 
+                        allow="clipboard-read; clipboard-write" 
+                        scrolling="yes">
+                </iframe>
             </div>
         """, unsafe_allow_html=True)
     else:
-        # GESTION DES ARCHIVES IMAGES
+        # --- GESTION DES ARCHIVES IMAGES ---
         map_path = f"images_scrims/{current_map}"
         for side in ["Attaque", "Defense"]:
-            if not os.path.exists(f"{map_path}/{side}"): os.makedirs(f"{map_path}/{side}")
+            if not os.path.exists(f"{map_path}/{side}"): 
+                os.makedirs(f"{map_path}/{side}")
         
         with st.expander("📤 AJOUTER UN DOCUMENT TACTIQUE"):
             col_u1, col_u2, col_u3 = st.columns([2, 1, 1])
@@ -194,5 +199,6 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{map_path}/{side}/{f}")
                                 st.rerun()
-                else: st.info(f"Aucune archive pour {side}")
+                else: 
+                    st.info(f"Aucune archive pour {side}")
 
