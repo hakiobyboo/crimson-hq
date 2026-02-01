@@ -204,34 +204,40 @@ def show_map_selection():
                 st.session_state['selected_strat_map'] = m_name
                 st.rerun()
                 
-def show_strategy_map(current_map):
-    # --- BARRE DE NAVIGATION SUPÉRIEURE ---
+ def show_strategy_map(current_map):
+    # --- 1. NAVIGATION SUPÉRIEURE ---
+    # On crée 3 colonnes pour bien espacer les boutons de contrôle
     col_nav1, col_nav2, col_nav3 = st.columns([1, 1, 1])
     
+    # Initialisation du mode par défaut (VALOPLANT d'abord comme tu l'as demandé)
+    if 'strat_view_mode' not in st.session_state:
+        st.session_state['strat_view_mode'] = "VALOPLANT"
+
     with col_nav1:
-        if st.button("⬅ RETOUR", use_container_width=True):
+        # Bouton pour quitter la map et revenir à la liste complète
+        if st.button("🏠 ACCUEIL DES MAPS", use_container_width=True):
             st.session_state['selected_strat_map'] = None
             st.rerun()
-            
-    # Initialisation du mode si non présent
-    if 'strat_view_mode' not in st.session_state:
-        st.session_state['strat_view_mode'] = "DOSSIER"
 
     with col_nav2:
-        if st.button("📂 DOSSIER", use_container_width=True):
-            st.session_state['strat_view_mode'] = "DOSSIER"
-            st.rerun()
-
-    with col_nav3:
+        # Bouton pour switcher vers Valoplant
         if st.button("🌐 VALOPLANT", use_container_width=True):
             st.session_state['strat_view_mode'] = "VALOPLANT"
             st.rerun()
 
+    with col_nav3:
+        # Bouton pour switcher vers ton dossier local
+        if st.button("📂 DOSSIER STRATS", use_container_width=True):
+            st.session_state['strat_view_mode'] = "DOSSIER"
+            st.rerun()
+
     st.divider()
 
-    # --- AFFICHAGE DU CONTENU ---
+    # --- 2. AFFICHAGE DU CONTENU ---
+    
     if st.session_state['strat_view_mode'] == "VALOPLANT":
-        # MODE LIVE : L'iframe Valoplant
+        # --- MODE VALOPLANT ---
+        st.markdown(f"### 📍 SITE TACTIQUE : {current_map.upper()}")
         st.markdown(f"""
             <div class="iframe-container">
                 <iframe src="https://valoplant.gg" 
@@ -242,32 +248,37 @@ def show_strategy_map(current_map):
         """, unsafe_allow_html=True)
     
     else:
-        # MODE DOSSIER : Ton système de gestion de maps
-        st.markdown(f"### 📍 ARCHIVES : {current_map.upper()}")
+        # --- MODE DOSSIER (Tes archives) ---
+        st.markdown(f"### 📂 ARCHIVES LOCALES : {current_map.upper()}")
         
+        # Petit bouton de retour rapide vers Valoplant à l'intérieur du dossier
+        if st.button("⬅ Revenir à Valoplant"):
+            st.session_state['strat_view_mode'] = "VALOPLANT"
+            st.rerun()
+            
         map_path = f"images_scrims/{current_map}"
-        # Création des dossiers si besoin
+        # Création auto des dossiers si inexistants
         for side in ["Attaque", "Defense"]:
             if not os.path.exists(f"{map_path}/{side}"): 
                 os.makedirs(f"{map_path}/{side}")
         
-        # Formulaire d'upload
-        with st.expander("📤 AJOUTER UNE STRATÉGIE (IMAGE)"):
-            col_u1, col_u2, col_u3 = st.columns([2, 1, 1])
-            up_file = col_u1.file_uploader("Choisir l'image", type=['png', 'jpg'])
-            up_name = col_u2.text_input("Nom (ex: Split A)")
-            up_side = col_u3.selectbox("Côté", ["Attaque", "Defense"])
-            if st.button("SAUVEGARDER"):
+        # Zone d'upload
+        with st.expander("📤 ENREGISTRER UNE NOUVELLE IMAGE"):
+            c_u1, c_u2, c_u3 = st.columns([2, 1, 1])
+            up_file = c_u1.file_uploader("Image", type=['png', 'jpg'])
+            up_name = c_u2.text_input("Nom de la strat")
+            up_side = c_u3.selectbox("Côté", ["Attaque", "Defense"])
+            if st.button("VALIDER L'ENREGISTREMENT"):
                 if up_file and up_name:
                     Image.open(up_file).save(f"{map_path}/{up_side}/{up_name}.png")
-                    st.success(f"Strat {up_name} enregistrée !")
+                    st.success("Enregistré !")
                     st.rerun()
 
-        # Onglets Attaque / Défense
+        # Affichage des strats enregistrées
         t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
         for tab, side in zip([t1, t2], ["Attaque", "Defense"]):
             with tab:
-                files = os.listdir(f"{map_path}/{side}")
+                files = [f for f in os.listdir(f"{map_path}/{side}") if f.endswith(('.png', '.jpg'))]
                 if files:
                     cols_f = st.columns(3)
                     for idx, f in enumerate(files):
@@ -277,4 +288,4 @@ def show_strategy_map(current_map):
                                 os.remove(f"{map_path}/{side}/{f}")
                                 st.rerun()
                 else: 
-                    st.info(f"Aucune stratégie enregistrée pour le côté {side}")
+                    st.info(f"Aucune archive pour {side}")
