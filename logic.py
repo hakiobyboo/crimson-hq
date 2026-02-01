@@ -204,7 +204,7 @@ def show_map_selection():
                 st.session_state['selected_strat_map'] = m_name
                 st.rerun()
                 
- def show_strategy_map(current_map):
+def show_strategy_map(current_map):
     # --- 1. NAVIGATION SUPÉRIEURE ---
     # On crée 3 colonnes pour bien espacer les boutons de contrôle
     col_nav1, col_nav2, col_nav3 = st.columns([1, 1, 1])
