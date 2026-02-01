@@ -134,11 +134,11 @@ def show_archive():
 def show_tactical_pool():
     st.markdown("<h2 class='valo-title' style='text-align:center;'>AGENT POOL PAR RÔLE</h2>", unsafe_allow_html=True)
     
-    # Sélection du joueur
+    # 1. Sélection du joueur
     players_list = ["BOO ツ", "KURAIME", "TURBOS", "NEF"]
     p_sel = st.selectbox("UNIT ID", players_list)
 
-    # --- STYLE CSS (Placé ici pour englober toute la page) ---
+    # 2. STYLE CSS (Glow total : Texte + Image)
     st.markdown("""
         <style>
         .agent-card {
@@ -148,8 +148,8 @@ def show_tactical_pool():
             transition: all 0.3s ease;
             background-color: rgba(15, 25, 35, 0.8);
             margin-bottom: 15px;
-            min-height: 220px;
         }
+        /* Couleurs demandées */
         .g-never { border: 2px solid #ffffff !important; box-shadow: 0 0 10px rgba(255,255,255,0.5); opacity: 0.5; }
         .g-test { border: 2px solid #ff4655 !important; box-shadow: 0 0 15px rgba(255,70,85,0.6); }
         .g-ok { border: 2px solid #00ff00 !important; box-shadow: 0 0 15px rgba(0,255,0,0.6); }
@@ -166,7 +166,7 @@ def show_tactical_pool():
         </style>
     """, unsafe_allow_html=True)
 
-    # Définition des catégories
+    # 3. Définition des catégories
     categories = {
         "🛡️ SENTINEL": {
             "Chamber": "https://images.wallpapersden.com/image/wxl-chamber-valorant-hd-cool_91233.jpg",
@@ -206,37 +206,30 @@ def show_tactical_pool():
         }
     }
 
-   # --- 4. TACTICAL POOL ---
-def show_tactical_pool():
-    st.markdown("<h2 class='valo-title' style='text-align:center;'>AGENT POOL PAR RÔLE</h2>", unsafe_allow_html=True)
-    
-    # Sélection du joueur
-    p_sel = st.selectbox("UNIT ID", ["BOO ツ", "KURAIME", "TURBOS", "NEF"])
-
-    # On s'assure que agent_data existe (sécurité contre le plantage)
+    # Sécurité pour le stockage
     if 'agent_data' not in st.session_state:
         st.session_state['agent_data'] = {}
 
+    # 4. LOGIQUE D'AFFICHAGE (Boucles imbriquées)
     for cat_name, agents in categories.items():
         st.markdown(f"### {cat_name}")
         cols = st.columns(4)
         
-        # --- ICI : Tout ce bloc doit être décalé vers la droite ---
         for i, (name, img_url) in enumerate(agents.items()):
             with cols[i % 4]:
                 key = f"{p_sel}_{name}"
                 
-                # Sécurisation de l'index pour éviter le TypeError
+                # Récupération sécurisée du niveau (0 à 3)
+                raw_val = st.session_state['agent_data'].get(key, 0)
                 try:
-                    raw_val = st.session_state.get('agent_data', {}).get(key, 0)
-                    current_level = min(max(int(raw_val), 0), 3) 
+                    current_level = min(max(int(raw_val), 0), 3)
                 except:
                     current_level = 0
                 
                 options = ["⚪ JAMAIS", "🔴 À TESTER", "🟢 OK", "🟡 MAIN"]
                 classes = ["g-never", "g-test", "g-ok", "g-star"]
 
-                # Rendu de la carte
+                # Rendu HTML de la carte
                 st.markdown(f"""
                     <div class='agent-card {classes[current_level]}'>
                         <div class='agent-name-label'>{name.upper()}</div>
@@ -244,15 +237,15 @@ def show_tactical_pool():
                     </div>
                 """, unsafe_allow_html=True)
 
-                # Sélecteur
+                # Sélecteur (menu déroulant)
                 new_val = st.selectbox(f"lvl_{key}", options, index=current_level, key=f"sel_{key}", label_visibility="collapsed")
                 new_idx = options.index(new_val)
 
+                # Sauvegarde si changement
                 if new_idx != current_level:
                     st.session_state['agent_data'][key] = new_idx
                     save_agents_mastery(st.session_state['agent_data'])
                     st.rerun()
-        # --- FIN DU BLOC DÉCALÉ ---
         st.divider()
 
 # --- 5. PLANNING ---
@@ -358,6 +351,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
