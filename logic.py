@@ -231,18 +231,7 @@ def show_dashboard():
     r_cols = st.columns(2)
     for i, p in enumerate(roster):
         with r_cols[i % 2]:
-            st.markdown(f"""
-                <div class="player-card-dash">
-                    <img src="{p['img']}" class="img-profile">
-                    <div class="name-tag">{p['nom']}</div>
-                    <div class="role-tag">{p['role']}</div>
-                    <div style="display:flex; justify-content:space-around; margin:15px 0; background:rgba(255,255,255,0.05); padding:10px; border-radius:10px;">
-                        <div><small style="color:#888;">K/D</small><br><b style="color:#00ff00;">{p['kd']}</b></div>
-                        <div><small style="color:#888;">HS%</small><br><b style="color:#00ff00;">{p['hs']}</b></div>
-                    </div>
-                    <a href="{p['url']}" target="_blank" class="tracker-link">VIEW TRACKER</a>
-                </div>
-            """, unsafe_allow_html=True)
+            
 # --- 2. TACTICAL HUB (Remplaçant de l'Intel Tracker) ---
 def show_intel():
     st.markdown("<h1 style='text-align:center; color:#bd93f9; font-family:VALORANT;'>TACTICAL HUB</h1>", unsafe_allow_html=True)
@@ -704,6 +693,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
