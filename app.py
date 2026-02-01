@@ -108,14 +108,3 @@ else:
             if st.session_state['selected_strat_map'] is None:
                 logic.show_map_selection()
 
-# Exemple de ce que tu devrais avoir dans app.py
-menu = st.sidebar.radio("NAVIGATION", ["Dashboard", "Intel Tracker", "Tactical Pool", "Planning"])
-
-if menu == "Dashboard":
-    logic.show_dashboard()
-elif menu == "Intel Tracker":
-    logic.show_intel()
-elif menu == "Tactical Pool":
-    logic.show_tactical_pool()
-elif menu == "Planning":
-    logic.show_planning() # C'est ici qu'on appelle la nouvelle fonction
