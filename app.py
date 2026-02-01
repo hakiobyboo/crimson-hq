@@ -51,7 +51,7 @@ if not st.session_state["logged_in"]:
         u_key = st.text_input("ENCRYPTION KEY", type="password", placeholder="Password...")
         
         if st.button("INITIALIZE SYSTEM", use_container_width=True):
-            if u_id == "titi12012008@gmail.com" and u_key == "Tn12janv2008":
+            if u_id == "La Twin Sparks" and u_key == "Crimson":
                 st.session_state["logged_in"] = True
                 st.rerun()
             else:
@@ -107,3 +107,4 @@ else:
         elif menu == "STRATÉGIE":
             if st.session_state['selected_strat_map'] is None:
                 logic.show_map_selection()
+
