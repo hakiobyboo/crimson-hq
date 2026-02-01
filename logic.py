@@ -116,7 +116,7 @@ def show_tactical_pool():
             "Veto": "https://i.ytimg.com/vi/I4T-7Kw6jKQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDkzKWLj2MKubuILXFmd6avfe_1PA"
         },
         "☁️ CONTROLEUR": {
-            "Astra": "",
+            "Astra": "https://img.uhdpaper.com/wallpaper/astra-valorant-374@5@c-thumb.jpg?dl",
             "Brimstone": "",
             "Clove": "",
             "Harbor": "",
@@ -252,6 +252,7 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
 
 
 
