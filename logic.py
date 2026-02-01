@@ -215,8 +215,7 @@ def show_strategy_map(current_map):
     nav_c1, nav_c2 = st.columns(2)
     
    if st.session_state.get('strat_view_mode') == "VALOPLANT":
-        # --- BARRE DE NAVIGATION FLOTTANTE ---
-        # On met les boutons dans un container pour qu'ils ne poussent pas l'iframe
+       
         nav_c1, nav_c2 = st.columns(2)
         with nav_c1:
             if st.button("⬅ QUITTER (MENU MAPS)", use_container_width=True):
@@ -277,5 +276,6 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
