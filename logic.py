@@ -111,36 +111,36 @@ def show_tactical_pool():
             "Cypher": "https://images.wallpapersden.com/image/wxl-cypher-background-valorant-art_82069.jpg",
             "Deadlock": "https://images5.alphacoders.com/139/thumb-1920-1399745.jpg",
             "Killjoy": "https://images8.alphacoders.com/114/thumb-1920-1149389.jpg",
-            "Sage": "https://img.uhdpaper.com/wallpaper/sage-valorant-391@5@c-thumb.jpg?dl",
-            "Vyse": "https://images6.alphacoders.com/137/thumb-1920-1373943.png",
-            "Veto": "https://i.ytimg.com/vi/I4T-7Kw6jKQ/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDkzKWLj2MKubuILXFmd6avfe_1PA"
+            "Sage": "",
+            "Vyse": "",
+            "Veto": ""
         },
         "☁️ CONTROLEUR": {
-            "Astra": "https://img.uhdpaper.com/wallpaper/astra-valorant-374@5@c-thumb.jpg?dl",
-            "Brimstone": "https://img.uhdpaper.com/wallpaper/brimstone-valorant-376@5@c-thumb.jpg?dl",
-            "Clove": "https://img.uhdpaper.com/wallpaper/clove-valorant-game-362@3@a-thumb.jpg?dl",
-            "Harbor": "https://images8.alphacoders.com/128/thumb-1920-1282950.png",
-            "Omen": "https://www.uhdpaper.com/2024/08/4872a-omen-valorant-4k.html?m=0",
-            "Viper": "hhttps://img.uhdpaper.com/wallpaper/valorant-viper-485@2@a-thumb.jpg?dl",
-            "Tejo": "https://playvalorant.com/en-gb/news/game-updates/tejo-man-of-action/"
+            "Astra": "",
+            "Brimstone": "",
+            "Clove": "",
+            "Harbor": "",
+            "Omen": "",
+            "Viper": "",
+            "Tejo": ""
         },
         "👁️ INITIATEUR": {
-            "Breach": "https://images3.alphacoders.com/114/1149735.jpg",
-            "Fade": "https://img.uhdpaper.com/wallpaper/fade-valorant-782@5@k-thumb.jpg?dl",
-            "Gekko": "https://img.uhdpaper.com/wallpaper/gekko-valorant-390@5@c-thumb.jpg?dl",
-            "KAY/O": "https://www.uhdpaper.com/2021/05/kayo-valorant-game-4k-7091a.html?m=0",
-            "Skye": "https://www.uhdpaper.com/2020/09/skye-valorant-summon-4k-8219.html",
-            "Sova": "https://www.uhdpaper.com/2024/01/sova-valorant-reckoning-episode-4k-6441n.html?m=0"  
+            "Breach": "",
+            "Fade": "",
+            "Gekko": "",
+            "KAY/O": "",
+            "Skye": "",
+            "Sova": ""  
         },
         "🔥 DUELISTER": {
-            "Iso": "https://www.uhdpaper.com/2023/09/iso-valorant-gun-4k-4761m.html?m=0",
-            "Jett": "https://www.uhdpaper.com/2025/02/3755c-jett-knife-valorant-4k.html?m=0",
-            "Neon": "https://www.uhdpaper.com/2022/04/neon-valorant-episode-5-4k-7751g.html?m=0",
-            "Phoenix": "https://images2.alphacoders.com/132/thumb-1920-1328732.png",
-            "Raze": "https://www.uhdpaper.com/2025/02/3885c-raze-valorant-4k.html?m=0",
-            "Reyna": "https://www.uhdpaper.com/2025/02/3895c-reyna-valorant-4k.html?m=0",
-            "Yoru": "https://www.uhdpaper.com/2025/02/3925c-yoru-mask-valorant-8k.html?m=0",
-            "Waylay": "https://i.ytimg.com/vi/Mysl3rx6ttE/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLD_ddRKjb5bZ0m43pCB1aos9OHJ-w"
+            "Iso": "",
+            "Jett": "",
+            "Neon": "",
+            "Phoenix": "",
+            "Raze": "",
+            "Reyna": "",
+            "Yoru": "",
+            "Waylay": ""
         }
     }
 
@@ -252,3 +252,4 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else: 
                     st.info(f"Aucune archive pour {side}")
+
