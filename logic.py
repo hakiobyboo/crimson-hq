@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import logic
 import os
 from PIL import Image
 from datetime import datetime
@@ -330,6 +331,7 @@ def show_strategy_map(current_map):
                 files = [f for f in os.listdir(f"{map_path}/{side}") if f.endswith(('.png', '.jpg', '.jpeg'))]
         
 st.info(f"Aucune stratégie enregistrée pour le côté {side}.")
+
 
 
 
