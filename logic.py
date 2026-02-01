@@ -248,15 +248,46 @@ def show_tactical_pool():
                     st.rerun()
         st.divider()
 
-# --- 5. PLANNING ---
 def show_planning():
-    st.markdown("### DISPONIBILITÉS DE L'UNITÉ")
-    df_plan = pd.DataFrame({
-        "JOUR": ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"], 
-        "BOO": [""]*7, 
-        "KURAIME": [""]*7
-    })
-    st.data_editor(df_plan, use_container_width=True)
+    st.markdown("""
+        <style>
+        .mission-card {
+            background: linear-gradient(135deg, rgba(255,70,85,0.1) 0%, rgba(15,25,35,0.9) 100%);
+            border-left: 5px solid #ff4655;
+            padding: 15px;
+            border-radius: 0px 15px 15px 0px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .mission-card::before {
+            content: "OPERATIONAL";
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 0.6em;
+            color: rgba(255,255,255,0.3);
+            letter-spacing: 2px;
+        }
+        .time-tag {
+            color: #ff4655;
+            font-family: 'VALORANT', sans-serif;
+            font-size: 1.2em;
+        }
+        .mission-title {
+            color: white;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        </style>
+        
+        <div class="mission-card">
+            <div class="time-tag">21:00 - 23:30</div>
+            <div class="mission-title">SCRIM vs TEAM_ALPHA</div>
+            <div style="color: gray; font-size: 0.8em;">MAP: BIND | FOCUS: EXEC A SITE</div>
+        </div>
+    """, unsafe_allow_html=True)
 
 def show_map_selection():
     """Affiche la grille des maps"""
@@ -351,6 +382,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
