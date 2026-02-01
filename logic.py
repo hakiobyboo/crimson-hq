@@ -36,7 +36,7 @@ def show_intel():
             else:
                 st.error("Veuillez remplir les deux champs.")
 
-    st.divider()
+st.divider()
 
     players = [
         {"label": "Boo ツ", "n": "Boo ツ", "t": "1tpas"}, 
@@ -44,11 +44,16 @@ def show_intel():
         {"label": "turboS", "n": "turboS", "t": "SPEED"}, 
         {"label": "Nef", "n": "Nef", "t": "SPK"},
     ]
+
+    # Création des colonnes
     cols = st.columns(2)
+    
     for i, pl in enumerate(players):
-        with cols[i]:
+        # L'astuce : on utilise le modulo (%) pour alterner entre la colonne 0 et 1
+        with cols[i % 2]:
             curr, peak, icon, status = get_intel(pl['n'], pl['t'], pl['label'])
             color = "#00ff00" if "LIVE" in status else "#ff4655"
+            
             st.markdown(f"""
                 <div class='player-card'>
                     <p style='color:{color}; font-weight:bold;'>● {status}</p>
@@ -57,7 +62,9 @@ def show_intel():
                     <p style='font-size:0.8em; opacity:0.6;'>PEAK: {peak}</p>
                 </div>
             """, unsafe_allow_html=True)
-            if icon: st.image(icon, width=80)
+            
+            if icon: 
+                st.image(icon, width=80)
 
 # --- 3. MATCH ARCHIVE ---
 def show_archive():
@@ -275,6 +282,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
