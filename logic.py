@@ -40,8 +40,8 @@ def show_intel():
 
     players = [
         {"label": "Boo ツ", "n": "Boo%20%E3%83%84", "t": "1tpas"}, 
-        {"label": "Kuraime", "n": "kuraime", "t": "ezz"}
-        {"label": "turboS", "n": "turboS", "t": "SPEED"}
+        {"label": "Kuraime", "n": "kuraime", "t": "ezz"}, 
+        {"label": "turboS", "n": "turboS", "t": "SPEED"}, 
         {"label": "Nef", "n": "Nef", "t": "SPK"}
     ]
     cols = st.columns(2)
@@ -275,6 +275,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
