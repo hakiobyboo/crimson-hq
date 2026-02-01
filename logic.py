@@ -180,114 +180,103 @@ def show_planning():
     })
     st.data_editor(df_plan, use_container_width=True)
 
-# --- 6. STRATÉGIE ---
+# --- 6. STRATÉGIE (VERSION FIXÉE) ---
 
 def show_map_selection():
-    """Affiche la grille des maps"""
-    st.markdown("<h2 class='valo-title' style='text-align:center;'>SÉLECTION DE LA ZONE D'OPÉRATION</h2>", unsafe_allow_html=True)
-    
-    map_list = {
+    """Grille de sélection des maps"""
+    st.markdown("<h2 class='valo-title' style='text-align:center;'>CHOISIR UNE MAP</h2>", unsafe_allow_html=True)
+    maps = {
         "Abyss": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/53698d442a14b5a6be643d53eb970ac16442cb38-930x522.png",
         "Ascent": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/5cb7e65c04a489eccd725ce693fdc11e99982e10-3840x2160.png",
         "Bind": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/7df1e6ee284810ef0cbf8db369c214a8cbf6578c-3840x2160.png",
-        "Breeze": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/a4a0374222f9cc79f97e03dbb1122056e794176a-3840x2160.png",
-        "Fracture": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/aecf502b1eea8824fd1fa9f8a2450bc5c13f6910-915x515.webp",
-        "Haven": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/bccc7b5f8647a4f654d4bb359247bce6e82c77ab-3840x2160.png",
         "Icebox": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/72853f583a0f6b25aed54870531756483a7b61de-3840x2160.png",
-        "Lotus": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/cad0b406c5924614083a8dc9846b0a8746a20bda-703x396.webp",
-        "Pearl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/34ba319c99d3d20ef8c6f7b6a61439e207b39247-915x515.webp",
-        "Split": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/878d51688c0f9dd0de827162e80c40811668e0c6-3840x2160.png",
-        "Sunset": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/5101e4ee241fbfca261bf8150230236c46c8b991-3840x2160.png",
-        "Corrode": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/6e3e66577519c8290d874aa94d82e28aec2ccc3e-915x515.jpg"
+        "Sunset": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/5101e4ee241fbfca261bf8150230236c46c8b991-3840x2160.png"
     }
-    
     cols = st.columns(3)
-    for i, (m_name, m_url) in enumerate(map_list.items()):
-        with cols[i % 3]:
+    for i, (m_name, m_url) in enumerate(maps.items()):
+        with cols[i%3]:
             st.image(m_url, use_container_width=True)
-            if st.button(f"SÉLECTIONNER {m_name.upper()}", key=f"select_{m_name}", use_container_width=True):
+            if st.button(f"SÉLECTIONNER {m_name.upper()}", key=f"btn_{m_name}", use_container_width=True):
                 st.session_state['selected_strat_map'] = m_name
                 st.session_state['strat_view_mode'] = "VALOPLANT"
                 st.rerun()
 
 def show_strategy_map(current_map):
-    """Vue détaillée avec Valoplant ou Dossier"""
+    """Logique de navigation forcée : Valoplant -> Dossier -> Retour"""
     
-    # --- 1. CSS POUR FIXER L'ÉCRAN ET BLOQUER LA MOLETTE ---
-    # On force la hauteur à 100% et on cache le scroll de Streamlit
-    st.markdown("""
-        <style>
-            /* Cache le scrollbar global */
-            div[data-testid="stAppViewBlockContainer"] {
-                padding-top: 2rem !important;
-                padding-bottom: 0rem !important;
-                overflow: hidden !important;
-            }
-            .main { overflow: hidden !important; }
-            iframe { border-radius: 10px; border: 1px solid #333; }
-        </style>
-    """, unsafe_allow_html=True)
+    # --- MODE VALOPLANT ---
+    if st.session_state.get('strat_view_mode') == "VALOPLANT":
+        # CSS Ultra-agressif pour bloquer le scroll
+        st.markdown("""
+            <style>
+                html, body, [data-testid="stAppViewBlockContainer"] {
+                    overflow: hidden !important;
+                    height: 100vh !important;
+                }
+                header {display: none !important;} /* Cache le header Streamlit */
+            </style>
+        """, unsafe_allow_html=True)
 
-    # --- 2. BARRE DE NAVIGATION (Boutons Retour et Dossier) ---
-    nav_col1, nav_col2, nav_col3 = st.columns([1, 2, 1])
-    
-    with nav_col1:
-        if st.button("⬅ RETOUR MAPS", use_container_width=True):
-            st.session_state['selected_strat_map'] = None
+        # Barre supérieure minimaliste
+        c1, c2 = st.columns([3, 1])
+        c1.markdown(f"<h2 style='color:#ff4655; margin:0;'>📍 {current_map.upper()}</h2>", unsafe_allow_html=True)
+        if c2.button("📂 OUVRIR LE DOSSIER", use_container_width=True):
+            st.session_state['strat_view_mode'] = "DOSSIER"
             st.rerun()
-            
-    with nav_col2:
-        st.markdown(f"<h3 style='text-align:center; color:#ff4655; margin:0;'>{current_map.upper()}</h3>", unsafe_allow_html=True)
+
+        # Valoplant en plein écran
+        st.components.v1.iframe("https://valoplant.gg", height=900, scrolling=False)
+
+    # --- MODE DOSSIER ---
+    else:
+        # Ici le scroll est autorisé car on a besoin de voir les images
+        st.markdown("""<style>.main { overflow: auto !important; }</style>""", unsafe_allow_html=True)
         
-    with nav_col3:
-        # Toggle entre Valoplant et Dossier
-        if st.session_state.get('strat_view_mode') == "VALOPLANT":
-            if st.button("📂 DOSSIER", use_container_width=True):
-                st.session_state['strat_view_mode'] = "DOSSIER"
+        c1, c2, c3 = st.columns([1, 2, 1])
+        with c1:
+            if st.button("⬅ RETOUR MAPS", use_container_width=True):
+                st.session_state['selected_strat_map'] = None
                 st.rerun()
-        else:
+        with c2:
+            st.markdown(f"<h2 style='text-align:center; color:#ff4655;'>ARCHIVES : {current_map}</h2>", unsafe_allow_html=True)
+        with c3:
             if st.button("🌐 VALOPLANT", use_container_width=True):
                 st.session_state['strat_view_mode'] = "VALOPLANT"
                 st.rerun()
 
-    st.divider()
+        st.divider()
 
-    # --- 3. AFFICHAGE DU CONTENU ---
-    if st.session_state.get('strat_view_mode') == "VALOPLANT":
-        # On utilise une hauteur fixe importante pour l'iframe
-        st.components.v1.iframe("https://valoplant.gg", height=800, scrolling=True)
-    else:
-        # Contenu du Dossier (ton code précédent)
-        st.markdown(f"#### 📂 ARCHIVES LOCALES : {current_map}")
-        map_path = f"images_scrims/{current_map}"
-        
-        # S'assurer que les dossiers existent
-        for side in ["Attaque", "Defense"]:
-            if not os.path.exists(f"{map_path}/{side}"): os.makedirs(f"{map_path}/{side}")
-
-        with st.expander("📤 AJOUTER UNE STRATÉGIE"):
-            c1, c2, c3 = st.columns([2, 1, 1])
-            up_f = c1.file_uploader("Image", type=['png', 'jpg'])
-            up_n = c2.text_input("Nom de la strat")
-            up_s = c3.selectbox("Côté", ["Attaque", "Defense"])
-            if st.button("✅ VALIDER", use_container_width=True, type="primary"):
-                if up_f and up_n:
-                    Image.open(up_f).save(f"{map_path}/{up_s}/{up_n}.png")
-                    st.success("Enregistré !")
+        # Zone d'ajout de strats
+        with st.expander("➕ ENREGISTRER UNE IMAGE"):
+            col1, col2, col3 = st.columns([2,1,1])
+            up = col1.file_uploader("Screenshot", type=['png', 'jpg'])
+            nm = col2.text_input("Nom")
+            sd = col3.selectbox("Côté", ["Attaque", "Defense"])
+            if st.button("✅ VALIDER LA STRATÉGIE", type="primary"):
+                if up and nm:
+                    map_path = f"images_scrims/{current_map}/{sd}"
+                    if not os.path.exists(map_path): os.makedirs(map_path)
+                    Image.open(up).save(f"{map_path}/{nm}.png")
+                    st.success("Stratégie ajoutée !")
                     st.rerun()
 
+        # Affichage
         t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
         for tab, side in zip([t1, t2], ["Attaque", "Defense"]):
             with tab:
-                files = [f for f in os.listdir(f"{map_path}/{side}") if f.endswith(('.png', '.jpg'))]
-                if files:
-                    cols = st.columns(3)
-                    for idx, f in enumerate(files):
-                        with cols[idx % 3]:
-                            st.image(f"{map_path}/{side}/{f}", use_container_width=True)
-                            if st.button("🗑️", key=f"del_{side}_{idx}"):
-                                os.remove(f"{map_path}/{side}/{f}")
-                                st.rerun()
+                path = f"images_scrims/{current_map}/{side}"
+                if os.path.exists(path):
+                    files = [f for f in os.listdir(path) if f.endswith(('.png', '.jpg'))]
+                    if files:
+                        cols = st.columns(3)
+                        for idx, f in enumerate(files):
+                            with cols[idx%3]:
+                                st.image(f"{path}/{f}", caption=f, use_container_width=True)
+                                if st.button("🗑️", key=f"del_{side}_{idx}"):
+                                    os.remove(f"{path}/{f}")
+                                    st.rerun()
+                else:
+                    st.info("Aucune donnée.")
 
 
 
