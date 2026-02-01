@@ -253,14 +253,6 @@ def show_intel():
             l = st.text_input("Lien YouTube/TikTok")
             d = st.text_area("Description rapide")
             
-            if st.form_submit_button("Enregistrer"):
-                if t and l:
-                    save_strat(m, t, l, d)
-                    st.success("Stratégie enregistrée !")
-                    st.rerun()
-                else:
-                    st.error("Remplis au moins le titre et le lien !")0)
-
 # --- 3. MATCH ARCHIVE ---
 def show_archive():
     with st.expander("➕ ENREGISTRER UN NOUVEAU SCRIM"):
@@ -683,6 +675,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
