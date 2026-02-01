@@ -178,14 +178,15 @@ def show_dashboard():
     p_cols = st.columns(4)
     for i, (name, info) in enumerate(roster.items()):
         with p_cols[i]:
-            st.markdown(f"""
-                <div class="player-card">
-                    <img src="{info['img']}" class="player-img">
-                    <div class="player-name-dash">{name}</div>
-                    <div class="player-role">{info['role']}</div>
-                    <div style="font-family:monospace; color:#00ff00; font-size:0.8em;">STATUS: ONLINE</div>
-                </div>
-            """, unsafe_allow_html=True)
+           # Utilise un f-string (le 'f' avant les guillemets) pour intégrer tes variables si besoin
+st.markdown(f"""
+    <div class="mini-stats-container">
+        <div><small style="color:#888;">K/D</small><br><b style="color:#00ff00;">{player['kd']}</b></div>
+        <div><small style="color:#888;">HS%</small><br><b style="color:#00ff00;">{player['hs']}</b></div>
+    </div>
+    
+    <a href="{player['url']}" target="_blank" class="tracker-link">VIEW TRACKER</a>
+""", unsafe_allow_html=True)
 
     st.markdown("<div style='margin-top:30px;'></div>", unsafe_allow_html=True)
 
@@ -707,6 +708,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
