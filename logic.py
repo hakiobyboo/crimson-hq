@@ -332,3 +332,4 @@ def show_strategy_map(current_map):
 st.info(f"Aucune stratégie enregistrée pour le côté {side}.")
 
 
+
