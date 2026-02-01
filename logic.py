@@ -209,20 +209,38 @@ def show_map_selection():
                 st.rerun()
 
 def show_strategy_map(current_map):
-    """Vue Valoplant sans scroll et navigation à boutons multiples"""
-
-    # --- 1. CSS POUR VERROUILLER LE SCROLL GLOBAL ---
-    # On force la page à rester fixe pour que seule l'iframe utilise la molette
-    st.markdown("""
-        <style>
-            .main { overflow: hidden !important; }
-            div[data-testid="stAppViewBlockContainer"] {
-                padding-top: 0.5rem !important;
-                padding-bottom: 0rem !important;
-            }
-            iframe { border: 2px solid #ff4655; border-radius: 8px; }
-        </style>
-    """, unsafe_allow_html=True)
+    """Vue avec boutons séparés et Iframe plein écran"""
+    
+    # Barre de navigation personnalisée
+    nav_c1, nav_c2 = st.columns(2)
+    
+    if st.session_state.get('strat_view_mode') == "VALOPLANT":
+        with nav_c1:
+            if st.button("⬅ RETOUR AU MENU DES MAPS", use_container_width=True):
+                st.session_state['selected_strat_map'] = None
+                st.rerun()
+        with nav_c2:
+            if st.button("📂 OUVRIR LE DOSSIER TACTIQUE", use_container_width=True):
+                st.session_state['strat_view_mode'] = "DOSSIER"
+                st.rerun()
+        
+        # Affichage de Valoplant
+        st.components.v1.iframe("https://valoplant.gg", height=850, scrolling=True)
+    
+    else:
+        # Mode Dossier : On réactive le scroll pour voir les images
+        st.markdown("<style>.main { overflow: auto !important; }</style>", unsafe_allow_html=True)
+        
+        with nav_c1:
+            if st.button("⬅ RETOUR AU MENU DES MAPS", use_container_width=True):
+                st.session_state['selected_strat_map'] = None
+                st.rerun()
+        with nav_c2:
+            if st.button("🌐 REVENIR SUR VALOPLANT", use_container_width=True):
+                st.session_state['strat_view_mode'] = "VALOPLANT"
+                st.rerun()
+        
+        st.divider()
 
     # --- 2. LOGIQUE D'AFFICHAGE ---
     
@@ -295,5 +313,6 @@ def show_strategy_map(current_map):
                                 st.rerun()
                 else:
                     st.info(f"Aucune stratégie en {side} pour le moment.")
+
 
 
