@@ -203,45 +203,38 @@ def show_map_selection():
             if st.button(f"SÉLECTIONNER {m_name.upper()}", key=f"select_{m_name}"):
                 st.session_state['selected_strat_map'] = m_name
                 st.rerun()
-
+                
 def show_strategy_map(current_map):
-    # --- INITIALISATION ---
+    # Initialisation du mode par défaut
     if 'strat_view_mode' not in st.session_state:
         st.session_state['strat_view_mode'] = "VALOPLANT"
 
-    # --- 1. MODE VALOPLANT LIVE ---
+    # --- 1. MODE VALOPLANT ---
     if st.session_state['strat_view_mode'] == "VALOPLANT":
-        # Barre de navigation spécifique à Valoplant
-        col_v1, col_v2 = st.columns(2)
-        with col_v1:
-            if st.button("🏠 RETOUR AUX MAPS", use_container_width=True):
+        # DEUX BOUTONS DISTINCTS EN HAUT
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("🏠 RETOUR ACCUEIL MAPS", use_container_width=True):
                 st.session_state['selected_strat_map'] = None
                 st.rerun()
-        with col_v2:
+        with col2:
             if st.button("📂 ALLER AU DOSSIER", use_container_width=True):
                 st.session_state['strat_view_mode'] = "DOSSIER"
                 st.rerun()
-
+        
         st.divider()
         st.markdown(f"### 🌐 VALOPLANT LIVE : {current_map.upper()}")
-        st.markdown(f"""
-            <div class="iframe-container">
-                <iframe src="https://valoplant.gg" 
-                        allow="clipboard-read; clipboard-write" 
-                        style="width:100%; height:80vh; border:none;">
-                </iframe>
-            </div>
-        """, unsafe_allow_html=True)
+        st.components.v1.iframe("https://valoplant.gg", height=800, scrolling=True)
 
-    # --- 2. MODE DOSSIER (ARCHIVES) ---
+    # --- 2. MODE DOSSIER ---
     else:
-        # Barre de navigation spécifique au Dossier
-        col_d1, col_d2 = st.columns(2)
-        with col_d1:
-            if st.button("🏠 RETOUR AUX MAPS", use_container_width=True):
+        # DEUX BOUTONS DISTINCTS EN HAUT
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("🏠 RETOUR ACCUEIL MAPS", use_container_width=True):
                 st.session_state['selected_strat_map'] = None
                 st.rerun()
-        with col_d2:
+        with col2:
             if st.button("🌐 REVENIR À VALOPLANT", use_container_width=True):
                 st.session_state['strat_view_mode'] = "VALOPLANT"
                 st.rerun()
@@ -249,28 +242,23 @@ def show_strategy_map(current_map):
         st.divider()
         st.markdown(f"### 📂 DOSSIER TACTIQUE : {current_map.upper()}")
 
-        # Préparation des dossiers
         map_path = f"images_scrims/{current_map}"
         for side in ["Attaque", "Defense"]:
             if not os.path.exists(f"{map_path}/{side}"): os.makedirs(f"{map_path}/{side}")
 
-        # Zone d'ajout de stratégie
         with st.expander("➕ AJOUTER UNE NOUVELLE STRATÉGIE"):
             c1, c2, c3 = st.columns([2, 1, 1])
             up_file = c1.file_uploader("Image", type=['png', 'jpg', 'jpeg'])
-            up_name = c2.text_input("Nom")
+            up_name = c2.text_input("Nom de la strat")
             up_side = c3.selectbox("Côté", ["Attaque", "Defense"])
             
-            # LE BOUTON DE VALIDATION (Unique et séparé)
+            # BOUTON 3 : VALIDATION (Séparé des boutons de navigation)
             if st.button("✅ VALIDER LA STRATÉGIE", use_container_width=True, type="primary"):
                 if up_file and up_name:
                     Image.open(up_file).save(f"{map_path}/{up_side}/{up_name}.png")
-                    st.success(f"Stratégie '{up_name}' enregistrée !")
+                    st.success("Enregistré !")
                     st.rerun()
-                else:
-                    st.error("Il manque le nom ou l'image.")
 
-        # Affichage des archives
         t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
         for tab, side in zip([t1, t2], ["Attaque", "Defense"]):
             with tab:
@@ -283,8 +271,23 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{map_path}/{side}/{f}")
                                 st.rerun()
-                else:
-                    st.info(f"Aucune stratégie en {side}")
+
+def show_tactical_pool():
+    st.markdown("### 🎯 TACTICAL POOL")
+    # Simulation du tactical pool pour corriger ton erreur NameError
+    categories = {
+        "DUEL_LIST": ["Jett", "Raze", "Neon"],
+        "INITIATOR": ["Sova", "Fade", "KAY/O"],
+        "CONTROLLER": ["Omen", "Astra", "Clove"],
+        "SENTINEL": ["Killjoy", "Cypher", "Sage"]
+    }
+    
+    for cat, members in categories.items():
+        st.subheader(cat)
+        cols = st.columns(len(members))
+        for i, agent in enumerate(members):
+            with cols[i]:
+                st.info(agent)
 
 
 
