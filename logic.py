@@ -130,13 +130,15 @@ def show_archive():
             save_scrim_db(st.session_state['scrims_df'])
             st.rerun()
 
+# --- 4. TACTICAL POOL ---
 def show_tactical_pool():
     st.markdown("<h2 class='valo-title' style='text-align:center;'>AGENT POOL PAR RÔLE</h2>", unsafe_allow_html=True)
     
     # Sélection du joueur
-    p_sel = st.selectbox("UNIT ID", ["BOO ツ", "KURAIME", "TURBOS", "NEF"])
+    players_list = ["BOO ツ", "KURAIME", "TURBOS", "NEF"]
+    p_sel = st.selectbox("UNIT ID", players_list)
 
-    # --- STYLE CSS UNIQUE ---
+    # --- STYLE CSS (Placé ici pour englober toute la page) ---
     st.markdown("""
         <style>
         .agent-card {
@@ -144,30 +146,28 @@ def show_tactical_pool():
             border-radius: 10px;
             text-align: center;
             transition: all 0.3s ease;
-            background-color: rgba(15, 25, 35, 0.7);
+            background-color: rgba(15, 25, 35, 0.8);
             margin-bottom: 15px;
+            min-height: 220px;
         }
-        /* Glow Blanc - JAMAIS */
-        .g-never { border: 2px solid #ffffff !important; box-shadow: 0 0 10px #ffffff; opacity: 0.5; }
-        /* Glow Rouge - À TESTER */
-        .g-test { border: 2px solid #ff4655 !important; box-shadow: 0 0 15px #ff4655; }
-        /* Glow Vert - OK */
-        .g-ok { border: 2px solid #00ff00 !important; box-shadow: 0 0 15px #00ff00; }
-        /* Glow Jaune - MAIN */
-        .g-star { border: 2px solid #ffb000 !important; box-shadow: 0 0 20px #ffb000; }
+        .g-never { border: 2px solid #ffffff !important; box-shadow: 0 0 10px rgba(255,255,255,0.5); opacity: 0.5; }
+        .g-test { border: 2px solid #ff4655 !important; box-shadow: 0 0 15px rgba(255,70,85,0.6); }
+        .g-ok { border: 2px solid #00ff00 !important; box-shadow: 0 0 15px rgba(0,255,0,0.6); }
+        .g-star { border: 2px solid #ffb000 !important; box-shadow: 0 0 20px rgba(255,176,0,0.8); }
 
         .agent-name-label {
             font-family: 'VALORANT', sans-serif;
             font-size: 0.85em;
             margin-bottom: 8px;
             color: white;
+            font-weight: bold;
         }
-        .agent-card img { border-radius: 5px; width: 100%; height: auto; display: block; }
+        .agent-card img { border-radius: 5px; width: 100%; height: auto; display: block; object-fit: cover; }
         </style>
     """, unsafe_allow_html=True)
 
     # Définition des catégories
-     categories = {
+    categories = {
         "🛡️ SENTINEL": {
             "Chamber": "https://images.wallpapersden.com/image/wxl-chamber-valorant-hd-cool_91233.jpg",
             "Cypher": "https://images.wallpapersden.com/image/wxl-cypher-background-valorant-art_82069.jpg",
@@ -206,19 +206,24 @@ def show_tactical_pool():
         }
     }
 
+    # On s'assure que agent_data existe dans le session_state
+    if 'agent_data' not in st.session_state:
+        st.session_state['agent_data'] = {}
+
     for cat_name, agents in categories.items():
-        st.markdown(f"#### {cat_name}")
+        st.markdown(f"### {cat_name}")
         cols = st.columns(4)
         
         for i, (name, img_url) in enumerate(agents.items()):
             with cols[i % 4]:
                 key = f"{p_sel}_{name}"
-                current_level = st.session_state.get('agent_data', {}).get(key, 0)
+                # On récupère la valeur, par défaut 0
+                current_level = st.session_state['agent_data'].get(key, 0)
                 
                 options = ["⚪ JAMAIS", "🔴 À TESTER", "🟢 OK", "🟡 MAIN"]
                 classes = ["g-never", "g-test", "g-ok", "g-star"]
 
-                # RENDU UNIQUE (Cadre qui englobe TOUT)
+                # Rendu de la carte
                 st.markdown(f"""
                     <div class='agent-card {classes[current_level]}'>
                         <div class='agent-name-label'>{name.upper()}</div>
@@ -230,8 +235,8 @@ def show_tactical_pool():
                 new_val = st.selectbox(f"lvl_{key}", options, index=current_level, key=f"sel_{key}", label_visibility="collapsed")
                 new_idx = options.index(new_val)
 
+                # Sauvegarde immédiate si changement
                 if new_idx != current_level:
-                    if 'agent_data' not in st.session_state: st.session_state['agent_data'] = {}
                     st.session_state['agent_data'][key] = new_idx
                     save_agents_mastery(st.session_state['agent_data'])
                     st.rerun()
@@ -340,6 +345,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
