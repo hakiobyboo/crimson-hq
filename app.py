@@ -27,11 +27,9 @@ if "current_page" not in st.session_state:
 if 'selected_strat_map' not in st.session_state:
     st.session_state['selected_strat_map'] = None
 
-# Initialise le mode de vue (Valoplant par défaut)
 if 'strat_view_mode' not in st.session_state:
     st.session_state['strat_view_mode'] = "VALOPLANT"
 
-# Chargement des bases de données
 if 'scrims_df' not in st.session_state:
     st.session_state['scrims_df'] = load_csv(SCRIMS_DB, ["Date", "Map", "Resultat", "Score", "Screenshot"])
 
@@ -61,18 +59,16 @@ if not st.session_state["logged_in"]:
 
 # --- 4. INTERFACE PRINCIPALE (SI CONNECTÉ) ---
 else:
-    # Variables de contrôle pour la page stratégie
+    # Variables de contrôle
     is_strat_page = st.session_state["current_page"] == "STRATÉGIE"
     has_map_selected = st.session_state['selected_strat_map'] is not None
     
-   # --- CAS A : NAVIGATION DANS UNE MAP (MODE IMMERSIF) ---
-if is_strat_page and has_map_selected:
-    # On n'applique le mode immersif QUE si on est sur Valoplant
-    if st.session_state.get('strat_view_mode') == "VALOPLANT":
-        apply_immersive_mode() 
-    
-    # On lance la vue (qui contient ses propres boutons maintenant)
-    logic.show_strategy_map(st.session_state['selected_strat_map'])
+    # --- CAS A : NAVIGATION DANS UNE MAP (MODE IMMERSIF) ---
+    if is_strat_page and has_map_selected:
+        if st.session_state.get('strat_view_mode') == "VALOPLANT":
+            apply_immersive_mode() 
+        
+        logic.show_strategy_map(st.session_state['selected_strat_map'])
 
     # --- CAS B : INTERFACE HQ NORMALE ---
     else:
@@ -83,21 +79,19 @@ if is_strat_page and has_map_selected:
         pages = ["DASHBOARD", "INTEL TRACKER", "MATCH ARCHIVE", "TACTICAL POOL", "PLANNING", "STRATÉGIE"]
         
         for idx, p_name in enumerate(pages):
-            if m_cols[idx].button(p_name, use_container_width=True):
+            if m_cols[idx].button(p_name, key=f"nav_{p_name}", use_container_width=True):
                 st.session_state["current_page"] = p_name
-                # Reset des sélections quand on change d'onglet
                 st.session_state['selected_strat_map'] = None
                 st.session_state['strat_view_mode'] = "VALOPLANT"
                 st.rerun()
         
-        # Bouton Déconnexion
         if m_cols[6].button("✖", help="Log out"):
             st.session_state["logged_in"] = False
             st.rerun()
         
         st.divider()
         
-# --- ROUTAGE VERS LES PAGES ---
+        # --- ROUTAGE VERS LES PAGES ---
         menu = st.session_state["current_page"]
         
         if menu == "DASHBOARD":
@@ -109,9 +103,7 @@ if is_strat_page and has_map_selected:
         elif menu == "TACTICAL POOL":
             logic.show_tactical_pool()
         elif menu == "PLANNING":
-            st.info("Page Planning en cours de développement.") # Message pour éviter le vide
+            st.info("Page Planning en cours de développement.")
         elif menu == "STRATÉGIE":
-            # Si aucune map n'est sélectionnée, on affiche la grille
             if st.session_state['selected_strat_map'] is None:
                 logic.show_map_selection()
-
