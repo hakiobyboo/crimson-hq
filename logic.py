@@ -262,14 +262,7 @@ def show_intel():
                     st.error("Remplis au moins le titre et le lien !")
                 
     # Affichage des cartes
-    cols = st.columns(2)
-    
-    for i, pl in enumerate(players):
-        # Utilisation du modulo % 2 pour répartir sur les 2 colonnes
-        with cols[i % 2]:
-            curr, peak, icon, status = get_intel(pl['n'], pl['t'], pl['label'])
-            color = "#00ff00" if "LIVE" in status else "#ff4655"
-            
+    cols = st.columns(2)       
             st.markdown(f"""
                 <div class='player-card'>
                     <p style='color:{color}; font-weight:bold;'>● {status}</p>
@@ -704,6 +697,7 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+
 
 
 
