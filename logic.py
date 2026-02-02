@@ -47,7 +47,7 @@ def show_dashboard():
 
     # 3. NOUVELLES CARTES DE STATS ULTRA-ATTRACTIVES
     col1, col2, col3, col4 = st.columns(4)
-    
+
     # On injecte ici tes variables dynamiques (total_finished et win_rate_display)
     stats_config = [
         {"label": "SCRIMS", "val": str(total_finished), "color": "#ff4655", "ico": "⚔️"},
@@ -70,9 +70,10 @@ def show_dashboard():
 
     # 4. ROSTER & ALERTES (La suite de ton code existant)
     col_left, col_right = st.columns([1.2, 0.8])
-    
+
  # --- SECTION ROSTER AVEC EFFET GLOW ET INTERFACE ÉLITE ---
     with col_left:
+        st.subheader("👥 ACTIVE ROSTER")
         st.markdown("<h3 style='font-family:Orbitron; color:#ff4655; letter-spacing:3px; margin-bottom:20px;'>👥 SQUAD OPERATIVES</h3>", unsafe_allow_html=True)
         
         roster = [
@@ -87,6 +88,13 @@ def show_dashboard():
         for i, p in enumerate(roster):
             with r_cols[i % 2]:
                 st.markdown(f"""
+                    <div class="player-card-dash">
+                        <img src="{p['img']}" class="img-profile">
+                        <div style="font-size:1.2em; font-weight:bold; color:white; margin:10px 0;">{p['nom']}</div>
+                        <div style="color:#bd93f9; font-size:0.8em; margin-bottom:10px;">{p['role']}</div>
+                        <div style="display:flex; justify-content:space-around; background:rgba(255,255,255,0.05); padding:5px; border-radius:5px;">
+                            <div><small>K/D</small><br><b>{p['kd']}</b></div>
+                            <div><small>HS%</small><br><b>{p['hs']}</b></div>
                     <style>
                     .agent-card {{
                         background: rgba(15, 25, 35, 0.7);
@@ -146,6 +154,7 @@ def show_dashboard():
                             <div class="stat-item"><small style="color:#888;">K/D</small><br><b>{p['kd']}</b></div>
                             <div class="stat-item"><small style="color:#888;">HS%</small><br><b>{p['hs']}</b></div>
                         </div>
+                        <a href="{p['url']}" target="_blank" class="tracker-link" style="margin-top:10px;">VIEW TRACKER</a>
                         <br>
                         <a href="{p['url']}" target="_blank" style="text-decoration:none;">
                             <div style="background:#ff4655; color:white; padding:8px; border-radius:3px; font-size:0.8rem; font-family:Orbitron; font-weight:bold;">
@@ -154,6 +163,7 @@ def show_dashboard():
                         </a>
                     </div>
                 """, unsafe_allow_html=True)
+
                 
     with col_right:
         st.subheader("🚨 SYSTEM ALERTS")
@@ -163,23 +173,8 @@ def show_dashboard():
                 m = upcoming.iloc[0]
                 st.markdown(f'<div class="alert-card"><b style="color:#ff4655;">NEXT SCRIM:</b><br><small>{m.get("jour", "N/A")} vs {m.get("opp", "N/A")}</small></div>', unsafe_allow_html=True)
 
-     # --- SECTION PERFORMANCE DYNAMIQUE ---
-st.markdown("### 📊 ÉVOLUTION DU WINRATE")
-
-if not df_planning.empty:
-    # On cherche la colonne résultat peu importe l'accent
-    col_res = next((c for c in df_planning.columns if "result" in c.lower()), None)
-    
-    if col_res:
-        history = df_planning[df_planning[col_res].isin(['Win', 'Loss'])].copy()
-        if not history.empty:
-            history['Win_Int'] = history[col_res].apply(lambda x: 1 if x == 'Win' else 0)
-            history['Cumulative_Winrate'] = (history['Win_Int'].expanding().mean() * 100).round(1)
-            st.line_chart(history[['Cumulative_Winrate']], color="#ff4655")
-        else:
-            st.info("Archive vide : Aucun match 'Win' ou 'Loss' détecté pour le moment.")
-    else:
-        st.error(f"Erreur : Colonne de résultat introuvable. Colonnes dispo : {list(df_planning.columns)}")
+        st.markdown("### 📊 PERFORMANCE")
+        st.line_chart(pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance']))
 
 # --- 3. MATCH ARCHIVE ---
 def show_archive():
@@ -715,10 +710,3 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
-
-
-
-
-
-
-
