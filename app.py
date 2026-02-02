@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import os
 
+# 1. CONFIGURATION (TOUJOURS EN PREMIER)
+st.set_page_config(page_title="CRIMSON HQ", layout="wide", page_icon="🩸")
 # 1. CONFIGURATION (Impérativement en premier)
 st.set_page_config(
     page_title="CRIMSON HQ", 
@@ -10,6 +12,10 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+# 2. IMPORTS
+from styles import apply_global_styles, apply_immersive_mode
+from database import init_folders, load_csv, SCRIMS_DB, AGENTS_DB
+import logic
 # 2. IMPORTS DES MODULES
 try:
     from styles import apply_global_styles, apply_immersive_mode
@@ -18,14 +24,18 @@ try:
 except ImportError as e:
     st.error(f"Erreur d'importation : {e}. Vérifiez que styles.py et database.py sont présents.")
 
+# 3. INITIALISATION
 # 3. INITIALISATION DU SYSTÈME
-if 'scrims_df' not in st.session_state:
-    st.session_state['scrims_df'] = load_csv(SCRIMS_DB, ["Date", "Map", "Resultat", "Score", "Screenshot"])
+init_folders()
+apply_global_styles()
 
+if "current_page" not in st.session_state:
+    st.session_state["current_page"] = "DASHBOARD"
 # Initialisation des variables de session pour éviter les crashs (KeyError)
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = True
 
+# 4. INTERFACE
 if "current_page" not in st.session_state:
     st.session_state["current_page"] = "DASHBOARD"
 
@@ -54,10 +64,11 @@ else:
     st.markdown("<h1 class='valo-title'>CRIMSON</h1>", unsafe_allow_html=True)
     st.markdown("<p style='text-align:center; letter-spacing:10px; color:#666; margin-top:-40px; margin-bottom:40px;'>ELITE TACTICAL INTERFACE</p>", unsafe_allow_html=True)
 
+    # Menu de Navigation
     # Menu de Navigation Horizontal
     pages = ["DASHBOARD", "MAPS & COMPOS", "MATCH ARCHIVE", "TACTICAL POOL", "PLANNING", "STRATÉGIE"]
     cols = st.columns(len(pages))
-    
+
     for i, p in enumerate(pages):
         if cols[i].button(p, key=f"btn_{p}", use_container_width=True):
             st.session_state["current_page"] = p
@@ -68,12 +79,14 @@ else:
 
     st.divider()
 
+    # Routage
     # ROUTAGE DES PAGES
     menu = st.session_state["current_page"]
     
     if menu == "DASHBOARD":
         logic.show_dashboard()
     elif menu == "MAPS & COMPOS":
+        logic.show_team_builder()
         logic.show_team_builder() # Utilise l'initialisation 'compo_save' faite plus haut
     elif menu == "MATCH ARCHIVE":
         logic.show_archive()
@@ -83,4 +96,3 @@ else:
         logic.show_planning()
     elif menu == "STRATÉGIE":
         logic.show_map_selection()
-
