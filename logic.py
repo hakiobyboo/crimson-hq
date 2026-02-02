@@ -163,8 +163,30 @@ def show_dashboard():
                 m = upcoming.iloc[0]
                 st.markdown(f'<div class="alert-card"><b style="color:#ff4655;">NEXT SCRIM:</b><br><small>{m.get("jour", "N/A")} vs {m.get("opp", "N/A")}</small></div>', unsafe_allow_html=True)
 
-        st.markdown("### 📊 PERFORMANCE")
-        st.line_chart(pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance']))
+     # --- SECTION PERFORMANCE DYNAMIQUE ---
+        st.markdown("### 📊 ÉVOLUTION DU WINRATE")
+        
+        if not df_planning.empty and 'Resultat' in df_planning.columns:
+            # On récupère les matchs terminés dans l'ordre chronologique
+            history = df_planning[df_planning['Resultat'].isin(['Win', 'Loss'])].copy()
+            
+            if not history.empty:
+                # Calcul du Winrate cumulé (évolution match après match)
+                history['Win_Int'] = history['Resultat'].apply(lambda x: 1 if x == 'Win' else 0)
+                history['Cumulative_Winrate'] = (history['Win_Int'].expanding().mean() * 100).round(1)
+                
+                # Création du graphique
+                chart_data = history[['Cumulative_Winrate']].reset_index(drop=True)
+                chart_data.columns = ['Winrate %']
+                
+                # Affichage du graphique avec le style Streamlit
+                st.line_chart(chart_data, color="#ff4655")
+                
+                st.caption("Ce graphique montre l'évolution de votre taux de victoire cumulé basé sur les derniers Scrims enregistrés.")
+            else:
+                st.info("Pas assez de données de matchs (Win/Loss) pour générer le graphique.")
+        else:
+            st.warning("La colonne 'Resultat' est manquante ou le fichier Planning est vide.")
 
 # --- 3. MATCH ARCHIVE ---
 def show_archive():
@@ -700,6 +722,7 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
 
 
 
