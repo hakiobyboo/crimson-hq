@@ -19,7 +19,7 @@ apply_global_styles()
 
 # --- 2. GESTION DE LA SESSION ---
 if "logged_in" not in st.session_state:
-    st.session_state["logged_in"] = False
+    st.session_state["logged_in"] = True
 
 if "current_page" not in st.session_state:
     st.session_state["current_page"] = "DASHBOARD"
@@ -101,6 +101,7 @@ else:
         elif menu == "STRATÉGIE":
             if st.session_state['selected_strat_map'] is None:
                 logic.show_map_selection()
+
 
 
 
