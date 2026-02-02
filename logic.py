@@ -164,29 +164,22 @@ def show_dashboard():
                 st.markdown(f'<div class="alert-card"><b style="color:#ff4655;">NEXT SCRIM:</b><br><small>{m.get("jour", "N/A")} vs {m.get("opp", "N/A")}</small></div>', unsafe_allow_html=True)
 
      # --- SECTION PERFORMANCE DYNAMIQUE ---
-        st.markdown("### 📊 ÉVOLUTION DU WINRATE")
-        
-        if not df_planning.empty and 'Resultat' in df_planning.columns:
-            # On récupère les matchs terminés dans l'ordre chronologique
-            history = df_planning[df_planning['Resultat'].isin(['Win', 'Loss'])].copy()
-            
-            if not history.empty:
-                # Calcul du Winrate cumulé (évolution match après match)
-                history['Win_Int'] = history['Resultat'].apply(lambda x: 1 if x == 'Win' else 0)
-                history['Cumulative_Winrate'] = (history['Win_Int'].expanding().mean() * 100).round(1)
-                
-                # Création du graphique
-                chart_data = history[['Cumulative_Winrate']].reset_index(drop=True)
-                chart_data.columns = ['Winrate %']
-                
-                # Affichage du graphique avec le style Streamlit
-                st.line_chart(chart_data, color="#ff4655")
-                
-                st.caption("Ce graphique montre l'évolution de votre taux de victoire cumulé basé sur les derniers Scrims enregistrés.")
-            else:
-                st.info("Pas assez de données de matchs (Win/Loss) pour générer le graphique.")
+st.markdown("### 📊 ÉVOLUTION DU WINRATE")
+
+if not df_planning.empty:
+    # On cherche la colonne résultat peu importe l'accent
+    col_res = next((c for c in df_planning.columns if "result" in c.lower()), None)
+    
+    if col_res:
+        history = df_planning[df_planning[col_res].isin(['Win', 'Loss'])].copy()
+        if not history.empty:
+            history['Win_Int'] = history[col_res].apply(lambda x: 1 if x == 'Win' else 0)
+            history['Cumulative_Winrate'] = (history['Win_Int'].expanding().mean() * 100).round(1)
+            st.line_chart(history[['Cumulative_Winrate']], color="#ff4655")
         else:
-            st.warning("La colonne 'Resultat' est manquante ou le fichier Planning est vide.")
+            st.info("Archive vide : Aucun match 'Win' ou 'Loss' détecté pour le moment.")
+    else:
+        st.error(f"Erreur : Colonne de résultat introuvable. Colonnes dispo : {list(df_planning.columns)}")
 
 # --- 3. MATCH ARCHIVE ---
 def show_archive():
@@ -722,6 +715,7 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
 
 
 
