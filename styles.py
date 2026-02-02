@@ -1,7 +1,5 @@
 import streamlit as st
 
-import streamlit as st
-
 def apply_global_styles():
     st.markdown("""
         <style>
@@ -48,4 +46,5 @@ def apply_global_styles():
 
 def apply_immersive_mode():
     st.markdown("<style>#MainMenu {visibility: hidden;} footer {visibility: hidden;} header {visibility: hidden;}</style>", unsafe_allow_html=True)
+
 
