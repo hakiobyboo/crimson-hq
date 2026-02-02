@@ -311,56 +311,6 @@ def load_data(path):
         return pd.read_csv(path).to_dict('records')
     return []
 
-    # --- 5. TEAM BUILDER (NOUVELLE FONCTIONNALITÉ MAPS + AGENTS) ---
-def show_team_builder():
-    st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON TACTICAL BUILDER</h1>", unsafe_allow_html=True)
-
-    map_list = ["Ascent", "Bind", "Haven", "Lotus", "Sunset", "Abyss", "Split", "Icebox", "Fracture"]
-    roles = ["DUELIST", "INITIATOR", "SENTINEL", "CONTROLEUR", "FLEX / 2nd DUELIST"]
-    agents = ["Jett", "Raze", "Neon", "Yoru", "Phoenix", "Iso", "Reyna", 
-              "Sova", "Skye", "Breach", "KAYO", "Fade", "Gekko", 
-              "Cypher", "Killjoy", "Sage", "Chamber", "Deadlock", "Vyse",
-              "Omen", "Brimstone", "Viper", "Astra", "Harbor", "Clove"]
-
-    selected_map = st.selectbox("📍 CHOISIR UNE ZONE D'OPÉRATION", map_list)
-
-    st.markdown(f"""
-        <div style="background: rgba(255,70,85,0.1); padding: 20px; border-radius: 15px; border: 1px solid #ff4655; text-align: center; margin-bottom: 30px;">
-            <h2 style="margin:0; color:white; text-transform:uppercase;">{selected_map} COMPOSITION</h2>
-        </div>
-    """, unsafe_allow_html=True)
-
-    if 'compo_save' not in st.session_state:
-        st.session_state['compo_save'] = {}
-    if selected_map not in st.session_state['compo_save']:
-        st.session_state['compo_save'][selected_map] = {role: "Jett" for role in roles}
-
-    cols = st.columns(5)
-    for i, role in enumerate(roles):
-        with cols[i]:
-            st.markdown(f'<div style="text-align:center; background:#ff4655; color:white; font-size:0.7em; font-weight:bold; border-radius:5px 5px 0 0; padding:5px;">{role}</div>', unsafe_allow_html=True)
-            current_agent = st.session_state['compo_save'][selected_map][role]
-            img_name = current_agent.lower().replace("/", "")
-            
-            st.markdown(f"""
-                <div style="background: rgba(15,25,35,0.8); border: 1px solid #444; padding: 10px; text-align: center;">
-                    <img src="https://back-to-the-game.com/wp-content/uploads/2023/04/{img_name}.png" style="width:100%; filter: drop-shadow(0 0 5px #ff4655);">
-                </div>
-            """, unsafe_allow_html=True)
-
-            new_selection = st.selectbox("Select", agents, key=f"comp_{selected_map}_{role}", label_visibility="collapsed", index=agents.index(current_agent))
-            st.session_state['compo_save'][selected_map][role] = new_selection
-
-    st.markdown("---")
-    c1, c2 = st.columns([2, 1])
-    with c1:
-        st.subheader("📝 Plan d'exécution")
-        st.text_area("Notes tactiques...", height=150, key=f"note_{selected_map}")
-    with c2:
-        st.subheader("💾 Archive")
-        if st.button("ENREGISTRER LA STRAT", use_container_width=True):
-            st.success(f"Composition {selected_map} sauvegardée !")
-
 def show_planning():
     # --- STYLE CSS AVEC GLOW ---
     st.markdown("""
@@ -607,6 +557,53 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
+# --- NOUVEL ONGLET : TEAM BUILDER ---
+def show_team_builder():
+    st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON TACTICAL BUILDER</h1>", unsafe_allow_html=True)
+
+    map_list = ["Ascent", "Bind", "Haven", "Lotus", "Sunset", "Abyss", "Split", "Icebox", "Fracture"]
+    roles = ["DUELIST", "INITIATOR", "SENTINEL", "CONTROLEUR", "FLEX / 2nd DUELIST"]
+    agents = ["Jett", "Raze", "Neon", "Yoru", "Phoenix", "Iso", "Reyna", 
+              "Sova", "Skye", "Breach", "KAYO", "Fade", "Gekko", 
+              "Cypher", "Killjoy", "Sage", "Chamber", "Deadlock", "Vyse",
+              "Omen", "Brimstone", "Viper", "Astra", "Harbor", "Clove"]
+
+    selected_map = st.selectbox("📍 CHOISIR UNE MAP", map_list)
+
+    # Initialisation du stockage
+    if 'compo_save' not in st.session_state:
+        st.session_state['compo_save'] = {}
+    if selected_map not in st.session_state['compo_save']:
+        st.session_state['compo_save'][selected_map] = {role: "Jett" for role in roles}
+
+    # Affichage des 5 colonnes pour les agents
+    cols = st.columns(5)
+    for i, role in enumerate(roles):
+        with cols[i]:
+            st.markdown(f'<div style="text-align:center; background:#ff4655; color:white; font-size:0.7em; font-weight:bold; border-radius:5px 5px 0 0; padding:5px;">{role}</div>', unsafe_allow_html=True)
+            
+            current_agent = st.session_state['compo_save'][selected_map][role]
+            img_name = current_agent.lower().replace("/", "")
+            
+            # Affichage de l'image de l'agent
+            st.markdown(f"""
+                <div style="background: rgba(15,25,35,0.8); border: 1px solid #444; padding: 10px; text-align: center;">
+                    <img src="https://back-to-the-game.com/wp-content/uploads/2023/04/{img_name}.png" style="width:100%; filter: drop-shadow(0 0 5px #ff4655);">
+                </div>
+            """, unsafe_allow_html=True)
+
+            # Menu de sélection
+            new_selection = st.selectbox("Select", agents, key=f"comp_{selected_map}_{role}", label_visibility="collapsed", index=agents.index(current_agent))
+            st.session_state['compo_save'][selected_map][role] = new_selection
+
+    # Section Notes
+    st.markdown("---")
+    st.subheader("📝 Plan d'exécution")
+    st.text_area("Notes tactiques...", height=150, key=f"note_{selected_map}")
+    if st.button("💾 SAUVEGARDER LA COMPO", use_container_width=True):
+        st.success(f"Composition {selected_map} enregistrée !")
+                            
+
 
 
 
