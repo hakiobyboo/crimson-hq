@@ -3,12 +3,12 @@ import os
 import requests
 
 # --- 1. DÉFINITION DES CHEMINS ---
-# J'ai centralisé les noms pour qu'ils soient cohérents avec app.py et logic.py
+# Chemins des fichiers (Vérifie bien les noms !)
 SCRIMS_DB = "data/scrims_database.csv"
 AGENTS_DB = "data/agents_database.csv"
 RANKS_DB = "data/ranks_database.csv"
-PLANNING_DB = "data/planning.csv"  # INDISPENSABLE pour le graphique de Winrate
-DISPOS_DB = "data/dispos.csv"
+PLANNING_DB = "data/planning.csv"  # <--- CETTE LIGNE EST MANQUANTE
+DISPOS_DB = "data/dispos.csv
 
 def init_folders():
     """Crée le dossier data et les répertoires d'images s'ils n'existent pas"""
@@ -32,9 +32,12 @@ def load_csv(file, columns):
     return df
 
 def load_data(file):
-    """Fonction simplifiée utilisée par logic.py pour lire les données"""
+    """Fonction pour lire les données (utilisée par le Dashboard)"""
     if os.path.exists(file):
-        return pd.read_csv(file).to_dict(orient='records')
+        try:
+            return pd.read_csv(file).to_dict(orient='records')
+        except:
+            return []
     return []
 
 def get_intel(name, tag, label):
@@ -91,3 +94,4 @@ def update_intel_manual(label, current_rank, peak_rank):
     old_df = load_csv(RANKS_DB, ["Player", "Current", "Peak"])
     updated_df = pd.concat([old_df[old_df['Player'] != label], new_data], ignore_index=True)
     updated_df.to_csv(RANKS_DB, index=False)
+
