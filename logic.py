@@ -557,52 +557,99 @@ def show_strategy_map(current_map):
                             if st.button("🗑️", key=f"del_{side}_{idx}"):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
-# --- NOUVEL ONGLET : TEAM BUILDER ---
+
 def show_team_builder():
     st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON TACTICAL BUILDER</h1>", unsafe_allow_html=True)
 
-    map_list = ["Ascent", "Bind", "Haven", "Lotus", "Sunset", "Abyss", "Split", "Icebox", "Fracture"]
-    roles = ["DUELIST", "INITIATOR", "SENTINEL", "CONTROLEUR", "FLEX / 2nd DUELIST"]
-    agents = ["Jett", "Raze", "Neon", "Yoru", "Phoenix", "Iso", "Reyna", 
-              "Sova", "Skye", "Breach", "KAYO", "Fade", "Gekko", 
-              "Cypher", "Killjoy", "Sage", "Chamber", "Deadlock", "Vyse",
-              "Omen", "Brimstone", "Viper", "Astra", "Harbor", "Clove"]
+    # --- TES DONNÉES D'IMAGES ---
+    map_images = {
+        "Abyss": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/53698d442a14b5a6be643d53eb970ac16442cb38-930x522.png",
+        "Ascent": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/5cb7e65c04a489eccd725ce693fdc11e99982e10-3840x2160.png",
+        "Bind": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/7df1e6ee284810ef0cbf8db369c214a8cbf6578c-3840x2160.png",
+        "Breeze": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/a4a0374222f9cc79f97e03dbb1122056e794176a-3840x2160.png",
+        "Fracture": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/aecf502b1eea8824fd1fa9f8a2450bc5c13f6910-915x515.webp",
+        "Haven": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/bccc7b5f8647a4f654d4bb359247bce6e82c77ab-3840x2160.png",
+        "Icebox": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/72853f583a0f6b25aed54870531756483a7b61de-3840x2160.png",
+        "Lotus": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/cad0b406c5924614083a8dc9846b0a8746a20bda-703x396.webp",
+        "Pearl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/34ba319c99d3d20ef8c6f7b6a61439e207b39247-915x515.webp",
+        "Split": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/878d51688c0f9dd0de827162e80c40811668e0c6-3840x2160.png",
+        "Sunset": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/5101e4ee241fbfca261bf8150230236c46c8b991-3840x2160.png",
+        "Corrode": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/6e3e66577519c8290d874aa94d82e28aec2ccc3e-915x515.jpg"
+    }
 
-    selected_map = st.selectbox("📍 CHOISIR UNE MAP", map_list)
+    agent_images = {
+        "Chamber": "https://images.wallpapersden.com/image/wxl-chamber-valorant-hd-cool_91233.jpg",
+        "Cypher": "https://images.wallpapersden.com/image/wxl-cypher-background-valorant-art_82069.jpg",
+        "Deadlock": "https://images5.alphacoders.com/139/thumb-1920-1399745.jpg",
+        "Killjoy": "https://images8.alphacoders.com/114/thumb-1920-1149389.jpg",
+        "Sage": "https://i.pinimg.com/1200x/fa/8d/6b/fa8d6b6cec9210cc126a947681b3077c.jpg",
+        "Vyse": "https://images6.alphacoders.com/137/thumb-1920-1373943.png",
+        "Astra": "https://i.pinimg.com/736x/52/96/d9/5296d9245052e767cedac9b5e100dd90.jpg",
+        "Brimstone": "https://images.wallpapersden.com/image/wxl-brimstone-new-valorant-poster_72344.jpg",
+        "Clove": "https://images.wallpapersden.com/image/wxl-cool-clove-4k-valorant_92740.jpg",
+        "Harbor": "https://images8.alphacoders.com/128/thumb-1920-1282950.png",
+        "Omen": "https://images.wallpapersden.com/image/wxl-cool-omen-valorant-2023_89545.jpg",
+        "Viper": "https://images.wallpapersden.com/image/wxl-viper-4k-valorant-2020_73350.jpg",
+        "Breach": "https://images3.alphacoders.com/114/1149735.jpg",
+        "Fade": "https://images.wallpapersden.com/image/wxl-fade-valorant-gaming-character-digital-art_91742.jpg",
+        "Gekko": "https://i.pinimg.com/1200x/e8/ff/46/e8ff46efa78a7203b47f5976f72d31fb.jpg",
+        "KAY/O": "https://i.pinimg.com/1200x/ef/0f/b8/ef0fb88954b5176e3c05c4811a42604e.jpg",
+        "Skye": "https://images.wallpapersden.com/image/wxl-skye-art-cool-valorant_77564.jpg",
+        "Sova": "https://images.wallpapersden.com/image/wxl-sova-cool-art-valorant_81600.jpg",
+        "Iso": "https://images.wallpapersden.com/image/wxl-iso-valorant-x-overwatch-2-style_91783.jpg",
+        "Jett": "https://images.wallpapersden.com/image/wxl-hd-valorant-gaming-2022_85588.jpg",
+        "Neon": "https://images.wallpapersden.com/image/wxl-neon-hd-valorant-nightmare_84224.jpg",
+        "Phoenix": "https://images2.alphacoders.com/132/thumb-1920-1328732.png",
+        "Raze": "https://images.wallpapersden.com/image/wxl-raze-new-valorant_77567.jpg",
+        "Reyna": "https://i.pinimg.com/736x/c5/d1/4b/c5d14b3aa7f75ede4b527f7040556f84.jpg",
+        "Yoru": "https://images.wallpapersden.com/image/wxl-yoru-fan-art-valorant_83634.jpg"
+    }
 
-    # Initialisation du stockage
+    # --- SÉLECTION DE LA MAP ---
+    map_list = list(map_images.keys())
+    selected_map = st.selectbox("📍 CHOISIR UNE ZONE D'OPÉRATION", map_list)
+
+    # Affichage de l'image de la map sélectionnée
+    st.image(map_images[selected_map], use_container_width=True)
+
+    st.markdown(f"""
+        <div style="background: rgba(255,70,85,0.1); padding: 15px; border-radius: 10px; border: 1px solid #ff4655; text-align: center; margin: 20px 0;">
+            <h2 style="margin:0; color:white; letter-spacing: 2px;">COMPOSITION {selected_map.upper()}</h2>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # --- CONSTRUCTION DE LA COMPO ---
+    roles = ["DUELIST", "INITIATOR", "SENTINEL", "CONTROLEUR", "FLEX"]
+    all_agents = list(agent_images.keys())
+
     if 'compo_save' not in st.session_state:
         st.session_state['compo_save'] = {}
     if selected_map not in st.session_state['compo_save']:
-        st.session_state['compo_save'][selected_map] = {role: "Jett" for role in roles}
+        st.session_state['compo_save'][selected_map] = {role: all_agents[0] for role in roles}
 
-    # Affichage des 5 colonnes pour les agents
     cols = st.columns(5)
     for i, role in enumerate(roles):
         with cols[i]:
             st.markdown(f'<div style="text-align:center; background:#ff4655; color:white; font-size:0.7em; font-weight:bold; border-radius:5px 5px 0 0; padding:5px;">{role}</div>', unsafe_allow_html=True)
             
             current_agent = st.session_state['compo_save'][selected_map][role]
-            img_name = current_agent.lower().replace("/", "")
+            # On récupère l'URL dans notre dictionnaire
+            img_url = agent_images.get(current_agent, "https://via.placeholder.com/150")
             
-            # Affichage de l'image de l'agent
             st.markdown(f"""
-                <div style="background: rgba(15,25,35,0.8); border: 1px solid #444; padding: 10px; text-align: center;">
-                    <img src="https://back-to-the-game.com/wp-content/uploads/2023/04/{img_name}.png" style="width:100%; filter: drop-shadow(0 0 5px #ff4655);">
+                <div style="background: rgba(15,25,35,0.8); border: 1px solid #444; padding: 5px; text-align: center;">
+                    <img src="{img_url}" style="width:100%; height:120px; object-fit:cover; border-radius:3px;">
                 </div>
             """, unsafe_allow_html=True)
 
-            # Menu de sélection
-            new_selection = st.selectbox("Select", agents, key=f"comp_{selected_map}_{role}", label_visibility="collapsed", index=agents.index(current_agent))
+            new_selection = st.selectbox(f"Select", all_agents, key=f"comp_{selected_map}_{role}", label_visibility="collapsed", index=all_agents.index(current_agent))
             st.session_state['compo_save'][selected_map][role] = new_selection
 
-    # Section Notes
     st.markdown("---")
-    st.subheader("📝 Plan d'exécution")
-    st.text_area("Notes tactiques...", height=150, key=f"note_{selected_map}")
-    if st.button("💾 SAUVEGARDER LA COMPO", use_container_width=True):
-        st.success(f"Composition {selected_map} enregistrée !")
+    if st.button("💾 ENREGISTRER LA CONFIGURATION", use_container_width=True):
+        st.success("Configuration Crimson enregistrée avec succès !")
                             
+
 
 
 
