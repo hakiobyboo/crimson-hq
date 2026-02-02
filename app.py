@@ -13,10 +13,12 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Initialisation des systèmes
+# --- 1. INITIALISATION ET TITRE ---
 init_folders()
+apply_global_styles() # N'oublie pas d'appeler les styles ici !
+
 st.markdown("<h1 class='valo-title'>CRIMSON</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align:center; letter-spacing:10px; color:#666; margin-top:-40px; margin-bottom:40px;'>ELITE TACTICAL INTERFACE</p>", unsafe_allow_html=True
+st.markdown("<p style='text-align:center; letter-spacing:10px; color:#666; margin-top:-40px; margin-bottom:40px;'>ELITE TACTICAL INTERFACE</p>", unsafe_allow_html=True)
 
 # --- 2. GESTION DE LA SESSION ---
 if "logged_in" not in st.session_state:
@@ -102,6 +104,7 @@ else:
         elif menu == "STRATÉGIE":
             if st.session_state['selected_strat_map'] is None:
                 logic.show_map_selection()
+
 
 
 
