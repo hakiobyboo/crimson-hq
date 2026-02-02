@@ -19,7 +19,7 @@ import logic
 # 2. IMPORTS DES MODULES
 try:
     from styles import apply_global_styles, apply_immersive_mode
-   from database import init_folders, load_csv, SCRIMS_DB, AGENTS_DB, PLANNING_DB
+    from database import init_folders, load_csv, SCRIMS_DB, AGENTS_DB, PLANNING_DB
     import logic
 except ImportError as e:
     st.error(f"Erreur d'importation : {e}. Vérifiez que styles.py et database.py sont présents.")
@@ -98,4 +98,5 @@ else:
         logic.show_planning()
     elif menu == "STRATÉGIE":
         logic.show_map_selection()
+
 
