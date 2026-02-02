@@ -97,7 +97,7 @@ def show_dashboard():
             {"nom": "NEF", "role": "DUELIST", "img": "https://i.pinimg.com/736x/e2/79/d9/e279d990748c8a4d650f01eeb7daff82.jpg", "kd": "1.07", "hs": "26%", "url": "https://tracker.gg/valorant/profile/riot/Nef%23SPK/overview"},
             {"nom": "BOO ツ", "role": "IGL / SENTINEL", "img": "https://i.pinimg.com/736x/f4/30/16/f43016461f09a37ac9d721b043439873.jpg", "kd": "1.04", "hs": "35.4%", "url": "https://tracker.gg/valorant/profile/riot/Boo%20ツ%231tpas/overview"},
             {"nom": "KURAIME", "role": "DUELIST", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Kuraime", "kd": "0.99", "hs": "39.3%", "url": "https://tracker.gg/valorant/profile/riot/kuraime%23ezz/overview"},
-            {"nom": "TURBOS", "role": "INITIATOR", "img": "https://fr.pinterest.com/pin/686165693271693361/", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/turboS%23SPEED/overview"},
+            {"nom": "TURBOS", "role": "INITIATOR", "img": "https://i.pinimg.com/736x/e6/20/ea/e620ea25982410c837a6af5424d08c16.jpg", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/turboS%23SPEED/overview"},
             {"nom": "N2", "role": "CONTROLEUR", "img": "https://i.pinimg.com/736x/f7/7d/b5/f77db5e6c5948aec49c1dfe5a8c37885.jpg", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/ego%20peeker%23N2N2/overview"}
         ]
         r_cols = st.columns(2)
@@ -669,5 +669,6 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
 
 
