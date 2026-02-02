@@ -28,7 +28,7 @@ def save_strat(map_name, title, link, desc):
 
 # --- 2. PAGE DASHBOARD ---
 def show_dashboard():
-    # 1. Barre de statistiques (Le bloc que tu as)
+    
     st.markdown("<h3 style='color:white; font-family:VALORANT; font-size:1em; letter-spacing:2px;'>OPERATIONAL STATUS</h3>", unsafe_allow_html=True)
     
     col1, col2, col3, col4 = st.columns(4)
@@ -49,9 +49,6 @@ def show_dashboard():
             """, unsafe_allow_html=True)
 
     st.markdown("---") # Séparateur stylé
-
-    # 2. Reste de ton Dashboard (News, derniers matchs, etc.)
-    # ... (ton code actuel du dashboard continue ici)
 
     # STYLE CSS (Animations, Glow, Hover)
     st.markdown("""
@@ -680,6 +677,7 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
 
 
 
