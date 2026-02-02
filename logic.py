@@ -558,8 +558,8 @@ def show_strategy_map(current_map):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
 
-                            def show_team_builder():
-    st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON TACTICAL BUILDER</h1>", unsafe_allow_html=True)
+    def show_team_builder():
+           st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON TACTICAL BUILDER</h1>", unsafe_allow_html=True)
 
     # 1. LISTES DE RÉFÉRENCE
     map_list = ["Ascent", "Bind", "Haven", "Lotus", "Sunset", "Abyss", "Split", "Icebox", "Fracture"]
@@ -632,6 +632,7 @@ def show_strategy_map(current_map):
         if st.button("ENREGISTRER LA STRAT", use_container_width=True):
             st.success(f"Composition {selected_map} sauvegardée !")
             st.balloons()
+
 
 
 
