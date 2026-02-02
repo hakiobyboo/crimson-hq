@@ -76,7 +76,7 @@ else:
         
         # Barre de Menu (Navigation)
         m_cols = st.columns([1, 1, 1, 1, 1, 1, 0.5])
-       pages = ["DASHBOARD", "MAPS & COMPOS", "MATCH ARCHIVE", "TACTICAL POOL", "PLANNING"]
+       pages = ["DASHBOARD", "MAPS & COMPOS", "MATCH ARCHIVE", "TACTICAL POOL", "PLANNING", "STRATÉGIE"]
         
         for idx, p_name in enumerate(pages):
             if m_cols[idx].button(p_name, key=f"nav_{p_name}", use_container_width=True):
@@ -107,6 +107,7 @@ else:
         elif menu == "STRATÉGIE":
             if st.session_state['selected_strat_map'] is None:
                 logic.show_map_selection()
+
 
 
 
