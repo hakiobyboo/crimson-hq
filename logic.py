@@ -71,8 +71,10 @@ def show_dashboard():
     # 4. ROSTER & ALERTES (La suite de ton code existant)
     col_left, col_right = st.columns([1.2, 0.8])
     
+ # --- SECTION ROSTER AVEC EFFET GLOW ET INTERFACE ÉLITE ---
     with col_left:
-        st.subheader("👥 ACTIVE ROSTER")
+        st.markdown("<h3 style='font-family:Orbitron; color:#ff4655; letter-spacing:3px; margin-bottom:20px;'>👥 SQUAD OPERATIVES</h3>", unsafe_allow_html=True)
+        
         roster = [
             {"nom": "NEF", "role": "DUELIST", "img": "https://i.pinimg.com/736x/e2/79/d9/e279d990748c8a4d650f01eeb7daff82.jpg", "kd": "1.07", "hs": "26%", "url": "https://tracker.gg/valorant/profile/riot/Nef%23SPK/overview"},
             {"nom": "BOO ツ", "role": "IGL / SENTINEL", "img": "https://i.pinimg.com/736x/f4/30/16/f43016461f09a37ac9d721b043439873.jpg", "kd": "1.04", "hs": "35.4%", "url": "https://tracker.gg/valorant/profile/riot/Boo%20ツ%231tpas/overview"},
@@ -80,22 +82,79 @@ def show_dashboard():
             {"nom": "TURBOS", "role": "INITIATOR", "img": "https://i.pinimg.com/736x/e6/20/ea/e620ea25982410c837a6af5424d08c16.jpg", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/turboS%23SPEED/overview"},
             {"nom": "N2", "role": "CONTROLEUR", "img": "https://i.pinimg.com/736x/f7/7d/b5/f77db5e6c5948aec49c1dfe5a8c37885.jpg", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/ego%20peeker%23N2N2/overview"}
         ]
+        
         r_cols = st.columns(2)
         for i, p in enumerate(roster):
             with r_cols[i % 2]:
                 st.markdown(f"""
-                    <div class="player-card-dash">
-                        <img src="{p['img']}" class="img-profile">
-                        <div style="font-size:1.2em; font-weight:bold; color:white; margin:10px 0;">{p['nom']}</div>
-                        <div style="color:#bd93f9; font-size:0.8em; margin-bottom:10px;">{p['role']}</div>
-                        <div style="display:flex; justify-content:space-around; background:rgba(255,255,255,0.05); padding:5px; border-radius:5px;">
-                            <div><small>K/D</small><br><b>{p['kd']}</b></div>
-                            <div><small>HS%</small><br><b>{p['hs']}</b></div>
+                    <style>
+                    .agent-card {{
+                        background: rgba(15, 25, 35, 0.7);
+                        border: 1px solid rgba(255, 70, 85, 0.3);
+                        border-radius: 10px;
+                        padding: 20px;
+                        text-align: center;
+                        margin-bottom: 20px;
+                        transition: all 0.3s ease-in-out;
+                        position: relative;
+                        overflow: hidden;
+                    }}
+                    .agent-card:hover {{
+                        border-color: #ff4655;
+                        box-shadow: 0 0 20px rgba(255, 70, 85, 0.4);
+                        transform: translateY(-5px);
+                        background: rgba(255, 70, 85, 0.05);
+                    }}
+                    .agent-img {{
+                        width: 110px;
+                        height: 110px;
+                        border-radius: 50%;
+                        border: 3px solid #ff4655;
+                        object-fit: cover;
+                        margin-bottom: 15px;
+                        filter: drop-shadow(0 0 8px rgba(255, 70, 85, 0.6));
+                    }}
+                    .agent-name {{
+                        font-family: 'Orbitron', sans-serif;
+                        color: white;
+                        font-size: 1.4rem;
+                        font-weight: bold;
+                        margin: 5px 0;
+                    }}
+                    .agent-role {{
+                        color: #ff4655;
+                        font-size: 0.8rem;
+                        letter-spacing: 2px;
+                        margin-bottom: 15px;
+                        font-weight: bold;
+                    }}
+                    .stats-grid {{
+                        display: flex;
+                        justify-content: space-around;
+                        background: rgba(255, 255, 255, 0.05);
+                        padding: 10px;
+                        border-radius: 5px;
+                    }}
+                    .stat-item b {{ color: #ff4655; font-size: 1.1rem; }}
+                    </style>
+                    
+                    <div class="agent-card">
+                        <img src="{p['img']}" class="agent-img">
+                        <div class="agent-name">{p['nom']}</div>
+                        <div class="agent-role">{p['role']}</div>
+                        <div class="stats-grid">
+                            <div class="stat-item"><small style="color:#888;">K/D</small><br><b>{p['kd']}</b></div>
+                            <div class="stat-item"><small style="color:#888;">HS%</small><br><b>{p['hs']}</b></div>
                         </div>
-                        <a href="{p['url']}" target="_blank" class="tracker-link" style="margin-top:10px;">VIEW TRACKER</a>
+                        <br>
+                        <a href="{p['url']}" target="_blank" style="text-decoration:none;">
+                            <div style="background:#ff4655; color:white; padding:8px; border-radius:3px; font-size:0.8rem; font-family:Orbitron; font-weight:bold;">
+                                ANALYZE DATA
+                            </div>
+                        </a>
                     </div>
                 """, unsafe_allow_html=True)
-
+                
     with col_right:
         st.subheader("🚨 SYSTEM ALERTS")
         if not df_planning.empty:
@@ -641,6 +700,7 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
 
 
 
