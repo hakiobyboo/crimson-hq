@@ -28,19 +28,30 @@ def save_strat(map_name, title, link, desc):
 
 # --- 2. PAGE DASHBOARD ---
 def show_dashboard():
-    # Calculs dynamiques
-    planning_data = load_data(PLANNING_DB)
-    df_planning = pd.DataFrame(planning_data)
+    # 1. Barre de statistiques (Le bloc que tu as)
+    st.markdown("<h3 style='color:white; font-family:VALORANT; font-size:1em; letter-spacing:2px;'>OPERATIONAL STATUS</h3>", unsafe_allow_html=True)
     
-    win_rate_display = "0%"
-    total_finished = 0
-    
-    if not df_planning.empty and 'Resultat' in df_planning.columns:
-        finished_matches = df_planning[df_planning['Resultat'].isin(['Win', 'Loss'])]
-        total_finished = len(finished_matches)
-        if total_finished > 0:
-            wins = len(finished_matches[finished_matches['Resultat'] == 'Win'])
-            win_rate_display = f"{(wins / total_finished) * 100:.0f}%"
+    col1, col2, col3, col4 = st.columns(4)
+    stats = [
+        {"label": "SCRIMS JOUÉS", "val": "42", "color": "#ff4655"},
+        {"label": "WINRATE", "val": "68%", "color": "#00ff7f"},
+        {"label": "STRATS", "val": "12", "color": "#00bfff"},
+        {"label": "AGENTS", "val": "25", "color": "#ffffff"}
+    ]
+
+    for i, s in enumerate([col1, col2, col3, col4]):
+        with s:
+            st.markdown(f"""
+                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-left: 4px solid {stats[i]['color']}; border-radius: 0 5px 5px 0;">
+                    <p style="color: #888; font-size: 0.7em; margin: 0; font-weight: bold; letter-spacing: 1px;">{stats[i]['label']}</p>
+                    <h2 style="margin: 0; color: white; font-family: 'Orbitron', sans-serif;">{stats[i]['val']}</h2>
+                </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown("---") # Séparateur stylé
+
+    # 2. Reste de ton Dashboard (News, derniers matchs, etc.)
+    # ... (ton code actuel du dashboard continue ici)
 
     # STYLE CSS (Animations, Glow, Hover)
     st.markdown("""
@@ -669,6 +680,7 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
 
 
 
