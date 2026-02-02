@@ -558,80 +558,121 @@ def show_strategy_map(current_map):
                                 os.remove(f"{path}/{f}")
                                 st.rerun()
 
-    def show_team_builder():
-           st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON TACTICAL BUILDER</h1>", unsafe_allow_html=True)
+    def show_strategy_map(current_map):
+    """Vue avec navigation propre et Iframe plein écran"""
+    
+    # Barre de navigation avec 2 colonnes pour les boutons
+    nav_c1, nav_c2 = st.columns(2)
+    
+    if st.session_state.get('strat_view_mode') == "VALOPLANT":
+        # --- MODE VALOPLANT ---
+        with nav_c1:
+            if st.button("⬅ QUITTER (MENU MAPS)", use_container_width=True):
+                st.session_state['selected_strat_map'] = None
+                st.rerun()
+        with nav_c2:
+            if st.button("📂 VOIR LE DOSSIER", use_container_width=True):
+                st.session_state['strat_view_mode'] = "DOSSIER"
+                st.rerun()
+        
+        st.components.v1.iframe("https://valoplant.gg", height=620, scrolling=True)
+    
+    else:
+        # --- MODE DOSSIER ---
+        st.markdown("<style>.main { overflow: auto !important; }</style>", unsafe_allow_html=True)
+        
+        with nav_c1:
+            if st.button("⬅ RETOUR MENU MAPS", use_container_width=True):
+                st.session_state['selected_strat_map'] = None
+                st.rerun()
+        with nav_c2:
+            if st.button("🌐 RETOUR VALOPLANT", use_container_width=True):
+                st.session_state['strat_view_mode'] = "VALOPLANT"
+                st.rerun()
+        
+        st.divider()
+        st.markdown(f"### 📁 DOSSIER TACTIQUE : {current_map.upper()}")
+        
+        map_path = f"images_scrims/{current_map}"
+        for side in ["Attaque", "Defense"]:
+            if not os.path.exists(f"{map_path}/{side}"): 
+                os.makedirs(f"{map_path}/{side}")
 
-    # 1. LISTES DE RÉFÉRENCE
+        with st.expander("📤 AJOUTER UNE STRATÉGIE"):
+            c1, c2, c3 = st.columns([2, 1, 1])
+            up_f = c1.file_uploader("Image", type=['png', 'jpg'])
+            up_n = c2.text_input("Nom")
+            up_s = c3.selectbox("Côté", ["Attaque", "Defense"])
+            if st.button("💾 ENREGISTRER"):
+                if up_f and up_n:
+                    Image.open(up_f).save(f"{map_path}/{up_s}/{up_n}.png")
+                    st.rerun()
+
+        t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
+        for tab, side in zip([t1, t2], ["Attaque", "Defense"]):
+            with tab:
+                path = f"{map_path}/{side}"
+                files = [f for f in os.listdir(path) if f.endswith(('.png', '.jpg'))]
+                if files:
+                    cols = st.columns(3)
+                    for idx, f in enumerate(files):
+                        with cols[idx % 3]:
+                            st.image(f"{path}/{f}", use_container_width=True, caption=f.replace(".png", ""))
+                            if st.button("🗑️", key=f"del_{side}_{idx}"):
+                                os.remove(f"{path}/{f}")
+                                st.rerun()
+
+# --- 5. TEAM BUILDER (NOUVEL ONGLET) ---
+def show_team_builder():
+    st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON TACTICAL BUILDER</h1>", unsafe_allow_html=True)
+
     map_list = ["Ascent", "Bind", "Haven", "Lotus", "Sunset", "Abyss", "Split", "Icebox", "Fracture"]
     roles = ["DUELIST", "INITIATOR", "SENTINEL", "CONTROLEUR", "FLEX / 2nd DUELIST"]
-    
-    # Liste des agents (pour faire correspondre aux images)
     agents = ["Jett", "Raze", "Neon", "Yoru", "Phoenix", "Iso", "Reyna", 
               "Sova", "Skye", "Breach", "KAYO", "Fade", "Gekko", 
               "Cypher", "Killjoy", "Sage", "Chamber", "Deadlock", "Vyse",
               "Omen", "Brimstone", "Viper", "Astra", "Harbor", "Clove"]
 
-    # 2. SÉLECTION DE LA MAP
     selected_map = st.selectbox("📍 CHOISIR UNE ZONE D'OPÉRATION", map_list)
 
-    # Affichage image de fond pour la Map (optionnel si tu as les images)
     st.markdown(f"""
         <div style="background: rgba(255,70,85,0.1); padding: 20px; border-radius: 15px; border: 1px solid #ff4655; text-align: center; margin-bottom: 30px;">
             <h2 style="margin:0; color:white; letter-spacing: 2px;">{selected_map.upper()} COMPOSITION</h2>
         </div>
     """, unsafe_allow_html=True)
 
-    # 3. INTERFACE DE CONSTRUCTION (5 COLONNES)
-    # On initialise le stockage si vide
     if 'compo_save' not in st.session_state:
         st.session_state['compo_save'] = {}
-
     if selected_map not in st.session_state['compo_save']:
         st.session_state['compo_save'][selected_map] = {role: "Jett" for role in roles}
 
     cols = st.columns(5)
-    
     for i, role in enumerate(roles):
         with cols[i]:
-            # Style du Rôle
-            st.markdown(f"""
-                <div style="text-align:center; background:#ff4655; color:white; font-size:0.7em; font-weight:bold; border-radius:5px 5px 0 0; padding:5px;">
-                    {role}
-                </div>
-            """, unsafe_allow_html=True)
-            
-            # Récupération de l'agent choisi
+            st.markdown(f'<div style="text-align:center; background:#ff4655; color:white; font-size:0.7em; font-weight:bold; border-radius:5px 5px 0 0; padding:5px;">{role}</div>', unsafe_allow_html=True)
             current_agent = st.session_state['compo_save'][selected_map][role]
-            
-            # Affichage Visuel de l'Agent (Lien vers API Valorant officielle pour les icônes)
-            # On nettoie le nom pour l'URL (KAY/O -> kayo)
             img_name = current_agent.lower().replace("/", "")
-            agent_url = f"https://media.valorant-api.com/agents/icons/{img_name}.png" # Note : ceci est un exemple, l'URL exacte peut varier
             
-            # Fallback sur une image stylée par défaut si besoin
             st.markdown(f"""
                 <div style="background: rgba(15,25,35,0.8); border: 1px solid #444; padding: 10px; text-align: center;">
                     <img src="https://back-to-the-game.com/wp-content/uploads/2023/04/{img_name}.png" style="width:100%; filter: drop-shadow(0 0 5px #ff4655);">
                 </div>
             """, unsafe_allow_html=True)
 
-            # Sélecteur
-            new_selection = st.selectbox(f"Select", agents, key=f"comp_{selected_map}_{role}", label_visibility="collapsed")
+            new_selection = st.selectbox(f"Select", agents, key=f"comp_{selected_map}_{role}", label_visibility="collapsed", index=agents.index(current_agent))
             st.session_state['compo_save'][selected_map][role] = new_selection
 
-    # 4. SECTION NOTES STRATÉGIQUES
     st.markdown("---")
     c1, c2 = st.columns([2, 1])
-    
     with c1:
         st.subheader("📝 Plan d'exécution")
-        st.text_area("Notes tactiques (ex: 'Omen One-way Mid', 'Push A rapide'...)", height=150)
-    
+        st.text_area("Notes tactiques...", height=150, key=f"note_{selected_map}")
     with c2:
         st.subheader("💾 Archive")
         if st.button("ENREGISTRER LA STRAT", use_container_width=True):
             st.success(f"Composition {selected_map} sauvegardée !")
             st.balloons()
+
 
 
 
