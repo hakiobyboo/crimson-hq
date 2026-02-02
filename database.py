@@ -3,13 +3,22 @@ import os
 import requests
 
 # --- 1. DÉFINITION DES CHEMINS ---
-# Chemins des fichiers (Vérifie bien les noms !)
+# Chemins des fichiers
 SCRIMS_DB = "data/scrims_database.csv"
 AGENTS_DB = "data/agents_database.csv"
 RANKS_DB = "data/ranks_database.csv"
-PLANNING_DB = "data/planning.csv"  # <--- CETTE LIGNE EST MANQUANTE
-DISPOS_DB = "data/dispos.csv
+PLANNING_DB = "data/planning.csv"  # <-- VÉRIFIE CETTE LIGNE EXACTE
+# Chemins des fichiers
+SCRIMS_DB = "data/scrims_database.csv"
+AGENTS_DB = "data/agents_database.csv"
+RANKS_DB = "data/ranks_database.csv"
+PLANNING_DB = "data/planning.csv"  # <-- VÉRIFIE CETTE LIGNE EXACTE
 
+def load_data(file):
+    if os.path.exists(file):
+        return pd.read_csv(file).to_dict(orient='records')
+    return []
+    
 def init_folders():
     """Crée le dossier data et les répertoires d'images s'ils n'existent pas"""
     folders = ["data", "images_scrims", "match_proofs"]
@@ -30,15 +39,6 @@ def load_csv(file, columns):
     df = pd.DataFrame(columns=columns)
     df.to_csv(file, index=False)
     return df
-
-def load_data(file):
-    """Fonction pour lire les données (utilisée par le Dashboard)"""
-    if os.path.exists(file):
-        try:
-            return pd.read_csv(file).to_dict(orient='records')
-        except:
-            return []
-    return []
 
 def get_intel(name, tag, label):
     """Récupère les données MMR via l'API et met à jour la base de données locale"""
@@ -94,4 +94,5 @@ def update_intel_manual(label, current_rank, peak_rank):
     old_df = load_csv(RANKS_DB, ["Player", "Current", "Peak"])
     updated_df = pd.concat([old_df[old_df['Player'] != label], new_data], ignore_index=True)
     updated_df.to_csv(RANKS_DB, index=False)
+
 
