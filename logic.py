@@ -163,32 +163,37 @@ def show_dashboard():
                 m = upcoming.iloc[0]
                 st.markdown(f'<div class="alert-card"><b style="color:#ff4655;">NEXT SCRIM:</b><br><small>{m.get("jour", "N/A")} vs {m.get("opp", "N/A")}</small></div>', unsafe_allow_html=True)
 
-        st.markdown("### 📊 PERFORMANCE")
-        st.line_chart(pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance']))
-     # --- SECTION PERFORMANCE DYNAMIQUE ---
-        st.markdown("### 📊 ÉVOLUTION DU WINRATE")
+      # --- SECTION PERFORMANCE DYNAMIQUE ---
+st.markdown("### 📊 ÉVOLUTION DU WINRATE")
+
+# 1. Récupération des données
+df_planning = pd.DataFrame(load_data(PLANNING_DB))
+
+if not df_planning.empty:
+    # 2. Détection automatique de la colonne de résultat (évite les erreurs d'accents)
+    col_res = next((c for c in df_planning.columns if "result" in c.lower()), None)
+    
+    if col_res:
+        # 3. Filtrer uniquement les matchs terminés (Win ou Loss)
+        # On s'assure que c'est bien écrit avec la première lettre en majuscule
+        history = df_planning[df_planning[col_res].str.capitalize().isin(['Win', 'Loss'])].copy()
         
-        if not df_planning.empty and 'Resultat' in df_planning.columns:
-            # On récupère les matchs terminés dans l'ordre chronologique
-            history = df_planning[df_planning['Resultat'].isin(['Win', 'Loss'])].copy()
+        if not history.empty:
+            # 4. Conversion en chiffres (Win = 1, Loss = 0)
+            history['Win_Int'] = history[col_res].str.capitalize().apply(lambda x: 1 if x == 'Win' else 0)
             
-            if not history.empty:
-                # Calcul du Winrate cumulé (évolution match après match)
-                history['Win_Int'] = history['Resultat'].apply(lambda x: 1 if x == 'Win' else 0)
-                history['Cumulative_Winrate'] = (history['Win_Int'].expanding().mean() * 100).round(1)
-                
-                # Création du graphique
-                chart_data = history[['Cumulative_Winrate']].reset_index(drop=True)
-                chart_data.columns = ['Winrate %']
-                
-                # Affichage du graphique avec le style Streamlit
-                st.line_chart(chart_data, color="#ff4655")
-                
-                st.caption("Ce graphique montre l'évolution de votre taux de victoire cumulé basé sur les derniers Scrims enregistrés.")
-            else:
-                st.info("Pas assez de données de matchs (Win/Loss) pour générer le graphique.")
+            # 5. Calcul du Winrate cumulé (Moyenne mobile)
+            history['Cumulative_Winrate'] = (history['Win_Int'].expanding().mean() * 100).round(1)
+            
+            # 6. Affichage du graphique
+            st.line_chart(history[['Cumulative_Winrate']], color="#ff4655")
+            st.caption("Progression du taux de victoire basée sur l'historique des Scrims.")
         else:
-            st.warning("La colonne 'Resultat' est manquante ou le fichier Planning est vide.")
+            st.info("Archive vide : Aucun match marqué 'Win' ou 'Loss' dans le planning.")
+    else:
+        st.error("Colonne 'Resultat' introuvable dans le fichier CSV.")
+else:
+    st.warning("Aucune donnée de match disponible pour générer le graphique.")
 
 # --- 3. MATCH ARCHIVE ---
 def show_archive():
@@ -724,3 +729,4 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
