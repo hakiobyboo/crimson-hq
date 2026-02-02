@@ -76,7 +76,7 @@ else:
         
         # Barre de Menu (Navigation)
         m_cols = st.columns([1, 1, 1, 1, 1, 1, 0.5])
-        pages = ["DASHBOARD","MATCH ARCHIVE", "TACTICAL POOL", "PLANNING", "STRATÉGIE"]
+       pages = ["DASHBOARD", "MAPS & COMPOS", "MATCH ARCHIVE", "TACTICAL POOL", "PLANNING"]
         
         for idx, p_name in enumerate(pages):
             if m_cols[idx].button(p_name, key=f"nav_{p_name}", use_container_width=True):
@@ -100,12 +100,14 @@ else:
             logic.show_archive()
         elif menu == "TACTICAL POOL":
             logic.show_tactical_pool()
+        elif menu == "STRATÉGIE & COMPOS":
+            logic.show_team_builder() 
         elif menu == "PLANNING":
-            # Appel de la nouvelle fonction planning
             logic.show_planning()
         elif menu == "STRATÉGIE":
             if st.session_state['selected_strat_map'] is None:
                 logic.show_map_selection()
+
 
 
 
