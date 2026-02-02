@@ -73,9 +73,8 @@ def show_dashboard():
 
  # --- SECTION ROSTER AVEC EFFET GLOW ET INTERFACE ÉLITE ---
     with col_left:
-        st.subheader("👥 ACTIVE ROSTER")
         st.markdown("<h3 style='font-family:Orbitron; color:#ff4655; letter-spacing:3px; margin-bottom:20px;'>👥 SQUAD OPERATIVES</h3>", unsafe_allow_html=True)
-        
+
         roster = [
             {"nom": "NEF", "role": "DUELIST", "img": "https://i.pinimg.com/736x/e2/79/d9/e279d990748c8a4d650f01eeb7daff82.jpg", "kd": "1.07", "hs": "26%", "url": "https://tracker.gg/valorant/profile/riot/Nef%23SPK/overview"},
             {"nom": "BOO ツ", "role": "IGL / SENTINEL", "img": "https://i.pinimg.com/736x/f4/30/16/f43016461f09a37ac9d721b043439873.jpg", "kd": "1.04", "hs": "35.4%", "url": "https://tracker.gg/valorant/profile/riot/Boo%20ツ%231tpas/overview"},
@@ -83,18 +82,11 @@ def show_dashboard():
             {"nom": "TURBOS", "role": "INITIATOR", "img": "https://i.pinimg.com/736x/e6/20/ea/e620ea25982410c837a6af5424d08c16.jpg", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/turboS%23SPEED/overview"},
             {"nom": "N2", "role": "CONTROLEUR", "img": "https://i.pinimg.com/736x/f7/7d/b5/f77db5e6c5948aec49c1dfe5a8c37885.jpg", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/ego%20peeker%23N2N2/overview"}
         ]
-        
+
         r_cols = st.columns(2)
         for i, p in enumerate(roster):
             with r_cols[i % 2]:
                 st.markdown(f"""
-                    <div class="player-card-dash">
-                        <img src="{p['img']}" class="img-profile">
-                        <div style="font-size:1.2em; font-weight:bold; color:white; margin:10px 0;">{p['nom']}</div>
-                        <div style="color:#bd93f9; font-size:0.8em; margin-bottom:10px;">{p['role']}</div>
-                        <div style="display:flex; justify-content:space-around; background:rgba(255,255,255,0.05); padding:5px; border-radius:5px;">
-                            <div><small>K/D</small><br><b>{p['kd']}</b></div>
-                            <div><small>HS%</small><br><b>{p['hs']}</b></div>
                     <style>
                     .agent-card {{
                         background: rgba(15, 25, 35, 0.7);
@@ -154,7 +146,6 @@ def show_dashboard():
                             <div class="stat-item"><small style="color:#888;">K/D</small><br><b>{p['kd']}</b></div>
                             <div class="stat-item"><small style="color:#888;">HS%</small><br><b>{p['hs']}</b></div>
                         </div>
-                        <a href="{p['url']}" target="_blank" class="tracker-link" style="margin-top:10px;">VIEW TRACKER</a>
                         <br>
                         <a href="{p['url']}" target="_blank" style="text-decoration:none;">
                             <div style="background:#ff4655; color:white; padding:8px; border-radius:3px; font-size:0.8rem; font-family:Orbitron; font-weight:bold;">
@@ -164,7 +155,6 @@ def show_dashboard():
                     </div>
                 """, unsafe_allow_html=True)
 
-                
     with col_right:
         st.subheader("🚨 SYSTEM ALERTS")
         if not df_planning.empty:
@@ -175,6 +165,30 @@ def show_dashboard():
 
         st.markdown("### 📊 PERFORMANCE")
         st.line_chart(pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance']))
+     # --- SECTION PERFORMANCE DYNAMIQUE ---
+        st.markdown("### 📊 ÉVOLUTION DU WINRATE")
+        
+        if not df_planning.empty and 'Resultat' in df_planning.columns:
+            # On récupère les matchs terminés dans l'ordre chronologique
+            history = df_planning[df_planning['Resultat'].isin(['Win', 'Loss'])].copy()
+            
+            if not history.empty:
+                # Calcul du Winrate cumulé (évolution match après match)
+                history['Win_Int'] = history['Resultat'].apply(lambda x: 1 if x == 'Win' else 0)
+                history['Cumulative_Winrate'] = (history['Win_Int'].expanding().mean() * 100).round(1)
+                
+                # Création du graphique
+                chart_data = history[['Cumulative_Winrate']].reset_index(drop=True)
+                chart_data.columns = ['Winrate %']
+                
+                # Affichage du graphique avec le style Streamlit
+                st.line_chart(chart_data, color="#ff4655")
+                
+                st.caption("Ce graphique montre l'évolution de votre taux de victoire cumulé basé sur les derniers Scrims enregistrés.")
+            else:
+                st.info("Pas assez de données de matchs (Win/Loss) pour générer le graphique.")
+        else:
+            st.warning("La colonne 'Resultat' est manquante ou le fichier Planning est vide.")
 
 # --- 3. MATCH ARCHIVE ---
 def show_archive():
