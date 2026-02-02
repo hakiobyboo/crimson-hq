@@ -559,8 +559,6 @@ def show_strategy_map(current_map):
                                 st.rerun()
 
 def show_team_builder():
-    st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON TACTICAL BUILDER</h1>", unsafe_allow_html=True)
-
     # --- TES DONNÉES D'IMAGES ---
     map_images = {
         "Abyss": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/53698d442a14b5a6be643d53eb970ac16442cb38-930x522.png",
@@ -605,16 +603,24 @@ def show_team_builder():
         "Yoru": "https://images.wallpapersden.com/image/wxl-yoru-fan-art-valorant_83634.jpg"
     }
 
+    st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON TEAM BUILDER</h1>", unsafe_allow_html=True)
+
     # --- SÉLECTION DE LA MAP ---
     map_list = list(map_images.keys())
-    selected_map = st.selectbox("📍 CHOISIR UNE ZONE D'OPÉRATION", map_list)
+    
+    # On utilise l'index pour éviter le rafraîchissement inutile
+    if 'selected_map_name' not in st.session_state:
+        st.session_state['selected_map_name'] = map_list[0]
 
-    # Affichage de l'image de la map sélectionnée
-    st.image(map_images[selected_map], use_container_width=True)
+    selected_map = st.selectbox("📍 CHOISIR UNE ZONE D'OPÉRATION", map_list, index=map_list.index(st.session_state['selected_map_name']))
+    st.session_state['selected_map_name'] = selected_map
 
+    # --- AFFICHAGE DE LA MAP (Plus petite + Glow) ---
     st.markdown(f"""
-        <div style="background: rgba(255,70,85,0.1); padding: 15px; border-radius: 10px; border: 1px solid #ff4655; text-align: center; margin: 20px 0;">
-            <h2 style="margin:0; color:white; letter-spacing: 2px;">COMPOSITION {selected_map.upper()}</h2>
+        <div style="text-align: center; margin-bottom: 20px;">
+            <img src="{map_images[selected_map]}" 
+                 style="width: 70%; height: 250px; object-fit: cover; border-radius: 15px; 
+                        border: 2px solid #ff4655; box-shadow: 0 0 20px rgba(255, 70, 85, 0.6);">
         </div>
     """, unsafe_allow_html=True)
 
@@ -633,22 +639,31 @@ def show_team_builder():
             st.markdown(f'<div style="text-align:center; background:#ff4655; color:white; font-size:0.7em; font-weight:bold; border-radius:5px 5px 0 0; padding:5px;">{role}</div>', unsafe_allow_html=True)
             
             current_agent = st.session_state['compo_save'][selected_map][role]
-            # On récupère l'URL dans notre dictionnaire
-            img_url = agent_images.get(current_agent, "https://via.placeholder.com/150")
+            img_url = agent_images.get(current_agent, "")
             
+            # --- AGENT AVEC GLOW ---
             st.markdown(f"""
-                <div style="background: rgba(15,25,35,0.8); border: 1px solid #444; padding: 5px; text-align: center;">
-                    <img src="{img_url}" style="width:100%; height:120px; object-fit:cover; border-radius:3px;">
+                <div style="background: rgba(15,25,35,0.8); border: 1px solid #444; padding: 5px; text-align: center; border-radius: 0 0 5px 5px;">
+                    <img src="{img_url}" style="width:100%; height:130px; object-fit:cover; border-radius:3px; 
+                         box-shadow: 0 0 10px rgba(255, 70, 85, 0.4); border: 1px solid rgba(255, 70, 85, 0.3);">
                 </div>
             """, unsafe_allow_html=True)
 
-            new_selection = st.selectbox(f"Select", all_agents, key=f"comp_{selected_map}_{role}", label_visibility="collapsed", index=all_agents.index(current_agent))
-            st.session_state['compo_save'][selected_map][role] = new_selection
+            # Sélecteur avec callback pour éviter le double clic
+            def update_agent(r=role, m=selected_map):
+                st.session_state['compo_save'][m][r] = st.session_state[f"sel_{m}_{r}"]
+
+            st.selectbox(f"Select", all_agents, 
+                         key=f"sel_{selected_map}_{role}", 
+                         label_visibility="collapsed", 
+                         index=all_agents.index(current_agent),
+                         on_change=update_agent)
 
     st.markdown("---")
-    if st.button("💾 ENREGISTRER LA CONFIGURATION", use_container_width=True):
-        st.success("Configuration Crimson enregistrée avec succès !")
+    st.subheader("📝 Tactical Notes")
+    st.text_area("Stratégie spécifique pour cette map...", height=100, key=f"note_{selected_map}")
                             
+
 
 
 
