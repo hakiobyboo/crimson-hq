@@ -91,17 +91,17 @@ else:
         
         st.divider()
         
-        # --- ROUTAGE VERS LES PAGES ---
+# --- ROUTAGE VERS LES PAGES ---
         menu = st.session_state["current_page"]
         
         if menu == "DASHBOARD":
             logic.show_dashboard()
+        elif menu == "MAPS & COMPOS":
+            logic.show_team_builder()  # Appelle la nouvelle interface avec les agents
         elif menu == "MATCH ARCHIVE":
             logic.show_archive()
         elif menu == "TACTICAL POOL":
             logic.show_tactical_pool()
-        elif menu == "STRATÉGIE & COMPOS":
-            logic.show_team_builder() 
         elif menu == "PLANNING":
             logic.show_planning()
         elif menu == "STRATÉGIE":
