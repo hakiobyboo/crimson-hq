@@ -74,8 +74,6 @@ else:
     else:
         st.markdown("<h1 class='valo-title'>CRIMSON HQ</h1>", unsafe_allow_html=True)
         
-       else:
-           
         # Barre de Menu (Navigation)
         m_cols = st.columns([1, 1, 1, 1, 1, 1, 0.5])
         pages = ["DASHBOARD", "MAPS & COMPOS", "MATCH ARCHIVE", "TACTICAL POOL", "PLANNING", "STRATÉGIE"]
@@ -103,6 +101,7 @@ else:
         elif menu == "STRATÉGIE":
             if st.session_state['selected_strat_map'] is None:
                 logic.show_map_selection()
+
 
 
 
