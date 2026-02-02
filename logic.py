@@ -28,7 +28,7 @@ def save_strat(map_name, title, link, desc):
 
 # --- 2. PAGE DASHBOARD ---
 def show_dashboard():
-    # Calculs dynamiques
+    # 1. CALCULS DYNAMIQUES (Tes données réelles)
     planning_data = load_data(PLANNING_DB)
     df_planning = pd.DataFrame(planning_data)
 
@@ -42,55 +42,35 @@ def show_dashboard():
             wins = len(finished_matches[finished_matches['Resultat'] == 'Win'])
             win_rate_display = f"{(wins / total_finished) * 100:.0f}%"
 
-    # STYLE CSS (Animations, Glow, Hover)
-    st.markdown("""
-        <style>
-        .stat-box {
-            background: linear-gradient(135deg, rgba(255,70,85,0.1) 0%, rgba(15,25,35,0.8) 100%);
-            border-left: 4px solid #ff4655;
-            padding: 15px; border-radius: 5px; text-align: center; margin-bottom: 20px;
-        }
-        .stat-val { font-family: monospace; font-size: 1.8em; color: #00ff00; text-shadow: 0 0 10px rgba(0,255,0,0.5); }
-        .player-card-dash {
-            background: rgba(15, 25, 35, 0.9);
-            border: 2px solid rgba(189, 147, 249, 0.2);
-            border-radius: 20px; padding: 20px; text-align: center; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 0 15px rgba(0,0,0,0.5); margin-bottom: 15px;
-        }
-        .player-card-dash:hover {
-            border-color: #bd93f9;
-            box-shadow: 0 0 30px rgba(189, 147, 249, 0.5);
-            transform: translateY(-10px);
-        }
-        .img-profile {
-            width: 100px; height: 100px; border-radius: 50%;
-            border: 3px solid #bd93f9; object-fit: cover;
-            transition: 0.4s;
-        }
-        .player-card-dash:hover .img-profile { transform: scale(1.1); }
-        .tracker-link {
-            display: block; background: #ff4655; color: white !important;
-            padding: 8px; border-radius: 5px; text-decoration: none !important; font-size: 0.8em;
-        }
-        .alert-card {
-            background: rgba(255,255,255,0.03); padding: 15px; 
-            border-radius: 10px; border-left: 5px solid #ff4655; margin-bottom: 10px;
-        }
-        </style>
-    """, unsafe_allow_html=True)
+    # 2. TITRE DE LA PAGE
+    st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:Orbitron; letter-spacing:5px;'>COMMAND CENTER</h1>", unsafe_allow_html=True)
 
-    st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON COMMAND CENTER</h1>", unsafe_allow_html=True)
+    # 3. NOUVELLES CARTES DE STATS ULTRA-ATTRACTIVES
+    col1, col2, col3, col4 = st.columns(4)
+    
+    # On injecte ici tes variables dynamiques (total_finished et win_rate_display)
+    stats_config = [
+        {"label": "SCRIMS", "val": str(total_finished), "color": "#ff4655", "ico": "⚔️"},
+        {"label": "WINRATE", "val": win_rate_display, "color": "#00ff7f", "ico": "📈"},
+        {"label": "TEAM K/D", "val": "1.24", "color": "#00bfff", "ico": "🎯"},
+        {"label": "CLUTCH %", "val": "62%", "color": "#ffffff", "ico": "👤"}
+    ]
 
-    # Ligne des Stats
-    s1, s2, s3, s4 = st.columns(4)
-    s1.markdown(f'<div class="stat-box"><div class="stat-val">{win_rate_display}</div><div>Win Rate</div></div>', unsafe_allow_html=True)
-    s2.markdown('<div class="stat-box"><div class="stat-val">1.24</div><div>K/D Team</div></div>', unsafe_allow_html=True)
-    s3.markdown(f'<div class="stat-box"><div class="stat-val">{total_finished}</div><div>Scrims</div></div>', unsafe_allow_html=True)
-    s4.markdown('<div class="stat-box"><div class="stat-val">62%</div><div>Clutch</div></div>', unsafe_allow_html=True)
+    for i, col in enumerate([col1, col2, col3, col4]):
+        with col:
+            st.markdown(f"""
+                <div class="stat-card">
+                    <div style="font-size: 20px; margin-bottom: 10px;">{stats_config[i]['ico']}</div>
+                    <div style="color: {stats_config[i]['color']}; font-size: 2.5rem; font-family: 'Orbitron'; font-weight: bold;">{stats_config[i]['val']}</div>
+                    <div style="color: #888; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 2px;">{stats_config[i]['label']}</div>
+                </div>
+            """, unsafe_allow_html=True)
 
-    # Roster & Alertes
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # 4. ROSTER & ALERTES (La suite de ton code existant)
     col_left, col_right = st.columns([1.2, 0.8])
+    
     with col_left:
         st.subheader("👥 ACTIVE ROSTER")
         roster = [
@@ -118,19 +98,11 @@ def show_dashboard():
 
     with col_right:
         st.subheader("🚨 SYSTEM ALERTS")
-        # Alerte Planning
         if not df_planning.empty:
             upcoming = df_planning[df_planning['Resultat'].isna() | (df_planning['Resultat'] == "")]
             if not upcoming.empty:
                 m = upcoming.iloc[0]
                 st.markdown(f'<div class="alert-card"><b style="color:#ff4655;">NEXT SCRIM:</b><br><small>{m.get("jour", "N/A")} vs {m.get("opp", "N/A")}</small></div>', unsafe_allow_html=True)
-
-        # Alerte Dispos
-        dispos_data = load_data(DISPOS_DB)
-        if dispos_data:
-            missing = [d['player'] for d in dispos_data if any(v == "NON RENSEIGNÉ" for k, v in d.items() if k != 'player')]
-            if missing:
-                st.markdown(f'<div class="alert-card" style="border-left-color:#bd93f9;"><b style="color:#bd93f9;">UNITÉS HORS-LIGNE:</b><br><small>{", ".join(missing)}</small></div>', unsafe_allow_html=True)
 
         st.markdown("### 📊 PERFORMANCE")
         st.line_chart(pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance']))
@@ -669,6 +641,7 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
 
 
 
