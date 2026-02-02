@@ -74,9 +74,10 @@ else:
     else:
         st.markdown("<h1 class='valo-title'>CRIMSON HQ</h1>", unsafe_allow_html=True)
         
+       else:
         # Barre de Menu (Navigation)
         m_cols = st.columns([1, 1, 1, 1, 1, 1, 0.5])
-       pages = ["DASHBOARD", "MAPS & COMPOS", "MATCH ARCHIVE", "TACTICAL POOL", "PLANNING", "STRATÉGIE"]
+        pages = ["DASHBOARD", "MAPS & COMPOS", "MATCH ARCHIVE", "TACTICAL POOL", "PLANNING", "STRATÉGIE"]
         
         for idx, p_name in enumerate(pages):
             if m_cols[idx].button(p_name, key=f"nav_{p_name}", use_container_width=True):
@@ -84,12 +85,6 @@ else:
                 st.session_state['selected_strat_map'] = None
                 st.session_state['strat_view_mode'] = "VALOPLANT"
                 st.rerun()
-        
-        if m_cols[6].button("✖", help="Log out"):
-            st.session_state["logged_in"] = False
-            st.rerun()
-        
-        st.divider()
         
 # --- ROUTAGE VERS LES PAGES ---
         menu = st.session_state["current_page"]
@@ -107,6 +102,7 @@ else:
         elif menu == "STRATÉGIE":
             if st.session_state['selected_strat_map'] is None:
                 logic.show_map_selection()
+
 
 
 
