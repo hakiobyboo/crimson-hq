@@ -19,8 +19,8 @@ except ImportError as e:
     st.error(f"Erreur d'importation : {e}. Vérifiez que styles.py et database.py sont présents.")
 
 # 3. INITIALISATION DU SYSTÈME
-init_folders()
-apply_global_styles()
+if 'scrims_df' not in st.session_state:
+    st.session_state['scrims_df'] = load_csv(SCRIMS_DB, ["Date", "Map", "Resultat", "Score", "Screenshot"])
 
 # Initialisation des variables de session pour éviter les crashs (KeyError)
 if "logged_in" not in st.session_state:
@@ -83,3 +83,4 @@ else:
         logic.show_planning()
     elif menu == "STRATÉGIE":
         logic.show_map_selection()
+
