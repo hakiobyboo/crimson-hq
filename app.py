@@ -1,10 +1,6 @@
 import streamlit as st
-from styles import apply_global_styles, apply_immersive_mode
-from database import init_folders, load_csv, SCRIMS_DB, AGENTS_DB
-import logic
 import pandas as pd
 import os
-
 # --- 1. CONFIGURATION DE LA PAGE ---
 st.set_page_config(
     page_title="CRIMSON PROTOCOL v2", 
@@ -104,6 +100,7 @@ else:
         elif menu == "STRATÉGIE":
             if st.session_state['selected_strat_map'] is None:
                 logic.show_map_selection()
+
 
 
 
