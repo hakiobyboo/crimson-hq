@@ -28,27 +28,19 @@ def save_strat(map_name, title, link, desc):
 
 # --- 2. PAGE DASHBOARD ---
 def show_dashboard():
-    
-    st.markdown("<h3 style='color:white; font-family:VALORANT; font-size:1em; letter-spacing:2px;'>OPERATIONAL STATUS</h3>", unsafe_allow_html=True)
-    
-    col1, col2, col3, col4 = st.columns(4)
-    stats = [
-        {"label": "SCRIMS JOUÉS", "val": "42", "color": "#ff4655"},
-        {"label": "WINRATE", "val": "68%", "color": "#00ff7f"},
-        {"label": "STRATS", "val": "12", "color": "#00bfff"},
-        {"label": "AGENTS", "val": "25", "color": "#ffffff"}
-    ]
+    # Calculs dynamiques
+    planning_data = load_data(PLANNING_DB)
+    df_planning = pd.DataFrame(planning_data)
 
-    for i, s in enumerate([col1, col2, col3, col4]):
-        with s:
-            st.markdown(f"""
-                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-left: 4px solid {stats[i]['color']}; border-radius: 0 5px 5px 0;">
-                    <p style="color: #888; font-size: 0.7em; margin: 0; font-weight: bold; letter-spacing: 1px;">{stats[i]['label']}</p>
-                    <h2 style="margin: 0; color: white; font-family: 'Orbitron', sans-serif;">{stats[i]['val']}</h2>
-                </div>
-            """, unsafe_allow_html=True)
+    win_rate_display = "0%"
+    total_finished = 0
 
-    st.markdown("---") # Séparateur stylé
+    if not df_planning.empty and 'Resultat' in df_planning.columns:
+        finished_matches = df_planning[df_planning['Resultat'].isin(['Win', 'Loss'])]
+        total_finished = len(finished_matches)
+        if total_finished > 0:
+            wins = len(finished_matches[finished_matches['Resultat'] == 'Win'])
+            win_rate_display = f"{(wins / total_finished) * 100:.0f}%"
 
     # STYLE CSS (Animations, Glow, Hover)
     st.markdown("""
@@ -105,6 +97,7 @@ def show_dashboard():
             {"nom": "NEF", "role": "DUELIST", "img": "https://i.pinimg.com/736x/e2/79/d9/e279d990748c8a4d650f01eeb7daff82.jpg", "kd": "1.07", "hs": "26%", "url": "https://tracker.gg/valorant/profile/riot/Nef%23SPK/overview"},
             {"nom": "BOO ツ", "role": "IGL / SENTINEL", "img": "https://i.pinimg.com/736x/f4/30/16/f43016461f09a37ac9d721b043439873.jpg", "kd": "1.04", "hs": "35.4%", "url": "https://tracker.gg/valorant/profile/riot/Boo%20ツ%231tpas/overview"},
             {"nom": "KURAIME", "role": "DUELIST", "img": "https://api.dicebear.com/7.x/avataaars/svg?seed=Kuraime", "kd": "0.99", "hs": "39.3%", "url": "https://tracker.gg/valorant/profile/riot/kuraime%23ezz/overview"},
+            {"nom": "TURBOS", "role": "INITIATOR", "img": "https://fr.pinterest.com/pin/686165693271693361/", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/turboS%23SPEED/overview"},
             {"nom": "TURBOS", "role": "INITIATOR", "img": "https://i.pinimg.com/736x/e6/20/ea/e620ea25982410c837a6af5424d08c16.jpg", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/turboS%23SPEED/overview"},
             {"nom": "N2", "role": "CONTROLEUR", "img": "https://i.pinimg.com/736x/f7/7d/b5/f77db5e6c5948aec49c1dfe5a8c37885.jpg", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/ego%20peeker%23N2N2/overview"}
         ]
@@ -132,14 +125,14 @@ def show_dashboard():
             if not upcoming.empty:
                 m = upcoming.iloc[0]
                 st.markdown(f'<div class="alert-card"><b style="color:#ff4655;">NEXT SCRIM:</b><br><small>{m.get("jour", "N/A")} vs {m.get("opp", "N/A")}</small></div>', unsafe_allow_html=True)
-        
+
         # Alerte Dispos
         dispos_data = load_data(DISPOS_DB)
         if dispos_data:
             missing = [d['player'] for d in dispos_data if any(v == "NON RENSEIGNÉ" for k, v in d.items() if k != 'player')]
             if missing:
                 st.markdown(f'<div class="alert-card" style="border-left-color:#bd93f9;"><b style="color:#bd93f9;">UNITÉS HORS-LIGNE:</b><br><small>{", ".join(missing)}</small></div>', unsafe_allow_html=True)
-        
+
         st.markdown("### 📊 PERFORMANCE")
         st.line_chart(pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance']))
 
@@ -189,7 +182,7 @@ def show_archive():
 # --- 4. TACTICAL POOL ---
 def show_tactical_pool():
     st.markdown("<h2 class='valo-title' style='text-align:center;'>AGENT POOL PAR RÔLE</h2>", unsafe_allow_html=True)
-    
+
     # 1. Sélection du joueur
     players_list = ["BOO ツ", "KURAIME", "TURBOS", "NEF"]
     p_sel = st.selectbox("UNIT ID", players_list)
@@ -270,18 +263,18 @@ def show_tactical_pool():
     for cat_name, agents in categories.items():
         st.markdown(f"### {cat_name}")
         cols = st.columns(4)
-        
+
         for i, (name, img_url) in enumerate(agents.items()):
             with cols[i % 4]:
                 key = f"{p_sel}_{name}"
-                
+
                 # Récupération sécurisée du niveau (0 à 3)
                 raw_val = st.session_state['agent_data'].get(key, 0)
                 try:
                     current_level = min(max(int(raw_val), 0), 3)
                 except:
                     current_level = 0
-                
+
                 options = ["⚪ JAMAIS", "🔴 À TESTER", "🟢 OK", "🟡 MAIN"]
                 classes = ["g-never", "g-test", "g-ok", "g-star"]
 
@@ -390,7 +383,7 @@ def show_planning():
                 with c3:
                     m_in = st.selectbox("MAP", ["ASCENT", "BIND", "HAVEN", "SPLIT", "ICEBOX", "BREEZE", "FRACTURE", "PEARL", "LOTUS", "SUNSET", "ABYSS", "TBD"])
                     m_type = st.selectbox("TYPE", ["SCRIM", "MATCH", "STRAT"])
-                
+
                 if st.form_submit_button("DÉPLOYER"):
                     st.session_state['planning_data'].append({
                         "jour": j_semaine, "date": d_in.strftime("%d/%m"), 
@@ -422,10 +415,10 @@ def show_planning():
     # --- ONGLET 2 : DISPOS SQUAD (MODIFIÉ AVEC COULEURS) ---
     with tab2:
         st.markdown("<h3 style='text-align:center;'>SQUAD WEEKLY AVAILABILITY</h3>", unsafe_allow_html=True)
-        
+
         players = ["BOO ツ", "KURAIME", "TURBOS", "NEF"]
         jours = ["LUNDI", "MARDI", "MERCREDI", "JEUDI", "VENDREDI", "SAMEDI", "DIMANCHE"]
-        
+
         if 'dispos_dict' not in st.session_state:
             saved_dispos = load_data(DISPOS_DB)
             if saved_dispos:
@@ -438,10 +431,10 @@ def show_planning():
         for i, p in enumerate(players):
             with cols[i % 2]:
                 st.markdown(f"""<div class="valo-card"><div class="player-header">{p}</div>""", unsafe_allow_html=True)
-                
+
                 for j in jours:
                     val = st.session_state['dispos_dict'][p][j]
-                    
+
                     # LOGIQUE DE COULEUR
                     if val == "NON RENSEIGNÉ":
                         status_class = "status-none"
@@ -454,9 +447,9 @@ def show_planning():
                             <span class="{status_class}">{val}</span>
                         </div>
                     """, unsafe_allow_html=True)
-                
+
                 st.markdown("</div>", unsafe_allow_html=True)
-                
+
                 with st.expander(f"Modifier {p}"):
                     day_to_mod = st.selectbox("Jour", jours, key=f"sel_{p}")
                     new_time = st.text_input("Heure", placeholder="Ex: 21h - 23h", key=f"text_{p}")
@@ -471,7 +464,7 @@ def show_planning():
             for p in players: st.session_state['dispos_dict'][p]['player'] = p
             save_data(list(st.session_state['dispos_dict'].values()), DISPOS_DB)
             st.rerun()
-            
+
 def show_map_selection():
     """Affiche la grille des maps"""
     st.markdown("<h2 class='valo-title' style='text-align:center;'>SÉLECTION DE LA ZONE D'OPÉRATION</h2>", unsafe_allow_html=True)
@@ -502,10 +495,10 @@ def show_map_selection():
 
 def show_strategy_map(current_map):
     """Vue avec navigation propre et Iframe plein écran"""
-    
+
     # Barre de navigation avec 2 colonnes pour les boutons
     nav_c1, nav_c2 = st.columns(2)
-    
+
     if st.session_state.get('strat_view_mode') == "VALOPLANT":
         # --- MODE VALOPLANT ---
         with nav_c1:
@@ -516,15 +509,15 @@ def show_strategy_map(current_map):
             if st.button("📂 VOIR LE DOSSIER", use_container_width=True):
                 st.session_state['strat_view_mode'] = "DOSSIER"
                 st.rerun()
-        
+
         # L'iframe Valoplant (la molette fonctionnera ici car le scroll global est bloqué par styles.py)
         st.components.v1.iframe("https://valoplant.gg", height=620, scrolling=True)
-    
+
     else:
         # --- MODE DOSSIER ---
         # On débloque le scroll pour voir les images du dossier
         st.markdown("<style>.main { overflow: auto !important; }</style>", unsafe_allow_html=True)
-        
+
         with nav_c1:
             if st.button("⬅ RETOUR MENU MAPS", use_container_width=True):
                 st.session_state['selected_strat_map'] = None
@@ -533,10 +526,10 @@ def show_strategy_map(current_map):
             if st.button("🌐 RETOUR VALOPLANT", use_container_width=True):
                 st.session_state['strat_view_mode'] = "VALOPLANT"
                 st.rerun()
-        
+
         st.divider()
         st.markdown(f"### 📁 DOSSIER TACTIQUE : {current_map.upper()}")
-        
+
         map_path = f"images_scrims/{current_map}"
         for side in ["Attaque", "Defense"]:
             if not os.path.exists(f"{map_path}/{side}"): 
@@ -640,7 +633,7 @@ def show_team_builder():
 
     if 'compo_save' not in st.session_state:
         st.session_state['compo_save'] = {}
-    
+
     # Sécurité pour éviter la KeyError si tu changes de map
     if current_map not in st.session_state['compo_save']:
         st.session_state['compo_save'][current_map] = {s: all_agent_names[0] for s in slots}
@@ -677,8 +670,3 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
-
-
-
-
-
