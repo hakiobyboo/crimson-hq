@@ -29,11 +29,22 @@ def save_strat(map_name, title, link, desc):
 # --- 2. PAGE DASHBOARD ---
 def show_dashboard():
     # 1. CALCULS DYNAMIQUES (Tes données réelles)
-    planning_data = load_data(PLANNING_DB)
-    df_planning = pd.DataFrame(planning_data)
+  planning_data = load_data(PLANNING_DB)
+    df_p = pd.DataFrame(planning_data)
+    
+    total_scrims = 0
+    winrate = "0%"
+    finished_matches = pd.DataFrame()
 
-    total_finished = 0
-    win_rate_display = "0%"
+    if not df_p.empty:
+        col_res = next((c for c in df_p.columns if "result" in c.lower()), None)
+        if col_res:
+            # Filtrage strict
+            finished_matches = df_p[df_p[col_res].astype(str).str.capitalize().isin(['Win', 'Loss'])].copy()
+            total_scrims = len(finished_matches)
+            if total_scrims > 0:
+                wins = len(finished_matches[finished_matches[col_res].astype(str).str.capitalize() == 'Win'])
+                winrate = f"{(wins / total_scrims) * 100:.0f}%"
 
     if not df_planning.empty:
         # On cherche la colonne résultat (souvent 'Resultat')
@@ -722,5 +733,6 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
 
 
