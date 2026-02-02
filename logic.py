@@ -559,7 +559,7 @@ def show_strategy_map(current_map):
                                 st.rerun()
 
 def show_team_builder():
-    # --- TES DONNÉES D'IMAGES ---
+    # --- DONNÉES DES IMAGES ---
     map_images = {
         "Abyss": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/53698d442a14b5a6be643d53eb970ac16442cb38-930x522.png",
         "Ascent": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/5cb7e65c04a489eccd725ce693fdc11e99982e10-3840x2160.png",
@@ -575,153 +575,102 @@ def show_team_builder():
         "Corrode": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/6e3e66577519c8290d874aa94d82e28aec2ccc3e-915x515.jpg"
     }
 
-    agent_images = {
-        "Chamber": "https://images.wallpapersden.com/image/wxl-chamber-valorant-hd-cool_91233.jpg",
-        "Cypher": "https://images.wallpapersden.com/image/wxl-cypher-background-valorant-art_82069.jpg",
-        "Deadlock": "https://images5.alphacoders.com/139/thumb-1920-1399745.jpg",
-        "Killjoy": "https://images8.alphacoders.com/114/thumb-1920-1149389.jpg",
-        "Sage": "https://i.pinimg.com/1200x/fa/8d/6b/fa8d6b6cec9210cc126a947681b3077c.jpg",
-        "Vyse": "https://images6.alphacoders.com/137/thumb-1920-1373943.png",
-        "Astra": "https://i.pinimg.com/736x/52/96/d9/5296d9245052e767cedac9b5e100dd90.jpg",
-        "Brimstone": "https://images.wallpapersden.com/image/wxl-brimstone-new-valorant-poster_72344.jpg",
-        "Clove": "https://images.wallpapersden.com/image/wxl-cool-clove-4k-valorant_92740.jpg",
-        "Harbor": "https://images8.alphacoders.com/128/thumb-1920-1282950.png",
-        "Omen": "https://images.wallpapersden.com/image/wxl-cool-omen-valorant-2023_89545.jpg",
-        "Viper": "https://images.wallpapersden.com/image/wxl-viper-4k-valorant-2020_73350.jpg",
-        "Breach": "https://images3.alphacoders.com/114/1149735.jpg",
-        "Fade": "https://images.wallpapersden.com/image/wxl-fade-valorant-gaming-character-digital-art_91742.jpg",
-        "Gekko": "https://i.pinimg.com/1200x/e8/ff/46/e8ff46efa78a7203b47f5976f72d31fb.jpg",
-        "KAY/O": "https://i.pinimg.com/1200x/ef/0f/b8/ef0fb88954b5176e3c05c4811a42604e.jpg",
-        "Skye": "https://images.wallpapersden.com/image/wxl-skye-art-cool-valorant_77564.jpg",
-        "Sova": "https://images.wallpapersden.com/image/wxl-sova-cool-art-valorant_81600.jpg",
-        "Iso": "https://images.wallpapersden.com/image/wxl-iso-valorant-x-overwatch-2-style_91783.jpg",
-        "Jett": "https://images.wallpapersden.com/image/wxl-hd-valorant-gaming-2022_85588.jpg",
-        "Neon": "https://images.wallpapersden.com/image/wxl-neon-hd-valorant-nightmare_84224.jpg",
-        "Phoenix": "https://images2.alphacoders.com/132/thumb-1920-1328732.png",
-        "Raze": "https://images.wallpapersden.com/image/wxl-raze-new-valorant_77567.jpg",
-        "Reyna": "https://i.pinimg.com/736x/c5/d1/4b/c5d14b3aa7f75ede4b527f7040556f84.jpg",
-        "Yoru": "https://images.wallpapersden.com/image/wxl-yoru-fan-art-valorant_83634.jpg"
+    # Dictionnaire inversé pour trouver le rôle d'un agent
+    agent_info = {
+        "Chamber": {"role": "SENTINEL", "img": "https://images.wallpapersden.com/image/wxl-chamber-valorant-hd-cool_91233.jpg"},
+        "Cypher": {"role": "SENTINEL", "img": "https://images.wallpapersden.com/image/wxl-cypher-background-valorant-art_82069.jpg"},
+        "Deadlock": {"role": "SENTINEL", "img": "https://images5.alphacoders.com/139/thumb-1920-1399745.jpg"},
+        "Killjoy": {"role": "SENTINEL", "img": "https://images8.alphacoders.com/114/thumb-1920-1149389.jpg"},
+        "Sage": {"role": "SENTINEL", "img": "https://i.pinimg.com/1200x/fa/8d/6b/fa8d6b6cec9210cc126a947681b3077c.jpg"},
+        "Vyse": {"role": "SENTINEL", "img": "https://images6.alphacoders.com/137/thumb-1920-1373943.png"},
+        "Astra": {"role": "CONTROLEUR", "img": "https://i.pinimg.com/736x/52/96/d9/5296d9245052e767cedac9b5e100dd90.jpg"},
+        "Brimstone": {"role": "CONTROLEUR", "img": "https://images.wallpapersden.com/image/wxl-brimstone-new-valorant-poster_72344.jpg"},
+        "Clove": {"role": "CONTROLEUR", "img": "https://images.wallpapersden.com/image/wxl-cool-clove-4k-valorant_92740.jpg"},
+        "Harbor": {"role": "CONTROLEUR", "img": "https://images8.alphacoders.com/128/thumb-1920-1282950.png"},
+        "Omen": {"role": "CONTROLEUR", "img": "https://images.wallpapersden.com/image/wxl-cool-omen-valorant-2023_89545.jpg"},
+        "Viper": {"role": "CONTROLEUR", "img": "https://images.wallpapersden.com/image/wxl-viper-4k-valorant-2020_73350.jpg"},
+        "Breach": {"role": "INITIATOR", "img": "https://images3.alphacoders.com/114/1149735.jpg"},
+        "Fade": {"role": "INITIATOR", "img": "https://images.wallpapersden.com/image/wxl-fade-valorant-gaming-character-digital-art_91742.jpg"},
+        "Gekko": {"role": "INITIATOR", "img": "https://i.pinimg.com/1200x/e8/ff/46/e8ff46efa78a7203b47f5976f72d31fb.jpg"},
+        "KAY/O": {"role": "INITIATOR", "img": "https://i.pinimg.com/1200x/ef/0f/b8/ef0fb88954b5176e3c05c4811a42604e.jpg"},
+        "Skye": {"role": "INITIATOR", "img": "https://images.wallpapersden.com/image/wxl-skye-art-cool-valorant_77564.jpg"},
+        "Sova": {"role": "INITIATOR", "img": "https://images.wallpapersden.com/image/wxl-sova-cool-art-valorant_81600.jpg"},
+        "Iso": {"role": "DUELIST", "img": "https://images.wallpapersden.com/image/wxl-iso-valorant-x-overwatch-2-style_91783.jpg"},
+        "Jett": {"role": "DUELIST", "img": "https://images.wallpapersden.com/image/wxl-hd-valorant-gaming-2022_85588.jpg"},
+        "Neon": {"role": "DUELIST", "img": "https://images.wallpapersden.com/image/wxl-neon-hd-valorant-nightmare_84224.jpg"},
+        "Phoenix": {"role": "DUELIST", "img": "https://images2.alphacoders.com/132/thumb-1920-1328732.png"},
+        "Raze": {"role": "DUELIST", "img": "https://images.wallpapersden.com/image/wxl-raze-new-valorant_77567.jpg"},
+        "Reyna": {"role": "DUELIST", "img": "https://i.pinimg.com/736x/c5/d1/4b/c5d14b3aa7f75ede4b527f7040556f84.jpg"},
+        "Yoru": {"role": "DUELIST", "img": "https://images.wallpapersden.com/image/wxl-yoru-fan-art-valorant_83634.jpg"}
     }
 
     st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:VALORANT;'>CRIMSON TEAM BUILDER</h1>", unsafe_allow_html=True)
 
-    # --- SÉLECTION DE LA MAP ---
+    # --- SÉLECTION DE LA MAP (Correction double clic) ---
     map_list = list(map_images.keys())
-    
-    # On utilise l'index pour éviter le rafraîchissement inutile
     if 'selected_map_name' not in st.session_state:
         st.session_state['selected_map_name'] = map_list[0]
 
-    selected_map = st.selectbox("📍 CHOISIR UNE ZONE D'OPÉRATION", map_list, index=map_list.index(st.session_state['selected_map_name']))
-    st.session_state['selected_map_name'] = selected_map
+    def update_map():
+        st.session_state['selected_map_name'] = st.session_state.map_selector
 
-    # --- AFFICHAGE DE LA MAP (Plus petite + Glow) ---
+    selected_map = st.selectbox("📍 ZONE D'OPÉRATION", map_list, 
+                                index=map_list.index(st.session_state['selected_map_name']),
+                                key="map_selector", on_change=update_map)
+
+    # Affichage Map avec Glow
     st.markdown(f"""
-        <div style="text-align: center; margin-bottom: 20px;">
+        <div style="text-align: center; margin-bottom: 25px;">
             <img src="{map_images[selected_map]}" 
-                 style="width: 70%; height: 250px; object-fit: cover; border-radius: 15px; 
-                        border: 2px solid #ff4655; box-shadow: 0 0 20px rgba(255, 70, 85, 0.6);">
+                 style="width: 75%; height: 260px; object-fit: cover; border-radius: 15px; 
+                        border: 2px solid #ff4655; box-shadow: 0 0 25px rgba(255, 70, 85, 0.6);">
         </div>
     """, unsafe_allow_html=True)
 
     # --- CONSTRUCTION DE LA COMPO ---
-    roles = ["DUELIST", "INITIATOR", "SENTINEL", "CONTROLEUR", "FLEX"]
-    all_agents = list(agent_images.keys())
+    slots = ["SLOT 1", "SLOT 2", "SLOT 3", "SLOT 4", "SLOT 5"]
+    all_agent_names = sorted(list(agent_info.keys()))
 
     if 'compo_save' not in st.session_state:
         st.session_state['compo_save'] = {}
     if selected_map not in st.session_state['compo_save']:
-        st.session_state['compo_save'][selected_map] = {role: all_agents[0] for role in roles}
+        st.session_state['compo_save'][selected_map] = {slot: all_agent_names[0] for slot in slots}
 
     cols = st.columns(5)
-    for i, role in enumerate(roles):
+    for i, slot in enumerate(slots):
         with cols[i]:
-            st.markdown(f'<div style="text-align:center; background:#ff4655; color:white; font-size:0.7em; font-weight:bold; border-radius:5px 5px 0 0; padding:5px;">{role}</div>', unsafe_allow_html=True)
+            current_agent = st.session_state['compo_save'][selected_map][slot]
             
-            current_agent = st.session_state['compo_save'][selected_map][role]
-            img_url = agent_images.get(current_agent, "")
+            # --- RÉCUPÉRATION DYNAMIQUE DU RÔLE ---
+            role_display = agent_info[current_agent]["role"]
+            img_url = agent_info[current_agent]["img"]
             
-            # --- AGENT AVEC GLOW ---
+            # En-tête dynamique (Sentinel, Duelist, etc.)
             st.markdown(f"""
-                <div style="background: rgba(15,25,35,0.8); border: 1px solid #444; padding: 5px; text-align: center; border-radius: 0 0 5px 5px;">
-                    <img src="{img_url}" style="width:100%; height:130px; object-fit:cover; border-radius:3px; 
-                         box-shadow: 0 0 10px rgba(255, 70, 85, 0.4); border: 1px solid rgba(255, 70, 85, 0.3);">
+                <div style="text-align:center; background:#ff4655; color:white; font-size:0.75em; 
+                            font-weight:bold; border-radius:5px 5px 0 0; padding:5px; text-transform: uppercase;">
+                    {role_display}
+                </div>
+            """, unsafe_allow_html=True)
+            
+            # Portrait avec Glow
+            st.markdown(f"""
+                <div style="background: rgba(15,25,35,0.9); border: 1px solid #444; padding: 5px; text-align: center;">
+                    <img src="{img_url}" style="width:100%; height:140px; object-fit:cover; border-radius:3px; 
+                         box-shadow: 0 0 15px rgba(255, 70, 85, 0.4); border: 1px solid rgba(255, 70, 85, 0.3);">
                 </div>
             """, unsafe_allow_html=True)
 
-            # Sélecteur avec callback pour éviter le double clic
-            def update_agent(r=role, m=selected_map):
-                st.session_state['compo_save'][m][r] = st.session_state[f"sel_{m}_{r}"]
+            # Callback pour l'agent (Correction double clic)
+            def update_agent_slot(s=slot, m=selected_map):
+                st.session_state['compo_save'][m][s] = st.session_state[f"sel_{m}_{s}"]
 
-            st.selectbox(f"Select", all_agents, 
-                         key=f"sel_{selected_map}_{role}", 
+            st.selectbox("Agent", all_agent_names, 
+                         key=f"sel_{selected_map}_{slot}", 
                          label_visibility="collapsed", 
-                         index=all_agents.index(current_agent),
-                         on_change=update_agent)
+                         index=all_agent_names.index(current_agent),
+                         on_change=update_agent_slot)
 
     st.markdown("---")
-    st.subheader("📝 Tactical Notes")
-    st.text_area("Stratégie spécifique pour cette map...", height=100, key=f"note_{selected_map}")
-                            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    if st.button("💾 SAUVEGARDER LA COMPO", use_container_width=True):
+        st.success(f"Composition pour {selected_map} enregistrée !")
