@@ -27,52 +27,42 @@ def save_strat(map_name, title, link, desc):
         df.to_csv(STRAT_DB, index=False)
 
 # --- 2. PAGE DASHBOARD ---
+# --- 2. PAGE DASHBOARD ---
 def show_dashboard():
-    # 1. CALCULS DYNAMIQUES (Tes données réelles)
-  planning_data = load_data(PLANNING_DB)
-    df_p = pd.DataFrame(planning_data)
+    # --- 1. CALCULS DYNAMIQUES (Source de données unique) ---
+    planning_data = load_data(PLANNING_DB)
+    df_planning = pd.DataFrame(planning_data)
     
-    total_scrims = 0
-    winrate = "0%"
+    total_finished = 0
+    win_rate_display = "0%"
     finished_matches = pd.DataFrame()
-
-    if not df_p.empty:
-        col_res = next((c for c in df_p.columns if "result" in c.lower()), None)
-        if col_res:
-            # Filtrage strict
-            finished_matches = df_p[df_p[col_res].astype(str).str.capitalize().isin(['Win', 'Loss'])].copy()
-            total_scrims = len(finished_matches)
-            if total_scrims > 0:
-                wins = len(finished_matches[finished_matches[col_res].astype(str).str.capitalize() == 'Win'])
-                winrate = f"{(wins / total_scrims) * 100:.0f}%"
+    col_res = None
 
     if not df_planning.empty:
-        # On cherche la colonne résultat (souvent 'Resultat')
+        # Détection automatique de la colonne résultat (insensible à la casse/accents)
         col_res = next((c for c in df_planning.columns if "result" in c.lower()), None)
         
         if col_res:
-            # On ne garde que les matchs avec Win ou Loss
-            finished_matches = df_planning[df_planning[col_res].str.capitalize().isin(['Win', 'Loss'])].copy()
+            # Filtrage des matchs terminés (Win ou Loss uniquement)
+            mask = df_planning[col_res].astype(str).str.capitalize().isin(['Win', 'Loss'])
+            finished_matches = df_planning[mask].copy()
             total_finished = len(finished_matches)
             
             if total_finished > 0:
-                wins = len(finished_matches[finished_matches[col_res].str.capitalize() == 'Win'])
+                wins = len(finished_matches[finished_matches[col_res].astype(str).str.capitalize() == 'Win'])
                 win_rate_display = f"{(wins / total_finished) * 100:.0f}%"
-                
-    # 2. TITRE DE LA PAGE
+
+    # --- 2. TITRE DE LA PAGE ---
     st.markdown("<h1 style='text-align:center; color:#ff4655; font-family:Orbitron; letter-spacing:5px;'>COMMAND CENTER</h1>", unsafe_allow_html=True)
 
-    # 3. NOUVELLES CARTES DE STATS ULTRA-ATTRACTIVES
+    # --- 3. CARTES DE STATS ---
     col1, col2, col3, col4 = st.columns(4)
-
-    # On injecte ici tes variables dynamiques (total_finished et win_rate_display)
-   col1, col2, col3, col4 = st.columns(4)
     stats_config = [
         {"label": "SCRIMS", "val": str(total_finished), "color": "#ff4655", "ico": "⚔️"},
         {"label": "WINRATE", "val": win_rate_display, "color": "#00ff7f", "ico": "📈"},
         {"label": "TEAM K/D", "val": "1.24", "color": "#00bfff", "ico": "🎯"},
         {"label": "CLUTCH %", "val": "62%", "color": "#ffffff", "ico": "👤"}
-        ]
+    ]
         
     for i, col in enumerate([col1, col2, col3, col4]):
         with col:
@@ -86,10 +76,9 @@ def show_dashboard():
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # 4. ROSTER & ALERTES (La suite de ton code existant)
+    # --- 4. ROSTER & ALERTES ---
     col_left, col_right = st.columns([1.2, 0.8])
 
- # --- SECTION ROSTER AVEC EFFET GLOW ET INTERFACE ÉLITE ---
     with col_left:
         st.markdown("<h3 style='font-family:Orbitron; color:#ff4655; letter-spacing:3px; margin-bottom:20px;'>👥 SQUAD OPERATIVES</h3>", unsafe_allow_html=True)
 
@@ -101,6 +90,7 @@ def show_dashboard():
             {"nom": "N2", "role": "CONTROLEUR", "img": "https://i.pinimg.com/736x/f7/7d/b5/f77db5e6c5948aec49c1dfe5a8c37885.jpg", "kd": "0.99", "hs": "23.4%", "url": "https://tracker.gg/valorant/profile/riot/ego%20peeker%23N2N2/overview"}
         ]
 
+      # --- SECTION ROSTER AVEC EFFET GLOW ET INTERFACE ÉLITE ---
         r_cols = st.columns(2)
         for i, p in enumerate(roster):
             with r_cols[i % 2]:
@@ -172,32 +162,39 @@ def show_dashboard():
                         </a>
                     </div>
                 """, unsafe_allow_html=True)
+                
 
     with col_right:
         st.subheader("🚨 SYSTEM ALERTS")
-        if not df_planning.empty:
-            upcoming = df_planning[df_planning['Resultat'].isna() | (df_planning['Resultat'] == "")]
+        if not df_planning.empty and col_res:
+            # Prochain match = ligne où le résultat est vide
+            upcoming = df_planning[df_planning[col_res].isna() | (df_planning[col_res] == "")]
             if not upcoming.empty:
                 m = upcoming.iloc[0]
-                st.markdown(f'<div class="alert-card"><b style="color:#ff4655;">NEXT SCRIM:</b><br><small>{m.get("jour", "N/A")} vs {m.get("opp", "N/A")}</small></div>', unsafe_allow_html=True)
+                st.markdown(f"""
+                    <div class="alert-card">
+                        <b style="color:#ff4655;">NEXT SCRIM:</b><br>
+                        <small>{m.get("jour", "Aujourd'hui")} vs {m.get("opp", "TBD")}</small>
+                    </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.info("Aucun match à venir programmé.")
 
-# --- 4. SECTION PERFORMANCE (GRAPHIQUE FUSIONNÉ) ---
+    # --- 5. SECTION PERFORMANCE (GRAPHIQUE) ---
     st.divider()
     st.markdown("### 📊 ÉVOLUTION DU WINRATE")
     
     if total_finished > 0:
-        # Conversion Win=1 / Loss=0
+        # Conversion Win=1 / Loss=0 pour calcul mathématique
         finished_matches['Win_Int'] = finished_matches[col_res].astype(str).str.capitalize().apply(lambda x: 1 if x == 'Win' else 0)
         
-        # Calcul du Winrate cumulé (expanding mean)
-        # On reset l'index pour avoir une courbe propre sur l'axe X (Match 1, 2, 3...)
+        # Calcul du Winrate cumulé (Moyenne progressive)
         history = (finished_matches['Win_Int'].expanding().mean() * 100).round(1).reset_index(drop=True)
         
-        # Affichage du graphique
         st.line_chart(history, color="#ff4655")
-        st.caption(f"Analyse basée sur les {total_finished} derniers matchs terminés.")
+        st.caption(f"Progression basée sur les {total_finished} derniers scrims terminés.")
     else:
-        st.info("Aucun match 'Win' ou 'Loss' détecté. Complétez le Planning pour générer le graphique.")
+        st.info("Archive vide : Marquez des matchs comme 'Win' ou 'Loss' dans le Planning pour voir le graphique.")
         
 # --- 3. MATCH ARCHIVE ---
 def show_archive():
@@ -733,6 +730,7 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
 
 
 
