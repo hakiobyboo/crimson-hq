@@ -19,12 +19,11 @@ import logic
 # 2. IMPORTS DES MODULES
 try:
     from styles import apply_global_styles, apply_immersive_mode
-    from database import init_folders, load_csv, SCRIMS_DB, AGENTS_DB, PLANNING_DB
+   from database import init_folders, load_csv, SCRIMS_DB, AGENTS_DB, PLANNING_DB
     import logic
 except ImportError as e:
     st.error(f"Erreur d'importation : {e}. Vérifiez que styles.py et database.py sont présents.")
 
-# 3. INITIALISATION
 # 3. INITIALISATION DU SYSTÈME
 init_folders()
 apply_global_styles()
@@ -44,6 +43,9 @@ if 'compo_save' not in st.session_state:
 
 if 'selected_strat_map' not in st.session_state:
     st.session_state['selected_strat_map'] = None
+
+if 'scrims_df' not in st.session_state:
+    st.session_state['scrims_df'] = load_csv(SCRIMS_DB, ["Date", "Map", "Resultat", "Score"])
 
 # Chargement automatique des données pour le graphique de Winrate
 if 'planning_df' not in st.session_state:
@@ -96,3 +98,4 @@ else:
         logic.show_planning()
     elif menu == "STRATÉGIE":
         logic.show_map_selection()
+
