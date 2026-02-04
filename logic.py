@@ -582,13 +582,14 @@ def show_map_selection():
                 st.rerun()
 
 def show_strategy_map(current_map):
-    """Vue avec navigation propre et Iframe plein écran"""
+    """Vue avec navigation propre et stockage Cloud via Google Sheets"""
+    from database import load_data, save_data # Import des fonctions Cloud
+    import pandas as pd
 
-    # Barre de navigation avec 2 colonnes pour les boutons
+    # Barre de navigation
     nav_c1, nav_c2 = st.columns(2)
 
     if st.session_state.get('strat_view_mode') == "VALOPLANT":
-        # --- MODE VALOPLANT ---
         with nav_c1:
             if st.button("⬅ QUITTER (MENU MAPS)", use_container_width=True):
                 st.session_state['selected_strat_map'] = None
@@ -598,12 +599,10 @@ def show_strategy_map(current_map):
                 st.session_state['strat_view_mode'] = "DOSSIER"
                 st.rerun()
 
-        # L'iframe Valoplant (la molette fonctionnera ici car le scroll global est bloqué par styles.py)
         st.components.v1.iframe("https://valoplant.gg", height=620, scrolling=True)
 
     else:
-        # --- MODE DOSSIER ---
-        # On débloque le scroll pour voir les images du dossier
+        # --- MODE DOSSIER (CLOUD) ---
         st.markdown("<style>.main { overflow: auto !important; }</style>", unsafe_allow_html=True)
 
         with nav_c1:
@@ -616,36 +615,61 @@ def show_strategy_map(current_map):
                 st.rerun()
 
         st.divider()
-        st.markdown(f"### 📁 DOSSIER TACTIQUE : {current_map.upper()}")
+        st.markdown(f"### 📁 DOSSIER TACTIQUE CLOUD : {current_map.upper()}")
 
-        map_path = f"images_scrims/{current_map}"
-        for side in ["Attaque", "Defense"]:
-            if not os.path.exists(f"{map_path}/{side}"): 
-                os.makedirs(f"{map_path}/{side}")
+        # 1. Charger les strats depuis Google Sheets
+        df_all_strats = load_data("strats") # Charge l'onglet 'strats'
 
-        with st.expander("📤 AJOUTER UNE STRATÉGIE"):
+        # 2. Formulaire d'ajout via URL (pour stockage permanent)
+        with st.expander("📤 AJOUTER UNE STRATÉGIE (LIEN PERMANENT)"):
             c1, c2, c3 = st.columns([2, 1, 1])
-            up_f = c1.file_uploader("Image", type=['png', 'jpg'])
-            up_n = c2.text_input("Nom")
+            up_url = c1.text_input("Lien de l'image (Discord, Imgur, etc.)")
+            up_n = c2.text_input("Nom de la strat")
             up_s = c3.selectbox("Côté", ["Attaque", "Defense"])
-            if st.button("💾 ENREGISTRER"):
-                if up_f and up_n:
-                    Image.open(up_f).save(f"{map_path}/{up_s}/{up_n}.png")
-                    st.rerun()
+            
+            if st.button("💾 ENREGISTRER DANS LE CLOUD"):
+                if up_url and up_n:
+                    # Création de la nouvelle ligne
+                    new_strat = pd.DataFrame([{
+                        "map": current_map,
+                        "nom": up_n,
+                        "url": up_url,
+                        "cote": up_s
+                    }])
+                    # Mise à jour du DataFrame global
+                    updated_df = pd.concat([df_all_strats, new_strat], ignore_index=True)
+                    # Sauvegarde sur Google Sheets
+                    if save_data(updated_df, "strats"):
+                        st.success("Stratégie enregistrée définitivement !")
+                        st.rerun()
 
+        # 3. Affichage par Tabs (Filtrage des données Cloud)
         t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
+        
         for tab, side in zip([t1, t2], ["Attaque", "Defense"]):
             with tab:
-                path = f"{map_path}/{side}"
-                files = [f for f in os.listdir(path) if f.endswith(('.png', '.jpg'))]
-                if files:
-                    cols = st.columns(3)
-                    for idx, f in enumerate(files):
-                        with cols[idx % 3]:
-                            st.image(f"{path}/{f}", use_container_width=True, caption=f.replace(".png", ""))
-                            if st.button("🗑️", key=f"del_{side}_{idx}"):
-                                os.remove(f"{path}/{f}")
-                                st.rerun()
+                if not df_all_strats.empty:
+                    # On filtre pour la Map actuelle et le bon côté
+                    mask = (df_all_strats['map'] == current_map) & (df_all_strats['cote'] == side)
+                    current_strats = df_all_strats[mask]
+
+                    if not current_strats.empty:
+                        cols = st.columns(3)
+                        for idx, (original_idx, row) in enumerate(current_strats.iterrows()):
+                            with cols[idx % 3]:
+                                st.image(row['url'], use_container_width=True, caption=row['nom'])
+                                
+                                # Bouton de suppression Cloud
+                                if st.button("🗑️", key=f"del_{current_map}_{side}_{idx}"):
+                                    # Supprime la ligne dans le DataFrame global via son index d'origine
+                                    df_all_strats = df_all_strats.drop(original_idx)
+                                    save_data(df_all_strats, "strats")
+                                    st.rerun()
+                    else:
+                        st.info(f"Aucune stratégie en {side} pour {current_map}.")
+                else:
+                    st.info("Le dossier tactique est vide.")
+                    
 
 def show_team_builder():
     # --- IMAGES DES MAPS ---
@@ -758,4 +782,5 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
 
