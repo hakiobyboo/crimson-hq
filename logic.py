@@ -165,59 +165,37 @@ def show_dashboard():
 
         st.markdown("### 📊 PERFORMANCE")
         
-   # 1. Récupération des données depuis le session_state
+# --- 1. RÉCUPÉRATION DES DONNÉES ---
     df_scrims = st.session_state.get('scrims_df', pd.DataFrame())
+    
+    # On initialise des valeurs par défaut pour éviter les erreurs plus bas
+    win_rate_display = "0%"
+    total_finished = 0
+    history = pd.DataFrame()
 
     if not df_scrims.empty:
-        # On cherche la colonne qui contient le résultat (ex: 'Resultat')
-        col_res = next((c for c in df_scrims.columns if "result" in c.lower()), None)
+        # On cherche la colonne résultat sans se soucier de la casse (Resultat, resultat, result...)
+        col_res = next((c for c in df_scrims.columns if "res" in c.lower()), None)
         
         if col_res:
-            # On ne garde que les lignes avec WIN ou LOSS
-            mask_finished = df_scrims[col_res].astype(str).str.upper().str.contains("WIN|LOSS", na=False)
-            history = df_scrims[mask_finished].copy()
+            # On filtre uniquement les lignes qui contiennent 'WIN' ou 'LOSS'
+            mask = df_scrims[col_res].astype(str).str.upper().str.contains("WIN|LOSS", na=False)
+            history = df_scrims[mask].copy()
             
             if not history.empty:
-                # Calcul des stats pour les cartes du haut
-                total_finished = len(history)
+                # Calcul du taux de victoire global
                 wins = len(history[history[col_res].astype(str).str.upper().str.contains("WIN")])
+                total_finished = len(history)
                 win_rate_display = f"{(wins / total_finished) * 100:.0f}%"
 
-                # Préparation du graphique (Conversion Win=1 / Loss=0)
-                # On inverse l'ordre (iloc[::-1]) pour avoir le plus ancien à gauche et le plus récent à droite
-                history_chrono = history.iloc[::-1].copy()
-                history_chrono['Win_Int'] = history_chrono[col_res].astype(str).str.upper().apply(lambda x: 1 if "WIN" in x else 0)
-                history_chrono['Winrate_Progressive'] = (history_chrono['Win_Int'].expanding().mean() * 100).round(1)
+                # Préparation du graphique (on inverse pour l'ordre chrono)
+                history_plot = history.iloc[::-1].copy()
+                history_plot['Win_Int'] = history_plot[col_res].astype(str).str.upper().apply(lambda x: 1 if "WIN" in x else 0)
+                history_plot['Progression'] = (history_plot['Win_Int'].expanding().mean() * 100).round(1)
 
                 # Affichage du graphique
-                st.markdown("### 📊 PROGRESSION PERFORMANCE")
-                chart_data = history_chrono[['Winrate_Progressive']].reset_index(drop=True)
-                chart_data.columns = ['Winrate %']
-                st.line_chart(chart_data, color="#ff4655")
-                st.caption("Évolution de votre taux de victoire cumulé basé sur les derniers Scrims.")
-            else:
-                win_rate_display = "0%"
-                st.info("Aucun match marqué 'WIN' ou 'LOSS' pour le moment.")
-        else:
-            win_rate_display = "N/A"
-            st.error("Colonne 'Resultat' introuvable dans la base de données.")
-    else:
-        win_rate_display = "0%"
-        st.warning("Aucune donnée de match disponible.")
-                
-            # 5. Calcul du Winrate cumulé (Moyenne mobile)
-            history['Cumulative_Winrate'] = (history['Win_Int'].expanding().mean() * 100).round(1)
-            
-            # 6. Affichage du graphique
-            st.line_chart(history[['Cumulative_Winrate']], color="#ff4655")
-            st.caption("Progression du taux de victoire basée sur l'historique des Scrims.")
-        else:
-            st.warning("La colonne 'Resultat' est manquante ou le fichier Planning est vide.")
-            st.info("Archive vide : Aucun match marqué 'Win' ou 'Loss' dans le planning.")
-    else:
-        st.error("Colonne 'Resultat' introuvable dans le fichier CSV.")
-else:
-    st.warning("Aucune donnée de match disponible pour générer le graphique.")
+                st.markdown("### 📈 PERFORMANCE TREND")
+                st.line_chart(history_plot['Progression'], color="#ff4655")
 
 # --- 3. MATCH ARCHIVE ---
 def show_archive():
@@ -760,6 +738,7 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
 
 
 
