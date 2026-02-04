@@ -164,58 +164,47 @@ def show_dashboard():
                 st.markdown(f'<div class="alert-card"><b style="color:#ff4655;">NEXT SCRIM:</b><br><small>{m.get("jour", "N/A")} vs {m.get("opp", "N/A")}</small></div>', unsafe_allow_html=True)
 
         st.markdown("### 📊 PERFORMANCE")
-        st.line_chart(pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance']))
-    
-# 1. Récupération des données depuis le session_state (Google Sheets)
+        
+   # 1. Récupération des données depuis le session_state
     df_scrims = st.session_state.get('scrims_df', pd.DataFrame())
 
     if not df_scrims.empty:
-        # --- CALCUL DU WINRATE (Bien aligné sous le if) ---
+        # On cherche la colonne qui contient le résultat (ex: 'Resultat')
         col_res = next((c for c in df_scrims.columns if "result" in c.lower()), None)
         
         if col_res:
-            # On détecte "WIN" ou "LOSS" même avec un score (ex: WIN 13-5)
+            # On ne garde que les lignes avec WIN ou LOSS
             mask_finished = df_scrims[col_res].astype(str).str.upper().str.contains("WIN|LOSS", na=False)
-            finished_matches = df_scrims[mask_finished].copy()
+            history = df_scrims[mask_finished].copy()
             
-            total_finished = len(finished_matches)
-            
-            if total_finished > 0:
-                # On compte les victoires
-                wins = len(finished_matches[finished_matches[col_res].astype(str).str.upper().str.contains("WIN")])
-                win_rate_val = (wins / total_finished) * 100
-                win_rate_display = f"{win_rate_val:.0f}%"
-                
-                # Historique pour le graphique
-                history = finished_matches.copy()
+            if not history.empty:
+                # Calcul des stats pour les cartes du haut
+                total_finished = len(history)
+                wins = len(history[history[col_res].astype(str).str.upper().str.contains("WIN")])
+                win_rate_display = f"{(wins / total_finished) * 100:.0f}%"
+
+                # Préparation du graphique (Conversion Win=1 / Loss=0)
+                # On inverse l'ordre (iloc[::-1]) pour avoir le plus ancien à gauche et le plus récent à droite
+                history_chrono = history.iloc[::-1].copy()
+                history_chrono['Win_Int'] = history_chrono[col_res].astype(str).str.upper().apply(lambda x: 1 if "WIN" in x else 0)
+                history_chrono['Winrate_Progressive'] = (history_chrono['Win_Int'].expanding().mean() * 100).round(1)
+
+                # Affichage du graphique
+                st.markdown("### 📊 PROGRESSION PERFORMANCE")
+                chart_data = history_chrono[['Winrate_Progressive']].reset_index(drop=True)
+                chart_data.columns = ['Winrate %']
+                st.line_chart(chart_data, color="#ff4655")
+                st.caption("Évolution de votre taux de victoire cumulé basé sur les derniers Scrims.")
             else:
                 win_rate_display = "0%"
-                history = pd.DataFrame()
+                st.info("Aucun match marqué 'WIN' ou 'LOSS' pour le moment.")
         else:
             win_rate_display = "N/A"
-            history = pd.DataFrame()
+            st.error("Colonne 'Resultat' introuvable dans la base de données.")
     else:
         win_rate_display = "0%"
-        history = pd.DataFrame()
-        
-            # 4. Conversion en chiffres (Win = 1, Loss = 0)
-            history['Win_Int'] = history[col_res].str.capitalize().apply(lambda x: 1 if x == 'Win' else 0)
-
-            if not history.empty:
-                # Calcul du Winrate cumulé (évolution match après match)
-                history['Win_Int'] = history['Resultat'].apply(lambda x: 1 if x == 'Win' else 0)
-                history['Cumulative_Winrate'] = (history['Win_Int'].expanding().mean() * 100).round(1)
+        st.warning("Aucune donnée de match disponible.")
                 
-                # Création du graphique
-                chart_data = history[['Cumulative_Winrate']].reset_index(drop=True)
-                chart_data.columns = ['Winrate %']
-                
-                # Affichage du graphique avec le style Streamlit
-                st.line_chart(chart_data, color="#ff4655")
-                
-                st.caption("Ce graphique montre l'évolution de votre taux de victoire cumulé basé sur les derniers Scrims enregistrés.")
-            else:
-                st.info("Pas assez de données de matchs (Win/Loss) pour générer le graphique.")
             # 5. Calcul du Winrate cumulé (Moyenne mobile)
             history['Cumulative_Winrate'] = (history['Win_Int'].expanding().mean() * 100).round(1)
             
@@ -771,6 +760,7 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
 
 
 
