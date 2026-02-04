@@ -580,10 +580,10 @@ def show_map_selection():
                 st.session_state['selected_strat_map'] = m_name
                 st.session_state['strat_view_mode'] = "VALOPLANT"
                 st.rerun()
-
+                
 def show_strategy_map(current_map):
-    """Vue avec navigation propre et stockage Cloud via Google Sheets"""
-    from database import load_data, save_data # Import des fonctions Cloud
+    # On importe les fonctions depuis database.py
+    from database import load_data, save_data 
     import pandas as pd
 
     # Barre de navigation
@@ -602,6 +602,7 @@ def show_strategy_map(current_map):
         st.components.v1.iframe("https://valoplant.gg", height=620, scrolling=True)
 
     else:
+    
         # --- MODE DOSSIER (CLOUD) ---
         st.markdown("<style>.main { overflow: auto !important; }</style>", unsafe_allow_html=True)
 
@@ -620,28 +621,19 @@ def show_strategy_map(current_map):
         # 1. Charger les strats depuis Google Sheets
         df_all_strats = load_data("strats") # Charge l'onglet 'strats'
 
-        # 2. Formulaire d'ajout via URL (pour stockage permanent)
-        with st.expander("📤 AJOUTER UNE STRATÉGIE (LIEN PERMANENT)"):
-            c1, c2, c3 = st.columns([2, 1, 1])
-            up_url = c1.text_input("Lien de l'image (Discord, Imgur, etc.)")
-            up_n = c2.text_input("Nom de la strat")
-            up_s = c3.selectbox("Côté", ["Attaque", "Defense"])
-            
-            if st.button("💾 ENREGISTRER DANS LE CLOUD"):
-                if up_url and up_n:
-                    # Création de la nouvelle ligne
-                    new_strat = pd.DataFrame([{
-                        "map": current_map,
-                        "nom": up_n,
-                        "url": up_url,
-                        "cote": up_s
-                    }])
-                    # Mise à jour du DataFrame global
-                    updated_df = pd.concat([df_all_strats, new_strat], ignore_index=True)
-                    # Sauvegarde sur Google Sheets
-                    if save_data(updated_df, "strats"):
-                        st.success("Stratégie enregistrée définitivement !")
-                        st.rerun()
+       # 2. Formulaire d'ajout
+    with st.expander("📤 AJOUTER UNE STRATÉGIE"):
+        c1, c2, c3 = st.columns([2, 1, 1])
+        up_url = c1.text_input("Lien de l'image (Discord)")
+        up_n = c2.text_input("Nom de la strat")
+        up_s = c3.selectbox("Côté", ["Attaque", "Defense"])
+        
+        if st.button("💾 ENREGISTRER"):
+            if up_url and up_n:
+                new_strat = pd.DataFrame([{"map": current_map, "nom": up_n, "url": up_url, "cote": up_s}])
+                updated_df = pd.concat([df_all_strats, new_strat], ignore_index=True)
+                save_data(updated_df, "strats")
+                st.rerun()
 
         # 3. Affichage par Tabs (Filtrage des données Cloud)
         t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
@@ -782,5 +774,6 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
 
 
