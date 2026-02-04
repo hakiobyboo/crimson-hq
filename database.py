@@ -13,21 +13,19 @@ conn = st.connection("gsheets", type=GSheetsConnection)
 def load_data(sheet_name):
     """Charge les données d'un onglet spécifique du Google Sheet"""
     try:
-        # ttl=0 est crucial : il force Streamlit à relire le Google Sheet 
-        # au lieu de garder une vieille version en mémoire.
+        # On force la lecture fraîche (ttl=0) pour éviter les stats à 0
         return conn.read(worksheet=sheet_name, ttl=0)
     except Exception:
-        # Si l'onglet n'existe pas encore, on retourne un tableau vide
         return pd.DataFrame()
 
 def save_data(df, sheet_name):
-    """Sauvegarde un tableau (DataFrame) dans l'onglet spécifié du Google Sheet"""
+    """Sauvegarde un tableau dans l'onglet spécifié du Google Sheet"""
     try:
         conn.update(worksheet=sheet_name, data=df)
-        st.cache_data.clear() # On vide le cache pour que le site se mette à jour
+        st.cache_data.clear() 
         return True
     except Exception as e:
-        st.error(f"Erreur de sauvegarde sur Google Sheets : {e}")
+        st.error(f"Erreur Cloud : {e}")
         return False
 
 # --- 3. COMPATIBILITÉ ET ANCIENNES FONCTIONS ---
@@ -93,4 +91,5 @@ def update_intel_manual(label, current_rank, peak_rank):
     old_df = load_csv(RANKS_DB, ["Player", "Current", "Peak"])
     updated_df = pd.concat([old_df[old_df['Player'] != label], new_data], ignore_index=True)
     updated_df.to_csv(RANKS_DB, index=False)
+
 
