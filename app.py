@@ -13,7 +13,8 @@ st.set_page_config(
 # 2. IMPORTS DES MODULES
 try:
     from styles import apply_global_styles, apply_immersive_mode
-    from database import init_folders, load_csv, SCRIMS_DB, AGENTS_DB, PLANNING_DB
+    # On importe uniquement les fonctions Cloud depuis database.py
+    from database import init_folders, load_data, save_data
     import logic
 except ImportError as e:
     st.error(f"Erreur d'importation : {e}")
@@ -32,11 +33,19 @@ if 'compo_save' not in st.session_state:
 if 'selected_strat_map' not in st.session_state:
     st.session_state['selected_strat_map'] = None
 
-# Chargement des bases de données
+# --- CHARGEMENT DES DONNÉES DEPUIS GOOGLE SHEETS ---
+# On remplace load_csv par load_data et on utilise les noms d'onglets
 if 'scrims_df' not in st.session_state:
-    st.session_state['scrims_df'] = load_csv(SCRIMS_DB, ["Date", "Map", "Resultat", "Score"])
+    st.session_state['scrims_df'] = load_data("scrims")
+
 if 'planning_df' not in st.session_state:
-    st.session_state['planning_df'] = load_csv(PLANNING_DB, ["jour", "opp", "Resultat"])
+    st.session_state['planning_df'] = load_data("planning")
+
+if 'dispos_df' not in st.session_state:
+    st.session_state['dispos_df'] = load_data("dispos")
+
+if 'agents_df' not in st.session_state:
+    st.session_state['agents_df'] = load_data("agents")
 
 # 4. INTERFACE UTILISATEUR
 is_strat = st.session_state["current_page"] == "STRATÉGIE"
