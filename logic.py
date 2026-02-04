@@ -166,32 +166,38 @@ def show_dashboard():
         st.markdown("### 📊 PERFORMANCE")
         st.line_chart(pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance']))
     
-# 1. Récupération des données
-df_planning = pd.DataFrame(load_data(PLANNING_DB))
+# 1. Récupération des données depuis le session_state (Google Sheets)
+    df_scrims = st.session_state.get('scrims_df', pd.DataFrame())
 
-if not df_planning.empty:
- # --- Remplace ton calcul de winrate dans logic.py par celui-ci ---
-if not df_planning.empty:
-    col_res = next((c for c in df_planning.columns if "result" in c.lower()), None)
-    if col_res:
-        # On utilise .str.contains pour détecter "WIN" même s'il y a un score à côté
-        mask_finished = df_planning[col_res].astype(str).str.upper().str.contains("WIN|LOSS", na=False)
-        finished_matches = df_planning[mask_finished].copy()
+    if not df_scrims.empty:
+        # --- CALCUL DU WINRATE (Bien aligné sous le if) ---
+        col_res = next((c for c in df_scrims.columns if "result" in c.lower()), None)
         
-        total_finished = len(finished_matches)
-        if total_finished > 0:
-            wins = len(finished_matches[finished_matches[col_res].astype(str).str.upper().str.contains("WIN")])
-            win_rate_display = f"{(wins / total_finished) * 100:.0f}%"
-    
-    if col_res:
-        # 3. Filtrer uniquement les matchs terminés (Win ou Loss)
-        # On s'assure que c'est bien écrit avec la première lettre en majuscule
-        history = df_planning[df_planning[col_res].str.capitalize().isin(['Win', 'Loss'])].copy()
-
-        if not df_planning.empty and 'Resultat' in df_planning.columns:
-            # On récupère les matchs terminés dans l'ordre chronologique
-            history = df_planning[df_planning['Resultat'].isin(['Win', 'Loss'])].copy()
-        if not history.empty:
+        if col_res:
+            # On détecte "WIN" ou "LOSS" même avec un score (ex: WIN 13-5)
+            mask_finished = df_scrims[col_res].astype(str).str.upper().str.contains("WIN|LOSS", na=False)
+            finished_matches = df_scrims[mask_finished].copy()
+            
+            total_finished = len(finished_matches)
+            
+            if total_finished > 0:
+                # On compte les victoires
+                wins = len(finished_matches[finished_matches[col_res].astype(str).str.upper().str.contains("WIN")])
+                win_rate_val = (wins / total_finished) * 100
+                win_rate_display = f"{win_rate_val:.0f}%"
+                
+                # Historique pour le graphique
+                history = finished_matches.copy()
+            else:
+                win_rate_display = "0%"
+                history = pd.DataFrame()
+        else:
+            win_rate_display = "N/A"
+            history = pd.DataFrame()
+    else:
+        win_rate_display = "0%"
+        history = pd.DataFrame()
+        
             # 4. Conversion en chiffres (Win = 1, Loss = 0)
             history['Win_Int'] = history[col_res].str.capitalize().apply(lambda x: 1 if x == 'Win' else 0)
 
@@ -765,6 +771,7 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
 
 
 
