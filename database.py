@@ -1,45 +1,38 @@
 import pandas as pd
+import streamlit as st
+from streamlit_gsheets import GSheetsConnection
 import os
 import requests
 
-# --- 1. DÉFINITION DES CHEMINS ---
-# Centralisation des bases de données dans le dossier /data
-SCRIMS_DB = "data/scrims_database.csv"
-AGENTS_DB = "data/agents_database.csv"
-RANKS_DB = "data/ranks_database.csv"
-PLANNING_DB = "data/planning.csv" 
-DISPOS_DB = "data/dispos.csv"
+# --- 1. CONNEXION CLOUD ---
+# On initialise la connexion une seule fois pour tout le projet
+conn = st.connection("gsheets", type=GSheetsConnection)
 
-# --- 2. CHARGEMENT DES DONNÉES ---
-def load_data(file):
-    """Retourne les données sous forme de liste de dictionnaires (utilisé pour le Dashboard)"""
-    if os.path.exists(file):
-        try:
-            return pd.read_csv(file).to_dict(orient='records')
-        except Exception:
-            return []
-    return []
+# --- 2. FONCTIONS DE CHARGEMENT ET SAUVEGARDE (GOOGLE SHEETS) ---
 
-def load_csv(file, columns):
-    """Charge un CSV ou crée un DataFrame vide avec les colonnes spécifiées"""
-    if os.path.exists(file):
-        try:
-            return pd.read_csv(file)
-        except Exception:
-            # Si le fichier est corrompu, on repart sur un fichier propre
-            return pd.DataFrame(columns=columns)
-    
-    # Si le fichier n'existe pas, on le crée proprement avec les colonnes par défaut
-    df = pd.DataFrame(columns=columns)
-    # On s'assure que le dossier data existe avant de sauvegarder
-    if not os.path.exists("data"):
-        os.makedirs("data")
-    df.to_csv(file, index=False)
-    return df
+def load_data(sheet_name):
+    """Charge les données d'un onglet spécifique du Google Sheet"""
+    try:
+        # ttl=0 est crucial : il force Streamlit à relire le Google Sheet 
+        # au lieu de garder une vieille version en mémoire.
+        return conn.read(worksheet=sheet_name, ttl=0)
+    except Exception:
+        # Si l'onglet n'existe pas encore, on retourne un tableau vide
+        return pd.DataFrame()
 
-# --- 3. GESTION DES DOSSIERS ---
+def save_data(df, sheet_name):
+    """Sauvegarde un tableau (DataFrame) dans l'onglet spécifié du Google Sheet"""
+    try:
+        conn.update(worksheet=sheet_name, data=df)
+        st.cache_data.clear() # On vide le cache pour que le site se mette à jour
+        return True
+    except Exception as e:
+        st.error(f"Erreur de sauvegarde sur Google Sheets : {e}")
+        return False
+
+# --- 3. COMPATIBILITÉ ET ANCIENNES FONCTIONS ---
+# On garde init_folders pour les images temporaires si besoin
 def init_folders():
-    """Crée les répertoires nécessaires s'ils n'existent pas"""
     folders = ["data", "images_scrims", "match_proofs"]
     for folder in folders:
         if not os.path.exists(folder):
@@ -100,3 +93,4 @@ def update_intel_manual(label, current_rank, peak_rank):
     old_df = load_csv(RANKS_DB, ["Player", "Current", "Peak"])
     updated_df = pd.concat([old_df[old_df['Player'] != label], new_data], ignore_index=True)
     updated_df.to_csv(RANKS_DB, index=False)
+
