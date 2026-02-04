@@ -18,6 +18,8 @@ try:
     import logic
 except ImportError as e:
     st.error(f"Erreur d'importation : {e}")
+except IndentationError as e:
+    st.error(f"Erreur d'espace/indentation : {e}")
 
 # 3. INITIALISATION
 init_folders()
@@ -34,7 +36,6 @@ if 'selected_strat_map' not in st.session_state:
     st.session_state['selected_strat_map'] = None
 
 # --- CHARGEMENT DES DONNÉES DEPUIS GOOGLE SHEETS ---
-# On remplace load_csv par load_data et on utilise les noms d'onglets
 if 'scrims_df' not in st.session_state:
     st.session_state['scrims_df'] = load_data("scrims")
 
