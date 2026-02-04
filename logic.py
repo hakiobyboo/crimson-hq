@@ -602,7 +602,6 @@ def show_strategy_map(current_map):
         st.components.v1.iframe("https://valoplant.gg", height=620, scrolling=True)
 
     else:
-    
         # --- MODE DOSSIER (CLOUD) ---
         st.markdown("<style>.main { overflow: auto !important; }</style>", unsafe_allow_html=True)
 
@@ -619,48 +618,40 @@ def show_strategy_map(current_map):
         st.markdown(f"### 📁 DOSSIER TACTIQUE CLOUD : {current_map.upper()}")
 
         # 1. Charger les strats depuis Google Sheets
-        df_all_strats = load_data("strats") # Charge l'onglet 'strats'
+        df_all_strats = load_data("strats")
 
-       # 2. Formulaire d'ajout
-    with st.expander("📤 AJOUTER UNE STRATÉGIE"):
-        c1, c2, c3 = st.columns([2, 1, 1])
-        up_url = c1.text_input("Lien de l'image (Discord)")
-        up_n = c2.text_input("Nom de la strat")
-        up_s = c3.selectbox("Côté", ["Attaque", "Defense"])
-        
-        if st.button("💾 ENREGISTRER"):
-            if up_url and up_n:
-                new_strat = pd.DataFrame([{"map": current_map, "nom": up_n, "url": up_url, "cote": up_s}])
-                updated_df = pd.concat([df_all_strats, new_strat], ignore_index=True)
-                save_data(updated_df, "strats")
-                st.rerun()
+        # 2. Formulaire d'ajout (CORRIGÉ : Bien aligné sous le else)
+        with st.expander("📤 AJOUTER UNE STRATÉGIE"):
+            c1, c2, c3 = st.columns([2, 1, 1])
+            up_url = c1.text_input("Lien de l'image (Discord)")
+            up_n = c2.text_input("Nom de la strat")
+            up_s = c3.selectbox("Côté", ["Attaque", "Defense"])
+            
+            if st.button("💾 ENREGISTRER"):
+                if up_url and up_n:
+                    new_strat = pd.DataFrame([{"map": current_map, "nom": up_n, "url": up_url, "cote": up_s}])
+                    updated_df = pd.concat([df_all_strats, new_strat], ignore_index=True)
+                    save_data(updated_df, "strats")
+                    st.rerun()
 
-        # 3. Affichage par Tabs (Filtrage des données Cloud)
+        # 3. Affichage des onglets
         t1, t2 = st.tabs(["⚔️ ATTAQUE", "🛡️ DEFENSE"])
-        
         for tab, side in zip([t1, t2], ["Attaque", "Defense"]):
             with tab:
                 if not df_all_strats.empty:
-                    # On filtre pour la Map actuelle et le bon côté
                     mask = (df_all_strats['map'] == current_map) & (df_all_strats['cote'] == side)
                     current_strats = df_all_strats[mask]
-
                     if not current_strats.empty:
                         cols = st.columns(3)
                         for idx, (original_idx, row) in enumerate(current_strats.iterrows()):
                             with cols[idx % 3]:
                                 st.image(row['url'], use_container_width=True, caption=row['nom'])
-                                
-                                # Bouton de suppression Cloud
                                 if st.button("🗑️", key=f"del_{current_map}_{side}_{idx}"):
-                                    # Supprime la ligne dans le DataFrame global via son index d'origine
                                     df_all_strats = df_all_strats.drop(original_idx)
                                     save_data(df_all_strats, "strats")
                                     st.rerun()
                     else:
-                        st.info(f"Aucune stratégie en {side} pour {current_map}.")
-                else:
-                    st.info("Le dossier tactique est vide.")
+                        st.info(f"Aucune strat en {side}.")
                     
 
 def show_team_builder():
@@ -774,6 +765,7 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
 
 
 
