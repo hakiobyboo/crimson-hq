@@ -165,17 +165,23 @@ def show_dashboard():
 
         st.markdown("### 📊 PERFORMANCE")
         st.line_chart(pd.DataFrame([10, 15, 12, 18, 20, 17, 25], columns=['Performance']))
-     # --- SECTION PERFORMANCE DYNAMIQUE ---
-        st.markdown("### 📊 ÉVOLUTION DU WINRATE")
-      # --- SECTION PERFORMANCE DYNAMIQUE ---
-st.markdown("### 📊 ÉVOLUTION DU WINRATE")
-
+    
 # 1. Récupération des données
 df_planning = pd.DataFrame(load_data(PLANNING_DB))
 
 if not df_planning.empty:
-    # 2. Détection automatique de la colonne de résultat (évite les erreurs d'accents)
+ # --- Remplace ton calcul de winrate dans logic.py par celui-ci ---
+if not df_planning.empty:
     col_res = next((c for c in df_planning.columns if "result" in c.lower()), None)
+    if col_res:
+        # On utilise .str.contains pour détecter "WIN" même s'il y a un score à côté
+        mask_finished = df_planning[col_res].astype(str).str.upper().str.contains("WIN|LOSS", na=False)
+        finished_matches = df_planning[mask_finished].copy()
+        
+        total_finished = len(finished_matches)
+        if total_finished > 0:
+            wins = len(finished_matches[finished_matches[col_res].astype(str).str.upper().str.contains("WIN")])
+            win_rate_display = f"{(wins / total_finished) * 100:.0f}%"
     
     if col_res:
         # 3. Filtrer uniquement les matchs terminés (Win ou Loss)
@@ -752,3 +758,4 @@ def show_team_builder():
     st.markdown("---")
     if st.button("💾 SAUVEGARDER POUR CETTE MAP", use_container_width=True):
         st.success(f"Composition {current_map} mise à jour !")
+
